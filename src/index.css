@@ -1,0 +1,494 @@
+@import "tailwindcss";
+
+@config '../tailwind.config.js';
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+	*,
+	::after,
+	::before,
+	::backdrop,
+	::file-selector-button {
+		border-color: var(--color-gray-200, currentcolor);
+	}
+}
+
+html,
+body {
+	scroll-behavior: auto !important;
+	direction: rtl !important;
+}
+
+.custom-duration {
+	animation-duration: var(--duration) !important;
+	transition-duration: var(--duration) !important;
+}
+
+.ltr {
+	direction: ltr !important;
+}
+
+@font-face {
+	font-family: "Yekan Bakh FaNum";
+	src: url("./assets/fonts/YekanBakh/YekanBakhFaNum-Black.woff2") format("woff2");
+	font-weight: 900;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Yekan Bakh FaNum";
+	src: url("./assets/fonts/YekanBakh/YekanBakhFaNum-Bold.woff2") format("woff2");
+	font-weight: bold;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Yekan Bakh FaNum ExtraBlack";
+	src: url("./assets/fonts/YekanBakh/YekanBakhFaNum-ExtraBlack.woff2") format("woff2");
+	font-weight: 900;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Yekan Bakh FaNum";
+	src: url("./assets/fonts/YekanBakh/YekanBakhFaNum-ExtraBold.woff2") format("woff2");
+	font-weight: bold;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Yekan Bakh FaNum";
+	src: url("./assets/fonts/YekanBakh/YekanBakhFaNum-Light.woff2") format("woff2");
+	font-weight: 300;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Yekan Bakh FaNum";
+	src: url("./assets/fonts/YekanBakh/YekanBakhFaNum-Regular.woff2") format("woff2");
+	font-weight: normal;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Yekan Bakh FaNum";
+	src: url("./assets/fonts/YekanBakh/YekanBakhFaNum-SemiBold.woff2") format("woff2");
+	font-weight: 600;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "Yekan Bakh FaNum";
+	src: url("./assets/fonts/YekanBakh/YekanBakhFaNum-Thin.woff2") format("woff2");
+	font-weight: 100;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "rokh";
+	src: url("./assets/fonts/Rokh/woff2/Rokh-Black.woff2") format("woff2");
+	font-style: normal;
+	font-weight: 900;
+	font-display: swap;
+}
+
+@font-face {
+	src: url("./assets/fonts/Rokh/woff2/Rokh-Bold.woff2") format("woff2");
+	font-family: "rokh";
+	font-style: normal;
+	font-weight: 600;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "rokh";
+	src: url("./assets/fonts/Rokh/woff2/Rokh-ExtraBold.woff2") format("woff2");
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "rokh";
+	src: url("./assets/fonts/Rokh/woff2/Rokh-ExtraLight.woff2") format("woff2");
+	font-style: normal;
+	font-weight: 200;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "rokh";
+	src: url("./assets/fonts/Rokh/woff2/Rokh-Light.woff2") format("woff2");
+	font-style: normal;
+	font-weight: 300;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "rokh";
+	src: url("./assets/fonts/Rokh/woff2/Rokh-Normal.woff2") format("woff2");
+	font-style: normal;
+	font-weight: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "rokh";
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url("./assets/fonts/Rokh/woff2/Rokh-Regular.woff2") format("woff2");
+}
+
+@font-face {
+	font-family: "rokh";
+	src: url("./assets/fonts/Rokh/woff2/Rokh-SemiBold.woff2") format("woff2");
+	font-style: normal;
+	font-weight: 500;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "rokh";
+	src: url("./assets/fonts/Rokh/woff2/Rokh-Thin.woff2") format("woff2");
+	font-style: normal;
+	font-weight: 100;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "rokh";
+	src: url("./assets/fonts/Rokh/woff2/Rokh-UltraBold.woff2") format("woff2");
+	font-style: normal;
+	font-weight: 800;
+	font-display: swap;
+}
+
+::-webkit-scrollbar {
+	-webkit-appearance: none;
+}
+
+::-webkit-scrollbar:vertical {
+	width: 9px;
+}
+
+::-webkit-scrollbar:horizontal {
+	height: 9px;
+}
+
+::-webkit-scrollbar-thumb {
+	background-color: #00be77;
+	border-radius: 10px;
+	border: 2px solid #f4f2f2;
+}
+
+::-webkit-scrollbar-track {
+	border-radius: 10px;
+	background-color: #f4f2f2;
+}
+
+* {
+	font-family: "Yekan Bakh FaNum", sans-serif !important;
+	letter-spacing: 0 !important;
+	word-spacing: -1px !important;
+}
+
+#authentication {
+	background-image: url("./assets/images/city vector.png") !important;
+	background-repeat: no-repeat !important;
+	background-attachment: fixed !important;
+	background-position: 50% 75% !important;
+	background-color: #efefef !important;
+}
+
+body {
+	background-color: #f4f2f2 !important;
+}
+
+.inputRounded .MuiOutlinedInput-root {
+	border-radius: 20px;
+}
+
+.MuiDataGrid-columnHeaderTitleContainer {
+	justify-content: center;
+}
+.MuiDataGrid-columnHeaderTitle {
+	font-weight: 700 !important;
+}
+.MuiDataGrid-cell {
+	line-height: 1px;
+	/* margin-top: 4px;
+  margin-bottom: 4px; */
+	display: flex;
+	align-items: center;
+}
+
+input::placeholder,
+textarea::placeholder {
+	font-size: 13px !important;
+	font-weight: 500;
+	color: #9da6ad;
+}
+
+.custom-dash-sm {
+	background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='22' ry='22' stroke='%23B0D4E7FF' stroke-width='2' stroke-dasharray='6%2c 14' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+	border-radius: 22px;
+}
+
+.custom-dash-md {
+	background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='22' ry='22' stroke='%23c8cdd8' stroke-width='2' stroke-dasharray='10%2c 18' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+	border-radius: 22px;
+}
+
+.custom-dash-lot {
+	background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='22' ry='22' stroke='%23c8cdd8' stroke-width='2' stroke-dasharray='10%2c 18' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+	border-radius: 16px;
+}
+
+.custom-dash-lg {
+	background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='100' ry='100' stroke='%236F777DFF' stroke-width='3' stroke-dasharray='6%2c 12' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
+	border-radius: 100px;
+}
+
+.custom-dash-bold {
+	background-image: repeating-linear-gradient(8deg, #212135, #212135 8px, transparent 8px, transparent 14px, #212135 14px),
+		repeating-linear-gradient(98deg, #212135, #212135 8px, transparent 8px, transparent 14px, #212135 14px),
+		repeating-linear-gradient(188deg, #212135, #212135 8px, transparent 8px, transparent 14px, #212135 14px),
+		repeating-linear-gradient(278deg, #212135, #212135 8px, transparent 8px, transparent 14px, #212135 14px);
+	background-size: 1px 100%, 100% 1px, 1px 100%, 100% 1px;
+	background-position: 0 0, 0 0, 100% 0, 0 100%;
+	background-repeat: no-repeat;
+}
+
+.shadow-picture {
+	box-shadow: -2px -3px 2px 0 rgba(184, 184, 184, 0.9), 2px -3px 2px 0 rgba(184, 184, 184, 0.9), -1px 4px 3px 0 rgba(172, 231, 211, 0.9),
+		1px 4px 3px 0 rgba(172, 231, 211, 0.9);
+}
+
+.gradient-text {
+	text-shadow: 0 0 1px #e0e0e0, 0 0 1px #e0e0e0, 0 0 1px #e0e0e0, 0 0 1px #e0e0e0, 0 0 1px #e0e0e0, 0 0 1px #e0e0e0, 0 0 1px #e0e0e0,
+		0 0 1px #e0e0e0, 0 0 1px #e0e0e0, 0 0 1px #e0e0e0, 0 0 1px #e0e0e0, 0 0 1px #e0e0e0, 0 0 1px #e0e0e0;
+	color: white;
+}
+
+.gradient-text-primary {
+	text-shadow: 0 0 1px #25bd82, 0 0 1px #25bd82, 0 0 1px #25bd82, 0 0 1px #25bd82, 0 0 1px #25bd82, 0 0 1px #25bd82, 0 0 1px #25bd82,
+		0 0 1px #25bd82, 0 0 1px #25bd82, 0 0 1px #25bd82, 0 0 1px #25bd82, 0 0 1px #25bd82, 0 0 1px #25bd82;
+	color: #30eca5;
+}
+
+input {
+	font-family: "PelakFA", sans-serif !important;
+	font-weight: 500 !important;
+}
+
+textarea {
+	font-weight: 500 !important;
+}
+
+.MuiFormLabel-root {
+	font-weight: 400 !important;
+}
+
+.MuiFormHelperText-root {
+	font-weight: 400 !important;
+}
+
+.glass-effect {
+	background: linear-gradient(135deg, rgba(239, 239, 239, 0.1), rgba(239, 239, 239, 0));
+	backdrop-filter: blur(6px);
+	-webkit-backdrop-filter: blur(6px);
+	border-radius: 32px;
+	border: 1px solid rgba(239, 239, 239, 0.18);
+	box-shadow: 0 3px 2px 0 rgba(255, 255, 255, 0.9), 0 -3px 2px 0 rgba(255, 255, 255, 0.9), 3px 0 2px 0 rgba(172, 231, 211, 0.9),
+		-3px 0 2px 0 rgba(172, 231, 211, 0.9);
+}
+
+.drawer-container .MuiTypography-root {
+	font-weight: 600 !important;
+}
+
+.drawer-container .MuiListItemIcon-root img {
+	width: 1.2rem !important;
+	height: 1.2rem !important;
+}
+
+.transit-background {
+	animation: none;
+}
+
+.transit-background:hover {
+	animation: borderAnimation 0.7s infinite linear alternate;
+}
+
+.transit-background .custom-dash-lg {
+	animation: none;
+}
+
+.transit-background:hover .custom-dash-lg {
+	animation: pulseScale 0.7s infinite linear alternate;
+}
+
+@keyframes pulseScale {
+	from {
+		scale: 1;
+		opacity: 1;
+	}
+	to {
+		scale: 1.1;
+		opacity: 0.8;
+	}
+}
+
+@keyframes borderAnimation {
+	from {
+		background-position: 0 0, -30px 0, 100% -30px, 0 100%;
+	}
+	to {
+		background-position: 0 -30px, 0 0, 100% 0, -30px 100%;
+	}
+}
+
+input {
+	font-family: "Yekan Bakh FaNum" !important;
+}
+
+.MuiPickersPopper-root {
+	direction: rtl;
+}
+
+.MuiDataGrid-row > div:nth-last-of-type(2)::after {
+	height: 0 !important;
+}
+
+@keyframes notificatioBell {
+	0% {
+		transform: rotate(0deg);
+	}
+	25% {
+		transform: rotate(15deg);
+	}
+	50% {
+		transform: rotate(0deg);
+	}
+	75% {
+		transform: rotate(-15deg);
+	}
+	100% {
+		transform: rotate(0deg);
+	}
+}
+
+.animation-bell {
+	animation: notificatioBell 300ms 2;
+}
+
+@keyframes exitIconButton {
+	0% {
+		transform: translateX(0);
+	}
+	50% {
+		transform: translateX(10%);
+	}
+	100% {
+		transform: translateX(0);
+	}
+}
+
+.animation-exit {
+	animation: exitIconButton 300ms;
+}
+
+.inspection-status-bg-1 {
+	background-color: #87cefa88;
+}
+
+.inspection-status-bg-2 {
+	background-color: #ffff0050;
+}
+
+.inspection-status-bg-3 {
+	background-color: #ff000050;
+}
+
+.inspection-status-bg-4 {
+	background-color: #ffff0050;
+}
+
+.inspection-status-bg-5 {
+	background-color: #ff000050;
+}
+
+.inspection-status-bg-7 {
+	background-color: #90ee9050;
+}
+
+.inspection-status-bg-8 {
+	background-color: #90ee9050;
+}
+
+.inspection-status-bg-9 {
+	background-color: #80808050;
+}
+
+.inspection-status-bg-10 {
+	background-color: #ffff0050;
+}
+
+.inspection-status-bg-11 {
+	background-color: #ffff0050;
+}
+
+.inspection-status-bg-12 {
+	background-color: #ffff0050;
+}
+
+.inspection-status-bg-13 {
+	background-color: #fff;
+}
+
+.inspection-status-bg-14 {
+	background-color: #fff;
+}
+
+.inspection-status-bg-15 {
+	background-color: #ff000050;
+}
+
+.inspection-status-bg-16 {
+	background-color: #e4e4e7;
+}
+
+.MuiPickersLayout-root {
+	direction: rtl !important;
+}
+
+.bg-red {
+	background-color: oklch(62.793% 0.25768 29.223 / 0.314);
+}
+
+.infinite-scroll-component__outerdiv,
+.infinite-scroll-component__outerdiv * {
+  overflow: auto !important;
+  -ms-overflow-style: none; /* old Edge/IE */
+  scrollbar-width: none;    /* Firefox */
+}
+
+.infinite-scroll-component__outerdiv *::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, etc. */
+}

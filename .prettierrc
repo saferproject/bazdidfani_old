@@ -1,0 +1,25 @@
+{
+  "attributeSort": "ASC",
+  "bracketSpacing": true,
+  "charset": "utf-8",
+  "editorconfig": true,
+  "importOrderCaseInsensitive": true,
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
+  "indentInnerHtml": true,
+  "intent_size": 2,
+  "intent_style": "tab",
+  "plugins": [
+    "prettier-plugin-tailwindcss",
+    "@trivago/prettier-plugin-sort-imports",
+    "prettier-plugin-sort-json",
+    "prettier-plugin-organize-attributes"
+  ],
+  "semi": true,
+  "singleQuote": false,
+  "sortTailwindcssClasses": true,
+  "tabWidth": 2,
+  "vueIndentScriptAndStyle": true,
+  "wrapAttributes": "auto",
+  "wrapAttributesMinAttrs": 2
+}
