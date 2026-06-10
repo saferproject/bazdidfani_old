@@ -5,85 +5,17 @@ import SweetAlertToast from "../../../../components/shared/Functions/SweetAlertT
 import { RoleType } from "../../../../types/RoleType";
 import useIsPhone from "../../../../utilities/custom-hooks/use-is-phone";
 import { GetShamsiDateTime } from "../../../../utilities/DateTime";
-import { useChangeCompanyStatusMutation, useGetAllCompaniesQuery, useGetInfiniteAllCompaniesInfiniteQuery } from "../api/admin-company.api";
+import {
+  useChangeCompanyStatusMutation,
+  useGetAllCompaniesQuery,
+  useGetInfiniteAllCompaniesInfiniteQuery,
+} from "../api/admin-company.api";
 import CompanyListProps from "../interfaces/company-list-props.interface";
 import { Button, CircularProgress, IconButton, Switch } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
 import { Add, Buildings, Edit, Login } from "iconsax-reactjs";
 import { FC, useEffect, useState } from "react";
 import LoginAsDialog from "../../../../components/shared/dialogs/LoginAsDialog/LoginAsDialog";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 const AdminCompanyList: FC<CompanyListProps> = ({
   onAddCompany,

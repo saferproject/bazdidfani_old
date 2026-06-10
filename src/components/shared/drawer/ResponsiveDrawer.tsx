@@ -76,8 +76,12 @@ const isMenuItemActive = (currentPath: string, itemPath: string): boolean => {
     );
   }
 
-  // For other routes, check if the clean current path starts with the clean item path
-  return cleanCurrentPath.startsWith(cleanItemPath);
+  // For other routes, match exactly or on a path-segment boundary so that
+  // e.g. "/dashboard/users" doesn't activate for "/dashboard/users-foo".
+  return (
+    cleanCurrentPath === cleanItemPath ||
+    cleanCurrentPath.startsWith(`${cleanItemPath}/`)
+  );
 };
 
 interface MenuItemProps {
@@ -121,7 +125,6 @@ interface ResponsiveDrawerProps {
 
 function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
   const dispatch = useAppDispatch();
-  const activeMenuId = useAppSelector((state) => state.user.activeMenuId);
   const prevToken = useAppSelector((state) => state.user.prevToken);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -492,17 +495,13 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
                 href={item.href}
                 icon={item.image}
                 title={item.title}
-                isActive={
-                  activeMenuId
-                    ? activeMenuId === item.id
-                    : isMenuItemActive(location.pathname, item.href)
-                }
+                isActive={isMenuItemActive(location.pathname, item.href)}
                 onClick={handleMenuClick}
               />
             </motion.div>
           ),
       ),
-    [menuItems2, location.pathname, activeMenuId, handleMenuClick],
+    [menuItems2, location.pathname, handleMenuClick],
   );
 
   const drawer = (
@@ -524,11 +523,7 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
         // icon={HomeIcon}
         icon={<Home2 size="24" color="#000" />}
         title="داشبورد"
-        isActive={
-          activeMenuId
-            ? activeMenuId === "dashboard"
-            : isMenuItemActive(location.pathname, "/dashboard")
-        }
+        isActive={isMenuItemActive(location.pathname, "/dashboard")}
         onClick={handleMenuClick}
       />
       {menuComponent}

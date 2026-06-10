@@ -20,7 +20,7 @@ import { Fab } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
 import { TruckFast } from "iconsax-reactjs";
 import { Add } from "iconsax-reactjs";
-import { FC, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 type TechnicalInspectionTypes = 1 | 2;
@@ -34,13 +34,6 @@ const DoTechnicalVisit: FC<iprops> = ({ type }) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const {
-    isInIran,
-    currentLocation,
-    isLoading: gettingLocation,
-    error: locationError,
-  } = useIsInIran();
-
   const [selectedInspection, setSelectedInspection] = useState(null);
   const [openFilters, setOpenFilters] = useState(false);
   const [paginatorProps, setPaginatorProps] = useState({
@@ -49,6 +42,10 @@ const DoTechnicalVisit: FC<iprops> = ({ type }) => {
   });
   const [filters, setFilters] = useState(null);
   const [isAddRequestDialogOpen, setAddRequestDialogOpen] = useState(false);
+  const [currentLocation, setCurrentLocation] = useState<Record<
+    string,
+    number
+  > | null>(null);
 
   const { states, getStatus } = useGetInspectionStates();
 
@@ -72,9 +69,6 @@ const DoTechnicalVisit: FC<iprops> = ({ type }) => {
       skip: !paginatorProps || !filters || !isPhone,
     },
   );
-
-  const [startInspectionFn, startInspectionResult] =
-    useStartInspectionMutation();
 
   useEffect(() => {}, [states]);
 
@@ -169,33 +163,8 @@ const DoTechnicalVisit: FC<iprops> = ({ type }) => {
     setFilters(filters);
   };
 
-  const startInspection = (data: any) => {
-    dispatch(setInspectionData(data));
-    if (data.self_statement)
-      dispatch(setInspectionType("REVIEW_SELF_STATEMENT"));
-    else if (data.type === 1)
-      dispatch(setInspectionType("TECHNICAL_FREIGHTER"));
-    else if (data.type === 2)
-      dispatch(setInspectionType("TECHNICAL_PASSENGER"));
-
-    setSelectedInspection(data);
-
-    startInspectionFn({
-      bazdidfani_id: data.id,
-      latitude: currentLocation.latitude,
-      longitude: currentLocation.longitude,
-      selfStatement: 0,
-      technical_manager_id: data.technical_manager.id,
-    });
-  };
-
-  const handleAddRequest = () => {
-    setAddRequestDialogOpen(true);
-  };
-
-  const handleCloseDialog = () => {
-    setAddRequestDialogOpen(false);
-  };
+  const [startInspectionFn, startInspectionResult] =
+    useStartInspectionMutation();
 
   useEffect(() => {
     if (startInspectionResult.isSuccess) handleGoToInspection();
@@ -207,15 +176,36 @@ const DoTechnicalVisit: FC<iprops> = ({ type }) => {
     );
   };
 
-  useEffect(() => {
-    if (!gettingLocation && !isInIran)
-      SweetAlertToast.fire({
-        icon: "error",
-        text:
-          locationError ??
-          "دریافت موقعیت مکانی شما انجام نشد. صفحه را رفرش کنید.",
+  const startInspection = useCallback(
+    (data: any) => {
+      dispatch(setInspectionData(data));
+      if (data.self_statement)
+        dispatch(setInspectionType("REVIEW_SELF_STATEMENT"));
+      else if (data.type === 1)
+        dispatch(setInspectionType("TECHNICAL_FREIGHTER"));
+      else if (data.type === 2)
+        dispatch(setInspectionType("TECHNICAL_PASSENGER"));
+
+      setSelectedInspection(data);
+
+      startInspectionFn({
+        bazdidfani_id: data.id,
+        latitude: currentLocation.latitude,
+        longitude: currentLocation.longitude,
+        selfStatement: 0,
+        technical_manager_id: data.technical_manager.id,
       });
-  }, [isInIran, currentLocation, gettingLocation, locationError]);
+    },
+    [currentLocation],
+  );
+
+  const handleAddRequest = () => {
+    setAddRequestDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setAddRequestDialogOpen(false);
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -243,15 +233,20 @@ const DoTechnicalVisit: FC<iprops> = ({ type }) => {
                 .reduce((a, b) => [...a, ...b]) ?? [])
             : (technicalVisitsQuery.data?.data.data ?? [])
         }
-        renderCart={(data) => (
-          <TechnicalCard
-            data={data}
-            isDialog={false}
-            isReportsPage={false}
-            isLoading={startInspectionResult.isLoading}
-            onStartInspection={startInspection}
-          />
-        )}
+        renderCart={(data) => {
+          console.log("sdfgnhhfyiwebfyjiytjuwefg");
+          return (
+            <TechnicalCard
+              data={data}
+              isDialog={false}
+              isReportsPage={false}
+              isLoading={startInspectionResult.isLoading}
+              setCurrentLocation={setCurrentLocation}
+              currentLocation={currentLocation}
+              onStartInspection={startInspection}
+            />
+          );
+        }}
         filterSetInUrl
         onCloseFilterDialog={() => setOpenFilters(false)}
         onFilterChange={() => {}}

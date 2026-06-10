@@ -1,13 +1,22 @@
 import { useChangeTechnicalVisitStatusMutation } from "../../api/TechnicalManager/TechnicalVisit";
 import InspectionData from "../../pages/dashboard/do-technical-visit/interfaces/inspection-data.interface";
+import { useAppSelector } from "../../Stores/hooks";
 import { setInspectionData } from "../../Stores/slices/inspection-data.slice";
 import { setInspectionType } from "../../Stores/slices/inspection-type.slice";
 import { GetShamsiDateTime } from "../../utilities/DateTime";
 import { UndefinedToEmptyString } from "../../utilities/Helper";
 import { useGetInspectionStates } from "../../utilities/Inspection-Status/InspectionStatus";
 import Plate from "../shared/DataGrid/Plate";
-import { Button, Divider } from "@mui/material";
-import { FC, useEffect } from "react";
+import GetLocationDialog from "./GetLocationDialog";
+import { Button, Dialog, Divider } from "@mui/material";
+import {
+  Dispatch,
+  FC,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -18,6 +27,8 @@ interface iprops {
   isLoading: boolean;
   onStartInspection: (data: any) => void;
   handleGetSabafCode?: (data: any) => void;
+  setCurrentLocation: Dispatch<SetStateAction<any>>;
+  currentLocation: Record<string, number> | null;
 }
 
 const TechnicalCard: FC<iprops> = ({
@@ -25,24 +36,39 @@ const TechnicalCard: FC<iprops> = ({
   isReportsPage,
   onStartInspection,
   isLoading,
+  setCurrentLocation,
+  currentLocation,
 }) => {
   const navigate = useNavigate();
 
   const [changeStatusMutation, changeStatusResult] =
     useChangeTechnicalVisitStatusMutation();
+  const [openGetLocationDialog, setOpenGetLocationDialog] = useState(false);
+
+  const inspectionType = useAppSelector((state) => state.inspectionType);
+
+  const handleAfterGettingLocation = useCallback(() => {
+    if (inspectionType !== "RETAKE_IMAGES") onStartInspection(data);
+    else {
+      dispatch(setInspectionData(data));
+      dispatch(setInspectionType("RETAKE_IMAGES"));
+      navigate(
+        `/dashboard/do-technical-visit/checklist/${data.truck_info.loader_code}`,
+      );
+    }
+  }, [inspectionType, currentLocation]);
+
+  useEffect(() => {
+    if (!!currentLocation?.latitude) {
+      setOpenGetLocationDialog(false);
+      handleAfterGettingLocation();
+    }
+  }, [currentLocation]);
 
   const dispatch = useDispatch();
   const { states, getStatus } = useGetInspectionStates();
 
   useEffect(() => {}, [states]);
-
-  const handleRetakeImages = () => {
-    dispatch(setInspectionData(data));
-    dispatch(setInspectionType("RETAKE_IMAGES"));
-    navigate(
-      `/dashboard/do-technical-visit/checklist/${data.truck_info.loader_code}`,
-    );
-  };
 
   return (
     <div className="w-full flex flex-col gap-2 p-4 bg-gray-50 rounded-2xl">
@@ -65,7 +91,7 @@ const TechnicalCard: FC<iprops> = ({
         </p>
       </div>
       <div className="w-full flex items-center justify-between">
-        <p className="text-gray-700">نوع باربر</p>
+        <p className="text-gray-700">کاربری</p>
         <p className="text-gray-900">
           {UndefinedToEmptyString(data?.truck_info.loader_name)}
         </p>
@@ -147,7 +173,7 @@ const TechnicalCard: FC<iprops> = ({
         {!isReportsPage && data.status === 2 && data.self_statement === 0 && (
           <Button
             variant="contained"
-            onClick={() => onStartInspection(data)}
+            onClick={() => setOpenGetLocationDialog(true)}
             loading={isLoading}
             className="w-full"
           >
@@ -157,7 +183,7 @@ const TechnicalCard: FC<iprops> = ({
         {!isReportsPage && data.status === 2 && data.self_statement === 1 && (
           <Button
             variant="contained"
-            onClick={() => onStartInspection(data)}
+            onClick={() => setOpenGetLocationDialog(true)}
             className="w-full"
             loading={isLoading}
           >
@@ -169,7 +195,7 @@ const TechnicalCard: FC<iprops> = ({
           data.self_statement === 0 && (
             <Button
               variant="contained"
-              onClick={() => onStartInspection(data)}
+              onClick={() => setOpenGetLocationDialog(true)}
               loading={isLoading}
               className="w-full"
             >
@@ -181,7 +207,7 @@ const TechnicalCard: FC<iprops> = ({
           data.self_statement === 1 && (
             <Button
               variant="contained"
-              onClick={() => onStartInspection(data)}
+              onClick={() => setOpenGetLocationDialog(true)}
               loading={isLoading}
               className="w-full"
             >
@@ -192,7 +218,7 @@ const TechnicalCard: FC<iprops> = ({
           <Button
             variant="contained"
             color="warning"
-            onClick={handleRetakeImages}
+            onClick={() => setOpenGetLocationDialog(true)}
             className="w-full"
           >
             رفع نواقص
@@ -244,6 +270,20 @@ const TechnicalCard: FC<iprops> = ({
           </>
         )}
       </div>
+      <Dialog
+        onClose={() => {
+          setOpenGetLocationDialog(false);
+        }}
+        open={openGetLocationDialog}
+        slotProps={{
+          paper: {
+            className:
+              "bg-transparent! shadow-none! overflow-hidden! flex flex-row items-cetner justify-center w-screen! h-screen!",
+          },
+        }}
+      >
+        <GetLocationDialog setCurrentLocation={setCurrentLocation} />
+      </Dialog>
     </div>
   );
 };
