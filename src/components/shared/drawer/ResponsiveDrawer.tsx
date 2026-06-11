@@ -1,4 +1,5 @@
 import { useLogoutMutation } from "../../../api/Auth/Logout";
+import TechnicalVisitLogo from "../../../assets/icons/PNG-24 (1).png";
 import TruckImage from "../../../assets/images/Truck.png";
 import { useAppDispatch, useAppSelector } from "../../../Stores/hooks";
 import { openChangePasswordDialog } from "../../../Stores/slices/change-passwrod-dialog.slice";
@@ -12,7 +13,6 @@ import useHavePermission from "../Functions/CostumeHooks/CheckPermissions";
 import SweetAlertToast from "../Functions/SweetAlertToast";
 import PlateTextField from "../Inputs/PlateTextField";
 import Header from "./Header";
-import TechnicalVisitLogo from "/favicon.png";
 import { CircularProgress, Menu, MenuItem, Typography } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -507,15 +507,7 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
   const drawer = (
     <div className="sticky overflow-x-hidden drawer-container">
       <Toolbar className="flex items-center justify-center">
-        <motion.div
-          initial={{ rotate: 0 }}
-          animate={{ rotate: 1080 }}
-          transition={{ duration: 2, ease: "easeInOut" }}
-          whileHover={{ rotate: 360 }}
-          whileTap={{ rotate: 360 }}
-        >
-          <img alt="logo" src={TechnicalVisitLogo} />
-        </motion.div>
+        <img className="max-h-32" alt="logo" src={TechnicalVisitLogo} />
       </Toolbar>
       <MenuItem2
         id="dashboard"

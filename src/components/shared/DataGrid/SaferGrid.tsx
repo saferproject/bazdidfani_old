@@ -7,6 +7,19 @@ import { Warning2 } from "iconsax-reactjs";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 export default function SaferGrid<DataType>({
   columns,
   loading,
@@ -22,10 +35,9 @@ export default function SaferGrid<DataType>({
 }: SaferGridProps<DataType>) {
   const isPhone = useIsPhone();
   const isFetchingMoreRef = useRef(false);
+  const prevLengthRef = useRef(0);
 
   const [data, setData] = useState(null);
-
-  console.log(paginatorProps);
 
   useEffect(() => {
     if (!isPhone || loading || !hasMore || !fetchMoreData) return;
@@ -54,9 +66,15 @@ export default function SaferGrid<DataType>({
     if (!!rows) setData(rows);
   }, [rows]);
 
+  // Remember how many items were already rendered so newly fetched items can
+  // be staggered relative to their batch instead of their absolute index.
+  useEffect(() => {
+    prevLengthRef.current = data?.length ?? 0;
+  }, [data]);
+
   return isPhone ? (
     <div className="w-full flex flex-col items-center gap-4">
-      {loading && paginatorProps.currentPage === 1 ? (
+      {loading && !data?.length ? (
         <Skeleton
           className="w-full max-w-[350px] h-[400px] rounded-2xl"
           variant="rounded"
@@ -72,7 +90,9 @@ export default function SaferGrid<DataType>({
                 exit={{ scale: 0, opacity: 0 }}
                 transition={{
                   duration: 0.2,
-                  delay: index * 0.1,
+                  delay:
+                    Math.min(Math.max(index - prevLengthRef.current, 0), 6) *
+                    0.07,
                   ease: "easeOut",
                 }}
                 className="shadow-lg"
@@ -82,13 +102,12 @@ export default function SaferGrid<DataType>({
             ))}
           </ul>
           {hasMore ? (
-            Array.from({ length: 3 }).map((_, idx) => (
+            <div className="flex flex-row items-center justify-center">
               <Skeleton
-                className="w-full max-w-[350px] h-[400px] rounded-2xl"
+                className="w-full max-w-80 h-52 mt-2 rounded-2xl"
                 variant="rounded"
-                key={idx}
               />
-            ))
+            </div>
           ) : (
             <div className="flex items-center justify-center gap-2 mt-4">
               <Warning2 className="text-yellow-500" />
