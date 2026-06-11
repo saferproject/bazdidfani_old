@@ -32,6 +32,8 @@ const DoTechnicalVisit: FC<iprops> = ({ type }) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
+  const { getStatusColorClass } = useGetInspectionStates();
+
   const [selectedInspection, setSelectedInspection] = useState(null);
   const [openFilters, setOpenFilters] = useState(false);
   const [paginatorProps, setPaginatorProps] = useState({
@@ -246,6 +248,7 @@ const DoTechnicalVisit: FC<iprops> = ({ type }) => {
         onFilterChange={() => {}}
         openFilterDialog={openFilters}
         renderFilter={() => <></>}
+        getRowClassName={({ row }) => getStatusColorClass(row?.status)}
         paginatorProps={{
           ...paginatorProps,
           totalPages: technicalVisitsQuery.data?.data.last_page,

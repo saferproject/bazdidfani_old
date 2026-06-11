@@ -418,60 +418,120 @@ input {
 	background-color: #87cefa88;
 }
 
+.inspection-status-bg-1:hover {
+	background-color: #73afd488 !important;
+}
+
 .inspection-status-bg-2 {
 	background-color: #ffff0050;
+}
+
+.inspection-status-bg-2:hover {
+	background-color: #d9d90050 !important;
 }
 
 .inspection-status-bg-3 {
 	background-color: #ff000050;
 }
 
+.inspection-status-bg-3:hover {
+	background-color: #d9000050 !important;
+}
+
 .inspection-status-bg-4 {
 	background-color: #ffff0050;
+}
+
+.inspection-status-bg-4:hover {
+	background-color: #d9d90050 !important;
 }
 
 .inspection-status-bg-5 {
 	background-color: #ff000050;
 }
 
+.inspection-status-bg-5:hover {
+	background-color: #d9000050 !important;
+}
+
 .inspection-status-bg-7 {
 	background-color: #90ee9050;
+}
+
+.inspection-status-bg-7:hover {
+	background-color: #7aca7a50 !important;
 }
 
 .inspection-status-bg-8 {
 	background-color: #90ee9050;
 }
 
+.inspection-status-bg-8:hover {
+	background-color: #7aca7a50 !important;
+}
+
 .inspection-status-bg-9 {
 	background-color: #80808050;
+}
+
+.inspection-status-bg-9:hover {
+	background-color: #6d6d6d50 !important;
 }
 
 .inspection-status-bg-10 {
 	background-color: #ffff0050;
 }
 
+.inspection-status-bg-10:hover {
+	background-color: #d9d90050 !important;
+}
+
 .inspection-status-bg-11 {
 	background-color: #ffff0050;
+}
+
+.inspection-status-bg-11:hover {
+	background-color: #d9d90050 !important;
 }
 
 .inspection-status-bg-12 {
 	background-color: #ffff0050;
 }
 
+.inspection-status-bg-12:hover {
+	background-color: #d9d90050 !important;
+}
+
 .inspection-status-bg-13 {
 	background-color: #fff;
+}
+
+.inspection-status-bg-13:hover {
+	background-color: #e6e6e6 !important;
 }
 
 .inspection-status-bg-14 {
 	background-color: #fff;
 }
 
+.inspection-status-bg-14:hover {
+	background-color: #e6e6e6 !important;
+}
+
 .inspection-status-bg-15 {
 	background-color: #ff000050;
 }
 
+.inspection-status-bg-15:hover {
+	background-color: #d9000050 !important;
+}
+
 .inspection-status-bg-16 {
 	background-color: #e4e4e7;
+}
+
+.inspection-status-bg-16:hover {
+	background-color: #cdcdd0 !important;
 }
 
 .MuiPickersLayout-root {

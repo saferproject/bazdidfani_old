@@ -40,7 +40,7 @@ import {
   TextField,
 } from "@mui/material";
 import { ArrowSwapHorizontal, DocumentText1, TruckFast } from "iconsax-reactjs";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
@@ -141,18 +141,18 @@ export default function AddRequest({ isOpen, onClose }) {
     setTruckFormState("EDIT");
   };
 
-  const handleSmartNumberInquiry = async () => {
+  const handleSmartNumberInquiry = useCallback(async () => {
     const validation = await trigger("smart_number");
 
     if (validation) {
       smartNumberInquiryFn({
         smartNumber: smart_number.toString(),
-        companyUsage,
+        companyUsage: getValues("company")?.company?.company_usage,
         usage: type === 1 ? "freighter" : "passenger",
       });
       setIsClickedOnEditFleet(false);
     }
-  };
+  }, [getValues()]);
 
   const handleSubmitInspectionData = async () => {
     const formData = getValues();
@@ -459,7 +459,7 @@ export default function AddRequest({ isOpen, onClose }) {
             }}
             owner="technical-manager"
             isDialog={true}
-            companyUsage={getValues("company").company.company_usage}
+            companyUsage={getValues("company")?.company?.company_usage}
           />
         </div>
       ),
@@ -745,7 +745,7 @@ export default function AddRequest({ isOpen, onClose }) {
                           second_number: null,
                           third_character: "ع",
                           type: 2,
-                            // companyUsage === 1 ? 1 : companyUsage === 2 ? 2 : 1,
+                          // companyUsage === 1 ? 1 : companyUsage === 2 ? 2 : 1,
                           validity_technical_examination: null,
                           loader_type: "",
                           insurance_validity: null,

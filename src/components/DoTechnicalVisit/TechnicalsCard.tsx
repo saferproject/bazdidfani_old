@@ -13,6 +13,25 @@ import { FC, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 interface iprops {
   data: InspectionData;
   isDialog?: boolean;
@@ -29,6 +48,8 @@ const TechnicalCard: FC<iprops> = ({
   isLoading,
 }) => {
   const navigate = useNavigate();
+
+  const { getStatusColorClass } = useGetInspectionStates();
 
   const [changeStatusMutation, changeStatusResult] =
     useChangeTechnicalVisitStatusMutation();
@@ -65,7 +86,7 @@ const TechnicalCard: FC<iprops> = ({
   useEffect(() => {}, [states]);
 
   return (
-    <div className="w-full flex flex-col gap-2 p-4 bg-gray-50 rounded-2xl">
+    <div className={"w-full flex flex-col gap-2 p-4 rounded-2xl " + getStatusColorClass(data.status)}>
       <div className="w-full flex items-center justify-between">
         <Plate
           firstChar={UndefinedToEmptyString(data?.plate_first_number)}
