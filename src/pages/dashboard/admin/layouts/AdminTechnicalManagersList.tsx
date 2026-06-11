@@ -1,4 +1,4 @@
-import { CircularProgress, IconButton, Switch } from "@mui/material";
+import { Button, CircularProgress, IconButton, Switch } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
 import { FC, useEffect, useState } from "react";
 import SweetAlertToast from "../../../../components/shared/Functions/SweetAlertToast";
@@ -10,12 +10,12 @@ import {
 	useGetAdminInfiniteTechnicalManagersInfiniteQuery,
 	useGetAdminTechnicalManagersQuery,
 } from "../api/admin-technical-manager.api";
-import { Edit, Login, UserOctagon } from "iconsax-reactjs";
+import { Add, Edit, Login, UserOctagon } from "iconsax-reactjs";
 import SaferFilters from "../../../../components/shared/Filters/SaferFilters";
 import useIsPhone from "../../../../utilities/custom-hooks/use-is-phone";
 import LoginAsDialog from "../../../../components/shared/dialogs/LoginAsDialog/LoginAsDialog";
 
-const AdminTechnicalManagersList: FC<AdminTechnicalManagersListProps> = ({ onEditTechnicalManager }) => {
+const AdminTechnicalManagersList: FC<AdminTechnicalManagersListProps> = ({ onEditTechnicalManager, onAddTechnicalManager }) => {
 	const isPhone = useIsPhone();
 
 	const [paginatorProps, setPaginatorProps] = useState({ currentPage: 1, itemsPerPage: 10 });
@@ -215,7 +215,7 @@ const AdminTechnicalManagersList: FC<AdminTechnicalManagersListProps> = ({ onEdi
 					/>
 					<h2 className="font-bold text-xl">لیست مدیران فنی</h2>
 				</div>
-				{/* <Button
+				<Button
 					className="hidden lg:flex"
 					variant="contained"
 					size="large"
@@ -223,7 +223,7 @@ const AdminTechnicalManagersList: FC<AdminTechnicalManagersListProps> = ({ onEdi
 					onClick={onAddTechnicalManager}
 				>
 					افزودن مدیر فنی
-				</Button> */}
+				</Button>
 			</div>
 			<SaferFilters
 				mode="SEARCH_PARAMS"
