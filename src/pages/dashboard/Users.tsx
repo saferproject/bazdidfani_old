@@ -1,8 +1,15 @@
 import { useSendOTPWithoutCheckMutation } from "../../api/Auth/OTP-with-token";
-import { useChangeCompanyUserStatusMutation, useGetCompanyUsersQuery, useGetInfiniteCompanyUsersInfiniteQuery } from "../../api/Company/Users";
+import {
+  useChangeCompanyUserStatusMutation,
+  useGetCompanyUsersQuery,
+  useGetInfiniteCompanyUsersInfiniteQuery,
+} from "../../api/Company/Users";
 import { useCheckOTPForCompanyUserMutation } from "../../api/Profile/Profile";
 import SaferGrid from "../../components/shared/DataGrid/SaferGrid";
-import CustomDialog, { CustomDialogProps, EmptyCustomDialoProps } from "../../components/shared/Dialog/CustomeDialog";
+import CustomDialog, {
+  CustomDialogProps,
+  EmptyCustomDialoProps,
+} from "../../components/shared/Dialog/CustomeDialog";
 import SaferFilters from "../../components/shared/Filters/SaferFilters";
 import SweetAlertToast from "../../components/shared/Functions/SweetAlertToast";
 import PermissionPage from "../../components/User/PermissionContainer";
@@ -12,39 +19,23 @@ import { EmptyProfileData, ProfileDataType } from "../../types/ProfileType";
 import { NewUserType } from "../../types/RegisterUsersType";
 import useIsPhone from "../../utilities/custom-hooks/use-is-phone";
 import { GetShamsiDate } from "../../utilities/DateTime";
-import { Avatar, Button, CircularProgress, Dialog, DialogContent, Fab, Switch, TextField, Typography } from "@mui/material";
+import {
+  Avatar,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  Fab,
+  Switch,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
 import { Add, User } from "iconsax-reactjs";
 import { useEffect, useMemo, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { FaArrowLeft } from "react-icons/fa";
 import { useNavigate, useSearchParams } from "react-router-dom";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export default function Users() {
   const isPhone = useIsPhone();
@@ -417,7 +408,12 @@ export default function Users() {
                 .reduce((a, b) => [...a, ...b]) ?? [])
             : (users.data?.data.data ?? [])
         }
-        loading={users.isLoading || users.isFetching}
+        loading={
+          users.isLoading ||
+          users.isFetching ||
+          infiniteUsers.isLoading ||
+          infiniteUsers.isFetching
+        }
         onCloseFilterDialog={() => {}}
         onFilterChange={() => {}}
         openFilterDialog={false}

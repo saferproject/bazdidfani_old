@@ -1,16 +1,34 @@
-import { Button, CircularProgress, IconButton, Switch } from "@mui/material";
-import { GridColDef, GridColumnVisibilityModel } from "@mui/x-data-grid";
-import { useEffect, useState } from "react";
-import CustomDialog, { CustomDialogProps, EmptyCustomDialoProps } from "../shared/Dialog/CustomeDialog";
 import { useChangeDriverStatusMutation, useGetDriverQuery, useGetInfiniteDriverInfiniteQuery } from "../../api/Driver/Driver";
-import SweetAlertToast from "../shared/Functions/SweetAlertToast";
+import useIsPhone from "../../utilities/custom-hooks/use-is-phone";
 import { GetShamsiDate } from "../../utilities/DateTime";
 import SaferGrid from "../shared/DataGrid/SaferGrid";
-import DriverCard from "./DriverCard";
-import { Edit, TickSquare, UserSquare } from "iconsax-reactjs";
+import CustomDialog, { CustomDialogProps, EmptyCustomDialoProps } from "../shared/Dialog/CustomeDialog";
 import SaferFilters from "../shared/Filters/SaferFilters";
+import SweetAlertToast from "../shared/Functions/SweetAlertToast";
+import DriverCard from "./DriverCard";
+import { Button, CircularProgress, IconButton, Switch } from "@mui/material";
+import { GridColDef, GridColumnVisibilityModel } from "@mui/x-data-grid";
+import { Edit, TickSquare, UserSquare } from "iconsax-reactjs";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useIsPhone from "../../utilities/custom-hooks/use-is-phone";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export default function DriverList({ isDialog, onSuccess }: { isDialog?: boolean; onSuccess?: (data: any) => void }) {
 	const navigate = useNavigate();
@@ -303,52 +321,64 @@ export default function DriverList({ isDialog, onSuccess }: { isDialog?: boolean
 	};
 
 	return (
-		<div className={"flex flex-col gap-8"}>
-			<CustomDialog {...customDialogProps} />
-			<div className="flex items-center gap-4 md:hidden">
-				<UserSquare
-					size="32"
-					className="text-primary"
-				/>
-				<h2 className="font-bold text-xl">رانندگان</h2>
-			</div>
-			<SaferFilters
-				mode="SEARCH_PARAMS"
-				search={true}
-				onFilter={handleFilter}
-			/>
-			<SaferGrid
-				columns={columns}
-				rows={
-					isPhone
-						? infiniteDrivers.data?.pages.map((page) => page.data.data).reduce((a, b) => [...a, ...b]) ?? []
-						: drivers.data?.data.data ?? []
-				}
-				loading={drivers.isLoading || drivers.isFetching}
-				renderCart={(data) => (
-					<DriverCard
-						isDialog={false}
-						data={data}
-						setCustomDialogProps={setCustomDialogProps}
-						onSuccess={onSuccess}
-					/>
-				)}
-				filterSetInUrl={!isDialog}
-				onFilterChange={() => {}}
-				onCloseFilterDialog={() => {}}
-				openFilterDialog={false}
-				renderFilter={() => <></>}
-				columnVisibilityModel={columnVisibilityModel}
-				onColumnVisibilityModelChange={setColumnVisibilityModel}
-				paginatorProps={{
-					...paginatorProps,
-					totalPages: drivers.data?.data.last_page,
-					onItemsPerPageChange: (pageSize) => setPaginatorProps((currentValue) => ({ ...currentValue, itemsPerPage: pageSize })),
-					onPageChange: (page) => setPaginatorProps((currentValue) => ({ ...currentValue, currentPage: page })),
-				}}
-				fetchMoreData={infiniteDrivers.fetchNextPage}
-				hasMore={infiniteDrivers.hasNextPage}
-			/>
-		</div>
-	);
+    <div className={"flex flex-col gap-8"}>
+      <CustomDialog {...customDialogProps} />
+      <div className="flex items-center gap-4 md:hidden">
+        <UserSquare size="32" className="text-primary" />
+        <h2 className="font-bold text-xl">رانندگان</h2>
+      </div>
+      <SaferFilters
+        mode="SEARCH_PARAMS"
+        search={true}
+        onFilter={handleFilter}
+      />
+      <SaferGrid
+        columns={columns}
+        rows={
+          isPhone
+            ? (infiniteDrivers.data?.pages
+                .map((page) => page.data.data)
+                .reduce((a, b) => [...a, ...b]) ?? [])
+            : (drivers.data?.data.data ?? [])
+        }
+        loading={
+          drivers.isLoading ||
+          drivers.isFetching ||
+          infiniteDrivers.isLoading ||
+          infiniteDrivers.isFetching
+        }
+        renderCart={(data) => (
+          <DriverCard
+            isDialog={false}
+            data={data}
+            setCustomDialogProps={setCustomDialogProps}
+            onSuccess={onSuccess}
+          />
+        )}
+        filterSetInUrl={!isDialog}
+        onFilterChange={() => {}}
+        onCloseFilterDialog={() => {}}
+        openFilterDialog={false}
+        renderFilter={() => <></>}
+        columnVisibilityModel={columnVisibilityModel}
+        onColumnVisibilityModelChange={setColumnVisibilityModel}
+        paginatorProps={{
+          ...paginatorProps,
+          totalPages: drivers.data?.data.last_page,
+          onItemsPerPageChange: (pageSize) =>
+            setPaginatorProps((currentValue) => ({
+              ...currentValue,
+              itemsPerPage: pageSize,
+            })),
+          onPageChange: (page) =>
+            setPaginatorProps((currentValue) => ({
+              ...currentValue,
+              currentPage: page,
+            })),
+        }}
+        fetchMoreData={infiniteDrivers.fetchNextPage}
+        hasMore={infiniteDrivers.hasNextPage}
+      />
+    </div>
+  );
 }

@@ -9,14 +9,7 @@ import { useGetInspectionStates } from "../../utilities/Inspection-Status/Inspec
 import Plate from "../shared/DataGrid/Plate";
 import GetLocationDialog from "./GetLocationDialog";
 import { Button, Dialog, Divider } from "@mui/material";
-import {
-  Dispatch,
-  FC,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -25,10 +18,8 @@ interface iprops {
   isDialog?: boolean;
   isReportsPage: boolean;
   isLoading: boolean;
-  onStartInspection: (data: any) => void;
+  onStartInspection: (data: any, location: Record<string, number>) => void;
   handleGetSabafCode?: (data: any) => void;
-  setCurrentLocation: Dispatch<SetStateAction<any>>;
-  currentLocation: Record<string, number> | null;
 }
 
 const TechnicalCard: FC<iprops> = ({
@@ -36,19 +27,22 @@ const TechnicalCard: FC<iprops> = ({
   isReportsPage,
   onStartInspection,
   isLoading,
-  setCurrentLocation,
-  currentLocation,
 }) => {
   const navigate = useNavigate();
 
   const [changeStatusMutation, changeStatusResult] =
     useChangeTechnicalVisitStatusMutation();
   const [openGetLocationDialog, setOpenGetLocationDialog] = useState(false);
+  const [currentLocation, setCurrentLocation] = useState<Record<
+    string,
+    number
+  > | null>(null);
 
   const inspectionType = useAppSelector((state) => state.inspectionType);
 
   const handleAfterGettingLocation = useCallback(() => {
-    if (inspectionType !== "RETAKE_IMAGES") onStartInspection(data);
+    if (inspectionType !== "RETAKE_IMAGES")
+      onStartInspection(data, currentLocation);
     else {
       dispatch(setInspectionData(data));
       dispatch(setInspectionType("RETAKE_IMAGES"));

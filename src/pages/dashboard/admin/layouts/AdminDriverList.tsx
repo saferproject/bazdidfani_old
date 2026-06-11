@@ -271,7 +271,12 @@ const AdminDriverList: FC<AdminDriverListProps> = ({
       />
       <SaferGrid<any>
         columns={columns}
-        loading={drivers.isLoading}
+        loading={
+          drivers.isLoading ||
+          drivers.isFetching ||
+          infiniteDrivers.isLoading ||
+          infiniteDrivers.isFetching
+        }
         rows={
           isPhone
             ? (infiniteDrivers.data?.pages

@@ -1,5 +1,6 @@
 import ACompaniesCard from "../../../../components/Admin/ACompaniesCard";
 import SaferGrid from "../../../../components/shared/DataGrid/SaferGrid";
+import LoginAsDialog from "../../../../components/shared/dialogs/LoginAsDialog/LoginAsDialog";
 import SaferFilters from "../../../../components/shared/Filters/SaferFilters";
 import SweetAlertToast from "../../../../components/shared/Functions/SweetAlertToast";
 import { RoleType } from "../../../../types/RoleType";
@@ -15,7 +16,6 @@ import { Button, CircularProgress, IconButton, Switch } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
 import { Add, Buildings, Edit, Login } from "iconsax-reactjs";
 import { FC, useEffect, useState } from "react";
-import LoginAsDialog from "../../../../components/shared/dialogs/LoginAsDialog/LoginAsDialog";
 
 const AdminCompanyList: FC<CompanyListProps> = ({
   onAddCompany,
@@ -295,7 +295,12 @@ const AdminCompanyList: FC<CompanyListProps> = ({
       />
       <SaferGrid<any>
         columns={columns}
-        loading={companies.isLoading}
+        loading={
+          companies.isLoading ||
+          infiniteCompanies.isLoading ||
+          companies.isFetching ||
+          infiniteCompanies.isFetching
+        }
         rows={
           isPhone
             ? (infiniteCompanies.data?.pages

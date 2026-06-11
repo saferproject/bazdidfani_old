@@ -296,7 +296,12 @@ const SelfStatement: FC = () => {
           />
           <SaferGrid<any>
             columns={columns}
-            loading={selfStatements.isLoading || selfStatements.isFetching}
+            loading={
+              selfStatements.isLoading ||
+              selfStatements.isFetching ||
+              infiniteSelfStatements.isLoading ||
+              infiniteSelfStatements.isFetching
+            }
             rows={
               isPhone
                 ? (infiniteSelfStatements.data?.pages

@@ -5,7 +5,7 @@ import { CircularProgress, Skeleton } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { Warning2 } from "iconsax-reactjs";
 import { motion } from "motion/react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function SaferGrid<DataType>({
   columns,
@@ -22,6 +22,10 @@ export default function SaferGrid<DataType>({
 }: SaferGridProps<DataType>) {
   const isPhone = useIsPhone();
   const isFetchingMoreRef = useRef(false);
+
+  const [data, setData] = useState(null);
+
+  console.log(paginatorProps);
 
   useEffect(() => {
     if (!isPhone || loading || !hasMore || !fetchMoreData) return;
@@ -46,9 +50,13 @@ export default function SaferGrid<DataType>({
     return () => window.removeEventListener("scroll", handleScroll);
   }, [fetchMoreData, hasMore, isPhone, loading, rows.length]);
 
+  useEffect(() => {
+    if (!!rows) setData(rows);
+  }, [rows]);
+
   return isPhone ? (
     <div className="w-full flex flex-col items-center gap-4">
-      {loading ? (
+      {loading && paginatorProps.currentPage === 1 ? (
         <Skeleton
           className="w-full max-w-[350px] h-[400px] rounded-2xl"
           variant="rounded"
@@ -56,7 +64,7 @@ export default function SaferGrid<DataType>({
       ) : (
         <div className="w-[calc(100vw-48px)]">
           <ul className="flex flex-col gap-4">
-            {rows?.map((row, index) => (
+            {data?.map((row, index) => (
               <motion.li
                 key={index}
                 initial={{ scale: 0, opacity: 0 }}
@@ -74,7 +82,13 @@ export default function SaferGrid<DataType>({
             ))}
           </ul>
           {hasMore ? (
-            <CircularProgress className="mt-4" color="primary" size="32" />
+            Array.from({ length: 3 }).map((_, idx) => (
+              <Skeleton
+                className="w-full max-w-[350px] h-[400px] rounded-2xl"
+                variant="rounded"
+                key={idx}
+              />
+            ))
           ) : (
             <div className="flex items-center justify-center gap-2 mt-4">
               <Warning2 className="text-yellow-500" />

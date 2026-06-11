@@ -8,11 +8,9 @@ import TechnicalCard from "../../../components/DoTechnicalVisit/TechnicalsCard";
 import Plate from "../../../components/shared/DataGrid/Plate";
 import SaferGrid from "../../../components/shared/DataGrid/SaferGrid";
 import SaferFilters from "../../../components/shared/Filters/SaferFilters";
-import SweetAlertToast from "../../../components/shared/Functions/SweetAlertToast";
 import { useAppDispatch } from "../../../Stores/hooks";
 import { setInspectionData } from "../../../Stores/slices/inspection-data.slice";
 import { setInspectionType } from "../../../Stores/slices/inspection-type.slice";
-import useIsInIran from "../../../utilities/custom-hooks/use-is-in-iran";
 import useIsPhone from "../../../utilities/custom-hooks/use-is-phone";
 import { GetShamsiTimeDate } from "../../../utilities/DateTime";
 import { useGetInspectionStates } from "../../../utilities/Inspection-Status/InspectionStatus";
@@ -42,10 +40,6 @@ const DoTechnicalVisit: FC<iprops> = ({ type }) => {
   });
   const [filters, setFilters] = useState(null);
   const [isAddRequestDialogOpen, setAddRequestDialogOpen] = useState(false);
-  const [currentLocation, setCurrentLocation] = useState<Record<
-    string,
-    number
-  > | null>(null);
 
   const { states, getStatus } = useGetInspectionStates();
 
@@ -177,7 +171,7 @@ const DoTechnicalVisit: FC<iprops> = ({ type }) => {
   };
 
   const startInspection = useCallback(
-    (data: any) => {
+    (data: any, location: Record<string, number>) => {
       dispatch(setInspectionData(data));
       if (data.self_statement)
         dispatch(setInspectionType("REVIEW_SELF_STATEMENT"));
@@ -190,13 +184,13 @@ const DoTechnicalVisit: FC<iprops> = ({ type }) => {
 
       startInspectionFn({
         bazdidfani_id: data.id,
-        latitude: currentLocation.latitude,
-        longitude: currentLocation.longitude,
+        latitude: location.latitude,
+        longitude: location.longitude,
         selfStatement: 0,
         technical_manager_id: data.technical_manager.id,
       });
     },
-    [currentLocation],
+    [],
   );
 
   const handleAddRequest = () => {
@@ -224,7 +218,10 @@ const DoTechnicalVisit: FC<iprops> = ({ type }) => {
       <SaferGrid<any>
         columns={columns}
         loading={
-          technicalVisitsQuery.isLoading || technicalVisitsQuery.isFetching
+          technicalVisitsQuery.isLoading ||
+          technicalVisitsQuery.isFetching ||
+          infiniteTechnicalVisitQuery.isLoading ||
+          infiniteTechnicalVisitQuery.isFetching
         }
         rows={
           isPhone
@@ -234,15 +231,12 @@ const DoTechnicalVisit: FC<iprops> = ({ type }) => {
             : (technicalVisitsQuery.data?.data.data ?? [])
         }
         renderCart={(data) => {
-          console.log("sdfgnhhfyiwebfyjiytjuwefg");
           return (
             <TechnicalCard
               data={data}
               isDialog={false}
               isReportsPage={false}
               isLoading={startInspectionResult.isLoading}
-              setCurrentLocation={setCurrentLocation}
-              currentLocation={currentLocation}
               onStartInspection={startInspection}
             />
           );
