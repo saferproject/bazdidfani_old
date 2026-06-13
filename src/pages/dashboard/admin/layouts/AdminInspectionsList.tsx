@@ -9,13 +9,16 @@ import InspectionRequest from "../../requests/interfaces/inspection-request.inte
 import {
   useGetAdminInspectionDetailsQuery,
   useGetAdminInspectionsQuery,
+  useGetInfiniteAdminInspectionsInfiniteQuery,
 } from "../api/admin-inspections.api";
 import AdminInspectionsListProps from "../interfaces/admin-inspections-list-props.interface";
-import { Button, IconButton } from "@mui/material";
+import { IconButton } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
 import { ReceiptSearch } from "iconsax-reactjs";
 import { FC, JSX, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import useIsPhone from "../../../../utilities/custom-hooks/use-is-phone";
+import AInspectionsCard from "../../../../components/Admin/AInspectionsCard";
 
 const PlateTextFieldCell = ({ row }: any): JSX.Element => {
   const { control, watch } = useForm({
@@ -31,6 +34,8 @@ const PlateTextFieldCell = ({ row }: any): JSX.Element => {
 };
 
 const AdminInspectionsList: FC<AdminInspectionsListProps> = () => {
+  const isPhone = useIsPhone();
+
   const handleFilter = (filters: Record<string, string | number | boolean>) => {
     setPaginatorProps((currentValue) => ({ ...currentValue, currentPage: 1 }));
     setFilters(filters);
@@ -69,7 +74,12 @@ const AdminInspectionsList: FC<AdminInspectionsListProps> = () => {
       per_page: paginatorProps.itemsPerPage,
       ...filters,
     },
-    { skip: !paginatorProps || !filters },
+    { skip: !paginatorProps || !filters || isPhone },
+  );
+
+  const infiniteInspections = useGetInfiniteAdminInspectionsInfiniteQuery(
+    { per_page: 10, ...filters },
+    { skip: !paginatorProps || !filters || !isPhone },
   );
 
   const InspectionData = useGetAdminInspectionDetailsQuery(
@@ -310,9 +320,26 @@ const AdminInspectionsList: FC<AdminInspectionsListProps> = () => {
         />
         <SaferGrid<any>
           columns={columns}
-          loading={inspections.isLoading || inspections.isFetching}
-          rows={inspections.data?.data.data ?? []}
-          renderCart={() => <></>}
+          loading={
+            inspections.isLoading ||
+            inspections.isFetching ||
+            infiniteInspections.isLoading ||
+            infiniteInspections.isFetching
+          }
+          rows={
+            isPhone
+              ? (infiniteInspections.data?.pages
+                  .map((page) => page.data.data)
+                  .reduce((a, b) => [...a, ...b]) ?? [])
+              : (inspections.data?.data.data ?? [])
+          }
+          renderCart={(data) => (
+            <AInspectionsCard
+              data={data}
+              onViewInspection={handleOpenCheckInspectionDialog}
+              isLoading={InspectionData.isFetching || InspectionData.isLoading}
+            />
+          )}
           filterSetInUrl
           onCloseFilterDialog={() => {}}
           onFilterChange={() => {}}
@@ -333,6 +360,8 @@ const AdminInspectionsList: FC<AdminInspectionsListProps> = () => {
                 currentPage: page,
               })),
           }}
+          fetchMoreData={infiniteInspections.fetchNextPage}
+          hasMore={infiniteInspections.hasNextPage}
         />
       </main>
     </section>

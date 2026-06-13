@@ -1,6 +1,6 @@
-import { FC, useEffect, useState } from "react";
-import { Stack } from "@mui/material";
 import empty_car_plate from "../../../assets/images/empty_car_plate.png";
+import { Stack } from "@mui/material";
+import { FC, useEffect, useState } from "react";
 
 type iprops = {
   firstChar: number;
@@ -55,9 +55,7 @@ const Plate: FC<iprops> = ({
           <img
             src={empty_car_plate}
             alt=""
-            width={220}
-            height={50}
-            className="rounded-[5px]"
+            className="rounded-[5px] xl:w-56 lg:w-48 md:w-36 w-28"
           />
         </Stack>
 
@@ -73,21 +71,27 @@ const Plate: FC<iprops> = ({
         >
           <Stack width={"10%"} />
           <Stack width={"27.5%"}>
-            <p className="text-[20px] font-bold text-center">{firstChar}</p>
+            <p className="md:text-[20px] text-[12px] font-bold text-center pt-1 md:pt-0">
+              {firstChar}
+            </p>
           </Stack>
 
           <Stack width={"15%"}>
-            <p className="text-[20px] font-bold text-center">{secondChar}</p>
+            <p className="md:text-[20px] text-[12px] font-bold text-center pb-0.5 md:pb-0">
+              {secondChar}
+            </p>
           </Stack>
 
           <Stack width={"32.5%"}>
-            <p className="text-[20px] font-bold text-center">{thirdChar}</p>
+            <p className="md:text-[20px] text-[12px] font-bold text-center pt-1 md:pt-0">
+              {thirdChar}
+            </p>
           </Stack>
 
           <Stack width={"25%"}>
             <p
               style={{ color: PlateColors.color }}
-              className="text-[18px] font-bold text-center pt-3"
+              className="md:text-[18px] text-[11px] font-bold text-center md:pt-3 pt-1.5"
             >
               {fourthChar}
             </p>

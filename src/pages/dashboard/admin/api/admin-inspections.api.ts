@@ -4,7 +4,7 @@ import { ApiWithAuth } from "../../../../Stores/apis/api";
 import buildQueryParams from "../../../../utilities/build-query-params";
 import { Inspection } from "../interfaces/inspection.interface";
 
-export const { useGetAdminInspectionsQuery, useGetAdminInspectionDetailsQuery } = ApiWithAuth.injectEndpoints({
+export const { useGetAdminInspectionsQuery, useGetInfiniteAdminInspectionsInfiniteQuery, useGetAdminInspectionDetailsQuery } = ApiWithAuth.injectEndpoints({
 	endpoints: (builder) => ({
 		getAdminInspections: builder.query<APIResponse<Inspection>, Record<string, string | number | boolean>>({
 			query: (params) => ({
@@ -20,6 +20,19 @@ export const { useGetAdminInspectionsQuery, useGetAdminInspectionDetailsQuery } 
 				message,
 				status,
 			}),
+		}),
+
+		getInfiniteAdminInspections: builder.infiniteQuery<APIResponse<Inspection>, Record<string, string | number | boolean>, number>({
+			infiniteQueryOptions: {
+				initialPageParam: 1,
+				getNextPageParam: (_lastPage, _allPages, lastPageParam) =>
+					_lastPage.data.current_page < _lastPage.data.last_page ? lastPageParam + 1 : undefined,
+			},
+			query: ({ queryArg, pageParam }) => ({
+				url: `admin/list-bazdidfani${queryArg ? "?" + buildQueryParams({ ...queryArg, page: pageParam }) : ""}`,
+				method: "GET",
+			}),
+			providesTags: ["AdminInspections"],
 		}),
 
 		getAdminInspectionDetails: builder.query<{ status: boolean; message: string; data: Array<InspectionItem> }, { id: number }>({

@@ -1,22 +1,31 @@
 import { Button, CircularProgress, IconButton, Switch } from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { GridColDef } from "@mui/x-data-grid";
 import { Add, Edit, Truck } from "iconsax-reactjs";
 import { FC, useEffect, useState } from "react";
 import PlateTextFieldCell from "../../self-statement/PlatetextFieldCell";
 import { GetShamsiDate } from "../../../../utilities/DateTime";
-import { useChangeAdminFleetStatusMutation, useGetAdminFleetQuery } from "../api/admin-fleet.api";
+import { useChangeAdminFleetStatusMutation, useGetAdminFleetQuery, useGetInfiniteAdminFleetInfiniteQuery } from "../api/admin-fleet.api";
 import SweetAlertToast from "../../../../components/shared/Functions/SweetAlertToast";
 import AdminFleetListProps from "../interfaces/admin-fleet-list-props.interface";
 import SaferGrid from "../../../../components/shared/DataGrid/SaferGrid";
 import SaferFilters from "../../../../components/shared/Filters/SaferFilters";
+import useIsPhone from "../../../../utilities/custom-hooks/use-is-phone";
+import AFleetCard from "../../../../components/Admin/AFleetCard";
+import { Fab } from "@mui/material";
 
 const AdminFleetList: FC<AdminFleetListProps> = ({ onAddFleet, onEditFleet }) => {
+	const isPhone = useIsPhone();
 	const [paginatorProps, setPaginatorProps] = useState({ currentPage: 1, itemsPerPage: 10 });
 	const [filters, setFilters] = useState(null);
 
 	const fleet = useGetAdminFleetQuery(
 		{ page: paginatorProps.currentPage, per_page: paginatorProps.itemsPerPage, ...filters },
-		{ skip: !paginatorProps || !filters }
+		{ skip: !paginatorProps || !filters || isPhone }
+	);
+
+	const infiniteFleet = useGetInfiniteAdminFleetInfiniteQuery(
+		{ per_page: 10, ...filters },
+		{ skip: !paginatorProps || !filters || !isPhone }
 	);
 
 	const [changeStatusFn, changeStatusResult] = useChangeAdminFleetStatusMutation();
@@ -68,14 +77,8 @@ const AdminFleetList: FC<AdminFleetListProps> = ({ onAddFleet, onEditFleet }) =>
 			align: "center",
 			flex: 0.5,
 			renderCell: ({ row }) => (
-				<IconButton
-					title="ویرایش"
-					onClick={() => onEditFleet(row)}
-				>
-					<Edit
-						size="24"
-						className="text-amber-400"
-					/>
+				<IconButton title="ویرایش" onClick={() => onEditFleet(row)}>
+					<Edit size="24" className="text-amber-400" />
 				</IconButton>
 			),
 		},
@@ -161,10 +164,7 @@ const AdminFleetList: FC<AdminFleetListProps> = ({ onAddFleet, onEditFleet }) =>
 		<section className="flex flex-col gap-8">
 			<header className="flex items-center justify-between">
 				<div className="flex items-center gap-4">
-					<Truck
-						size="32"
-						className="text-primary"
-					/>
+					<Truck size="32" className="text-primary" />
 					<h2 className="text-xl font-bold">ناوگان</h2>
 				</div>
 				<Button
@@ -183,12 +183,24 @@ const AdminFleetList: FC<AdminFleetListProps> = ({ onAddFleet, onEditFleet }) =>
 					search={true}
 					plaque={true}
 					onFilter={handleFilter}
+					onGetExcel={() => {}}
 				/>
 				<SaferGrid<any>
 					columns={columns}
-					loading={fleet.isLoading || fleet.isFetching}
-					rows={fleet.data?.data.data ?? []}
-					renderCart={() => <></>}
+					loading={
+						fleet.isLoading ||
+						fleet.isFetching ||
+						infiniteFleet.isLoading ||
+						infiniteFleet.isFetching
+					}
+					rows={
+						isPhone
+							? (infiniteFleet.data?.pages
+									.map((page) => page.data.data)
+									.reduce((a, b) => [...a, ...b]) ?? [])
+							: (fleet.data?.data.data ?? [])
+					}
+					renderCart={(data) => <AFleetCard data={data} onEditFleet={onEditFleet} />}
 					filterSetInUrl
 					onCloseFilterDialog={() => {}}
 					onFilterChange={() => {}}
@@ -200,8 +212,18 @@ const AdminFleetList: FC<AdminFleetListProps> = ({ onAddFleet, onEditFleet }) =>
 						onItemsPerPageChange: (pageSize) => setPaginatorProps((currentValue) => ({ ...currentValue, itemsPerPage: pageSize })),
 						onPageChange: (page) => setPaginatorProps((currentValue) => ({ ...currentValue, currentPage: page })),
 					}}
+					fetchMoreData={infiniteFleet.fetchNextPage}
+					hasMore={infiniteFleet.hasNextPage}
 				/>
 			</main>
+			<Fab
+				size="medium"
+				color="primary"
+				onClick={onAddFleet}
+				className="lg:hidden fixed bottom-8 right-8 shadow"
+			>
+				<Add size="32" />
+			</Fab>
 		</section>
 	);
 };

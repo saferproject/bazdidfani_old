@@ -1,17 +1,22 @@
 import { GridColDef } from "@mui/x-data-grid";
 import { FC, useState } from "react";
-import { useGetAdminUsersQuery, useGetUserRolesQuery } from "../api/admin-users.api";
+import { useGetAdminUsersQuery, useGetInfiniteAdminUsersInfiniteQuery, useGetUserRolesQuery } from "../api/admin-users.api";
 import { formatJalaliDate } from "../../../../utilities/DateTime";
 import AdminUsersListProps from "../interfaces/admin-users-list-props.interface";
 import { IconButton } from "@mui/material";
-import { Edit, SecurityUser, User as UserIcon } from "iconsax-reactjs";
+import { Edit, Login, SecurityUser, User as UserIcon } from "iconsax-reactjs";
 import SaferFilters from "../../../../components/shared/Filters/SaferFilters";
 import SaferGrid from "../../../../components/shared/DataGrid/SaferGrid";
 import AdminChangeRoleStatus from "../../../../components/shared/dialogs/AdminChangeRoleStatus/AdminChangeRoleStatus";
 import AdminChangeRoleStatusProps from "../../../../components/shared/dialogs/AdminChangeRoleStatus/interfaces/admin-change-role-status-props.interface";
+import LoginAsDialog from "../../../../components/shared/dialogs/LoginAsDialog/LoginAsDialog";
 import User from "../interfaces/user.interface";
+import useIsPhone from "../../../../utilities/custom-hooks/use-is-phone";
+import AUsersCard from "../../../../components/Admin/AUsersCard";
 
 const AdminUsersList: FC<AdminUsersListProps> = ({ onEditUser }) => {
+	const isPhone = useIsPhone();
+
 	const handleFilter = (filters: Record<string, string | number | boolean>) => {
 		setPaginatorProps((currentValue) => ({ ...currentValue, currentPage: 1 }));
 		setFilters(filters);
@@ -35,10 +40,16 @@ const AdminUsersList: FC<AdminUsersListProps> = ({ onEditUser }) => {
 		user: null,
 		onClose: handleCloseChangeRoleStatusDialog,
 	});
+	const [loginAsTarget, setLoginAsTarget] = useState<{ userId: number; fullName: string } | null>(null);
 
 	const users = useGetAdminUsersQuery(
 		{ page: paginatorProps.currentPage, per_page: paginatorProps.itemsPerPage, ...filters },
-		{ skip: !paginatorProps || !filters }
+		{ skip: !paginatorProps || !filters || isPhone }
+	);
+
+	const infiniteUsers = useGetInfiniteAdminUsersInfiniteQuery(
+		{ per_page: 10, ...filters },
+		{ skip: !paginatorProps || !filters || !isPhone }
 	);
 
 	const roles = useGetUserRolesQuery();
@@ -56,27 +67,26 @@ const AdminUsersList: FC<AdminUsersListProps> = ({ onEditUser }) => {
 			headerName: "عملیات",
 			align: "center",
 			headerAlign: "left",
-			width: 96,
+			width: 120,
 			editable: false,
 			renderCell: ({ row }) => (
 				<div>
-					<IconButton
-						title="ویرایش"
-						onClick={() => onEditUser(row)}
-					>
-						<Edit
-							size="24"
-							className="text-amber-400"
-						/>
+					<IconButton title="ویرایش" onClick={() => onEditUser(row)}>
+						<Edit size="24" className="text-amber-400" />
+					</IconButton>
+					<IconButton title="تغییر وضعیت" onClick={() => handleChangeRolesStatus(row)}>
+						<SecurityUser size="24" className="text-blue-400" />
 					</IconButton>
 					<IconButton
-						title="تغییر وضعیت"
-						onClick={() => handleChangeRolesStatus(row)}
+						title="ورود به‌جای کاربر"
+						onClick={() =>
+							setLoginAsTarget({
+								userId: row.id,
+								fullName: row.personal?.full_name ?? "",
+							})
+						}
 					>
-						<SecurityUser
-							size="24"
-							className="text-blue-400"
-						/>
+						<Login size="24" className="text-primary" />
 					</IconButton>
 				</div>
 			),
@@ -133,13 +143,13 @@ const AdminUsersList: FC<AdminUsersListProps> = ({ onEditUser }) => {
 					.join("، "),
 		},
 		{
-			field: 'company_name',
-			headerName: 'نام شرکت',
-			type: 'string',
+			field: "company_name",
+			headerName: "نام شرکت",
+			type: "string",
 			editable: false,
-			align: 'left',
+			align: "left",
 			width: 160,
-			valueGetter: (_value, row) => row.company?.name ?? ''
+			valueGetter: (_value, row) => row.company?.name ?? "",
 		},
 		{
 			field: "city",
@@ -165,10 +175,7 @@ const AdminUsersList: FC<AdminUsersListProps> = ({ onEditUser }) => {
 		<section className="flex flex-col gap-8">
 			{changeRoleStatusDialog.isOpen && <AdminChangeRoleStatus {...changeRoleStatusDialog} />}
 			<header className="flex items-center gap-4">
-				<UserIcon
-					size="24"
-					className="text-primary"
-				/>
+				<UserIcon size="24" className="text-primary" />
 				<h2 className="text-xl font-bold">کل کاربران</h2>
 			</header>
 			<main className="flex flex-col gap-8">
@@ -185,12 +192,31 @@ const AdminUsersList: FC<AdminUsersListProps> = ({ onEditUser }) => {
 						},
 					]}
 					onFilter={handleFilter}
+					onGetExcel={() => {}}
 				/>
 				<SaferGrid<any>
 					columns={columns}
-					loading={users.isLoading || users.isFetching}
-					rows={users.data?.data.data ?? []}
-					renderCart={() => <></>}
+					loading={
+						users.isLoading ||
+						users.isFetching ||
+						infiniteUsers.isLoading ||
+						infiniteUsers.isFetching
+					}
+					rows={
+						isPhone
+							? (infiniteUsers.data?.pages
+									.map((page) => page.data.data)
+									.reduce((a, b) => [...a, ...b]) ?? [])
+							: (users.data?.data.data ?? [])
+					}
+					renderCart={(data) => (
+						<AUsersCard
+							data={data}
+							onEditUser={onEditUser}
+							onLoginAs={(userId, fullName) => setLoginAsTarget({ userId, fullName })}
+							onChangeRolesStatus={handleChangeRolesStatus}
+						/>
+					)}
 					filterSetInUrl
 					onCloseFilterDialog={() => {}}
 					onFilterChange={() => {}}
@@ -202,8 +228,16 @@ const AdminUsersList: FC<AdminUsersListProps> = ({ onEditUser }) => {
 						onItemsPerPageChange: (pageSize) => setPaginatorProps((currentValue) => ({ ...currentValue, itemsPerPage: pageSize })),
 						onPageChange: (page) => setPaginatorProps((currentValue) => ({ ...currentValue, currentPage: page })),
 					}}
+					fetchMoreData={infiniteUsers.fetchNextPage}
+					hasMore={infiniteUsers.hasNextPage}
 				/>
 			</main>
+			<LoginAsDialog
+				isOpen={!!loginAsTarget}
+				userId={loginAsTarget?.userId ?? null}
+				fullName={loginAsTarget?.fullName}
+				onClose={() => setLoginAsTarget(null)}
+			/>
 		</section>
 	);
 };

@@ -308,7 +308,13 @@ const AdminCompanyList: FC<CompanyListProps> = ({
                 .reduce((a, b) => [...a, ...b]) ?? [])
             : (companies.data?.data.data ?? [])
         }
-        renderCart={(data) => <ACompaniesCard data={data} isDialog={false} />}
+        renderCart={(data) => (
+          <ACompaniesCard
+            data={data}
+            isDialog={false}
+            onLoginAs={(userId, fullName) => setLoginAsTarget({ userId, fullName })}
+          />
+        )}
         filterSetInUrl
         onCloseFilterDialog={() => {}}
         onFilterChange={() => {}}

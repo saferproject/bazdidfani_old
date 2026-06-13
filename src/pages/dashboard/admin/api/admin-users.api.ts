@@ -4,7 +4,7 @@ import buildQueryParams from "../../../../utilities/build-query-params";
 import Role from "../interfaces/role.interface";
 import User from "../interfaces/user.interface";
 
-export const { useGetAdminUsersQuery, useEditAdminUsersMutation, useGetUserRolesQuery } = ApiWithAuth.injectEndpoints({
+export const { useGetAdminUsersQuery, useGetInfiniteAdminUsersInfiniteQuery, useEditAdminUsersMutation, useGetUserRolesQuery } = ApiWithAuth.injectEndpoints({
 	endpoints: (builder) => ({
 		getAdminUsers: builder.query<APIResponse<User>, Record<string, string | number | boolean>>({
 			query: (params) => ({
@@ -20,6 +20,19 @@ export const { useGetAdminUsersQuery, useEditAdminUsersMutation, useGetUserRoles
 				message,
 				status,
 			}),
+		}),
+
+		getInfiniteAdminUsers: builder.infiniteQuery<APIResponse<User>, Record<string, string | number | boolean>, number>({
+			infiniteQueryOptions: {
+				initialPageParam: 1,
+				getNextPageParam: (_lastPage, _allPages, lastPageParam) =>
+					_lastPage.data.current_page < _lastPage.data.last_page ? lastPageParam + 1 : undefined,
+			},
+			query: ({ queryArg, pageParam }) => ({
+				url: `admin/user/users-list${queryArg ? "?" + buildQueryParams({ ...queryArg, page: pageParam }) : ""}`,
+				method: "GET",
+			}),
+			providesTags: ["AdminUsers"],
 		}),
 
 		editAdminUsers: builder.mutation<unknown, unknown>({

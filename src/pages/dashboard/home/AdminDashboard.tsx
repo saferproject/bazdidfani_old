@@ -129,7 +129,7 @@ const AdminDashboard = () => {
         <SectionCard title="آخرین بازدیدها" className="lg:col-span-2">
           {recentInspections.length > 0 ? (
             <div className="-mx-1 overflow-x-auto">
-              <table className="w-full min-w-[520px] text-right">
+              <table className="w-full min-w-130 text-right">
                 <thead>
                   <tr className="text-xs text-gray-400">
                     <th className="px-2 pb-3 font-medium">کد سباف</th>

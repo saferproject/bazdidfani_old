@@ -285,7 +285,16 @@ const AdminTechnicalManagersList: FC<AdminTechnicalManagersListProps> = ({
             : (technicalManagers.data?.data.data ?? [])
         }
         renderCart={(data) => (
-          <ATechnicalManagerCard data={data.user.personal} isDialog={false} />
+          <ATechnicalManagerCard
+            data={data.user.personal}
+            isDialog={false}
+            onLoginAs={() =>
+              setLoginAsTarget({
+                userId: data.user_id,
+                fullName: data.user.personal.full_name,
+              })
+            }
+          />
         )}
         filterSetInUrl
         onCloseFilterDialog={() => {}}

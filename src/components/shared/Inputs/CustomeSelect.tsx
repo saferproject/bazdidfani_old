@@ -1,4 +1,5 @@
-import { FormControl, FormHelperText, InputLabel, MenuItem, Select } from "@mui/material";
+import { FormControl, FormHelperText, IconButton, InputLabel, MenuItem, Select } from "@mui/material";
+import { CloseCircle } from "iconsax-reactjs";
 import { Controller } from "react-hook-form";
 
 const SelectCustom = ({
@@ -56,40 +57,58 @@ const SelectCustom = ({
 					>
 						{label}
 					</InputLabel>
-					<Select
-						key={field.value}
-						disabled={disabled}
-						{...field}
-						value={field.value || ""}
-						onChange={(e) => field.onChange(e.target.value || "")}
-						readOnly={readOnly}
-						label={label}
-						labelId={`${name}-label`}
-						id={`${name}-select`}
-						error={!!error?.message}
-						className={"overflow-x-hidden " + className}
-						MenuProps={{ disableScrollLock: true }}
-						// input={<OutlinedInput notched label={label} />}
-						sx={{
-							borderRadius: "8px",
-							"& .MuiOutlinedInput-notchedOutline": {
+					<div className="relative">
+						<Select
+							key={field.value}
+							disabled={disabled}
+							{...field}
+							value={field.value || ""}
+							onChange={(e) => field.onChange(e.target.value || "")}
+							readOnly={readOnly}
+							label={label}
+							labelId={`${name}-label`}
+							id={`${name}-select`}
+							error={!!error?.message}
+							className={"overflow-x-hidden w-full " + className}
+							MenuProps={{ disableScrollLock: true }}
+							// input={<OutlinedInput notched label={label} />}
+							sx={{
 								borderRadius: "8px",
-							},
-							...sx,
-						}}
-						size={size}
-						required={required}
-					>
-						{items?.map((item: any) => (
-							<MenuItem
-								key={item[valueProperty]}
-								className="overflow-x-hidden font-medium"
-								value={item[valueProperty]}
+								"& .MuiOutlinedInput-notchedOutline": {
+									borderRadius: "8px",
+								},
+								...sx,
+							}}
+							size={size}
+							required={required}
+						>
+							{items?.map((item: any) => (
+								<MenuItem
+									key={item[valueProperty]}
+									className="overflow-x-hidden font-medium"
+									value={item[valueProperty]}
+								>
+									{item[titleProperty]}
+								</MenuItem>
+							))}
+						</Select>
+						{field.value && !disabled && !readOnly && (
+							<IconButton
+								size="small"
+								onMouseDown={(e) => e.preventDefault()}
+								onClick={() => field.onChange("")}
+								sx={{
+									position: "absolute",
+									right: 32,
+									top: "50%",
+									transform: "translateY(-50%)",
+									p: "2px",
+								}}
 							>
-								{item[titleProperty]}
-							</MenuItem>
-						))}
-					</Select>
+								<CloseCircle size="16" />
+							</IconButton>
+						)}
+					</div>
 					<FormHelperText className="text-[#d32f2f]! text-xs absolute bottom-0 translate-y-4">{error ? helperText : ""}</FormHelperText>
 				</FormControl>
 			)}

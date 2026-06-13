@@ -1,4 +1,5 @@
-import { Divider, Switch, useTheme } from "@mui/material";
+import { Divider, IconButton, Switch } from "@mui/material";
+import { Login } from "iconsax-reactjs";
 import { FC, useEffect } from "react";
 import { UndefinedToEmptyString } from "../../utilities/Helper";
 import { RoleType } from "../../types/RoleType";
@@ -9,9 +10,10 @@ import { useChangeTechnicalManagerStatusMutation } from "../../api/TechnicalMana
 interface iprops {
 	data: any;
 	isDialog?: boolean;
+	onLoginAs?: () => void;
 }
 
-const ATechnicalManagerCard: FC<iprops> = ({ data }) => {
+const ATechnicalManagerCard: FC<iprops> = ({ data, onLoginAs }) => {
 	const [changeTechnicalManagerStatusFn, changetechnicalManagerStatusResult] = useChangeTechnicalManagerStatusMutation();
 
 	useEffect(() => {
@@ -50,13 +52,25 @@ const ATechnicalManagerCard: FC<iprops> = ({ data }) => {
 		<div className="w-full rounded-2xl p-4 bg-gray-50 flex flex-col gap-2">
 			<div className="flex justify-between items-center gap-2">
 				<h4 className="font-semibold">{UndefinedToEmptyString(data?.full_name)}</h4>
-				<Switch
-					className="rotate-180"
-					checked={data?.status === 1}
-					onChange={(e) => {
-						handleActive(e, data.id);
-					}}
-				/>
+				<div className="flex items-center gap-1">
+					{onLoginAs && (
+						<IconButton
+							size="small"
+							title="ورود به‌جای کاربر"
+							onClick={() => onLoginAs?.()}
+						>
+							<Login size="20" className="text-primary" />
+						</IconButton>
+					)}
+					<Switch
+						size="small"
+						className="rotate-180"
+						checked={data?.status === 1}
+						onChange={(e) => {
+							handleActive(e, data.id);
+						}}
+					/>
+				</div>
 			</div>
 			<Divider />
 			<div className="flex items-center justify-between w-full">

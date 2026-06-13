@@ -95,6 +95,9 @@ export default function CustomeAutoComplete({
 						filterOptions={filterOptions}
 						value={field.value}
 						sx={{
+							"& .MuiAutocomplete-clearIndicator": {
+								visibility: field.value ? "visible" : "hidden",
+							},
 							"& .MuiOutlinedInput-root": {
 								borderRadius: "8px",
 							},

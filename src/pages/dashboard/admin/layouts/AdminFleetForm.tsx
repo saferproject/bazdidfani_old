@@ -150,48 +150,27 @@ const AdminFleetForm: FC<AdminFleetFormProps> = ({ formState, formData, onSubmit
 		<form
 			autoComplete="off"
 			onSubmit={handleSubmit(onSubmit)}
-			className="grid grid-cols-6 gap-4"
+			className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
 		>
 			<Controller
 				name="type_ownership"
 				control={control}
 				rules={{ required: true }}
 				render={({ field }) => (
-					<FormControl
-						required
-						className="lg:col-start-1 lg:col-end-7"
-					>
-						<FormLabel
-							id="type-label"
-							required
-						>
+					<FormControl required className="col-span-full">
+						<FormLabel id="type-label" required>
 							نوع مالکیت
 						</FormLabel>
 						<RadioGroup
 							{...field}
+							row
 							onChange={(event) => field.onChange(Number(event.target.value))}
 							defaultValue={1}
 						>
-							<FormControlLabel
-								value={0}
-								label="ملکی"
-								control={<Radio />}
-							/>
-							<FormControlLabel
-								value={1}
-								label="استیجاری"
-								control={<Radio />}
-							/>
-							<FormControlLabel
-								value={2}
-								label="آزاد"
-								control={<Radio />}
-							/>
-							<FormControlLabel
-								value={3}
-								label="نامعلوم"
-								control={<Radio />}
-							/>
+							<FormControlLabel value={0} label="ملکی" control={<Radio />} />
+							<FormControlLabel value={1} label="استیجاری" control={<Radio />} />
+							<FormControlLabel value={2} label="آزاد" control={<Radio />} />
+							<FormControlLabel value={3} label="نامعلوم" control={<Radio />} />
 						</RadioGroup>
 					</FormControl>
 				)}
@@ -265,13 +244,15 @@ const AdminFleetForm: FC<AdminFleetFormProps> = ({ formState, formData, onSubmit
 				required
 				fullWidth
 			/>
-			<PlateTextField
-				control={control}
-				watch={watch}
-				error={!!(errors.first_number || errors.third_character || errors.second_number || errors.fourth_number)}
-				helperText={errors.first_number?.message?.toString()}
-				rules={{ required: "فیلد پلاک ماشین الزامی است" }}
-			/>
+			<div className="col-span-full sm:col-span-2 lg:col-span-1">
+				<PlateTextField
+					control={control}
+					watch={watch}
+					error={!!(errors.first_number || errors.third_character || errors.second_number || errors.fourth_number)}
+					helperText={errors.first_number?.message?.toString()}
+					rules={{ required: "فیلد پلاک ماشین الزامی است" }}
+				/>
+			</div>
 			<DatePickerComponent
 				label="اعتبار بیمه"
 				name="Insurance_validity"
@@ -455,7 +436,7 @@ const AdminFleetForm: FC<AdminFleetFormProps> = ({ formState, formData, onSubmit
 			/>
 			<TextField
 				{...register("description")}
-				className="col-start-5 col-end-7"
+				className="col-span-full"
 				label="توضیحات"
 				type="text"
 				autoComplete="off"
@@ -484,20 +465,22 @@ const AdminFleetForm: FC<AdminFleetFormProps> = ({ formState, formData, onSubmit
 				fullWidth
 				multiline
 			/>
-			<Button
-				variant="outlined"
-				color="secondary"
-				onClick={formState === "ADD" ? onCancelAddFleet : onCancelEditFleet}
-			>
-				انصراف
-			</Button>
-			<Button
-				type="submit"
-				variant="contained"
-				loading={addFleetResult.isLoading || editFleetResult.isLoading}
-			>
-				{formState === "ADD" ? "ثبت" : "ویرایش"} ناوگان
-			</Button>
+			<div className="col-span-full flex gap-3 justify-end">
+				<Button
+					variant="outlined"
+					color="secondary"
+					onClick={formState === "ADD" ? onCancelAddFleet : onCancelEditFleet}
+				>
+					انصراف
+				</Button>
+				<Button
+					type="submit"
+					variant="contained"
+					loading={addFleetResult.isLoading || editFleetResult.isLoading}
+				>
+					{formState === "ADD" ? "ثبت" : "ویرایش"} ناوگان
+				</Button>
+			</div>
 		</form>
 	);
 };

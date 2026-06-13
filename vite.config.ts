@@ -122,9 +122,9 @@ export default defineConfig({
       registerType: "autoUpdate", // Automatically updates the service worker
       workbox: {
         disableDevLogs: true,
-        globPatterns: ["**/*.{png,svg,jpeg,woff2}"], // Cache these file types
-        cleanupOutdatedCaches: true, // Automatically remove outdated caches
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // Cache files up to 5MB
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,jpeg,jpg,webp,woff,woff2,ttf,eot}"],
+        cleanupOutdatedCaches: true,
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         navigateFallback: "/index.html",
       },
       manifest: {
@@ -135,6 +135,16 @@ export default defineConfig({
         background_color: "#ffffff",
         lang: "fa",
         orientation: "portrait-primary",
+        display: "standalone",
+        start_url: "/",
+        id: "/",
+        icons: [
+          {
+            src: "/favicon.png",
+            sizes: "any",
+            type: "image/png",
+          },
+        ],
       },
       devOptions: {
         enabled: true,

@@ -1,4 +1,5 @@
-import { CircularProgress, Divider, Switch } from "@mui/material";
+import { CircularProgress, Divider, IconButton, Switch } from "@mui/material";
+import { Login } from "iconsax-reactjs";
 import { FC, useEffect } from "react";
 import { RoleType } from "../../types/RoleType";
 import SweetAlertToast from "../shared/Functions/SweetAlertToast";
@@ -7,9 +8,10 @@ import { useChangeCompanyStatusMutation } from "../../pages/dashboard/admin/api/
 interface iprops {
 	data: any;
 	isDialog?: boolean;
+	onLoginAs?: (userId: number, fullName: string) => void;
 }
 
-const ACompaniesCard: FC<iprops> = ({ data }) => {
+const ACompaniesCard: FC<iprops> = ({ data, onLoginAs }) => {
 	const [changeCompanyStatusFn, changeCompanyStatusResult] = useChangeCompanyStatusMutation();
 
 	useEffect(() => {
@@ -40,16 +42,28 @@ const ACompaniesCard: FC<iprops> = ({ data }) => {
 		<div className="w-full flex flex-col gap-2 p-4 bg-gray-50 rounded-2xl">
 			<div className="w-full flex items-center justify-between">
 				<p className="text-gray-900">{data.name ?? ""}</p>
-				{changeCompanyStatusResult.isLoading && changeCompanyStatusResult.originalArgs?.userId === data.id ? (
-					<CircularProgress color="primary" />
-				) : (
-					<Switch
-						checked={data.status === 3}
-						onChange={(e) => {
-							handleActive(e, data.user_id);
-						}}
-					/>
-				)}
+				<div className="flex items-center gap-1">
+					{onLoginAs && (
+						<IconButton
+							size="small"
+							title="ورود به‌جای کاربر"
+							onClick={() => onLoginAs(data.user_id, data.user?.personal?.full_name ?? data.name)}
+						>
+							<Login size="20" className="text-primary" />
+						</IconButton>
+					)}
+					{changeCompanyStatusResult.isLoading && changeCompanyStatusResult.originalArgs?.userId === data.user_id ? (
+						<CircularProgress size={20} color="primary" />
+					) : (
+						<Switch
+							size="small"
+							checked={data.status === 3}
+							onChange={(e) => {
+								handleActive(e, data.user_id);
+							}}
+						/>
+					)}
+				</div>
 			</div>
 			<Divider />
 			<div className="flex items-center justify-between">

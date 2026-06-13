@@ -5,6 +5,7 @@ import Truck from "../interfaces/fleet.interface";
 
 export const {
 	useGetAdminFleetQuery,
+	useGetInfiniteAdminFleetInfiniteQuery,
 	useGetAdminFleetDataMutation,
 	useChangeAdminFleetStatusMutation,
 	useAddAdminFleetMutation,
@@ -26,6 +27,19 @@ export const {
 				message,
 				status,
 			}),
+		}),
+
+		getInfiniteAdminFleet: builder.infiniteQuery<APIResponse<Truck>, Record<string, string | number | boolean>, number>({
+			infiniteQueryOptions: {
+				initialPageParam: 1,
+				getNextPageParam: (_lastPage, _allPages, lastPageParam) =>
+					_lastPage.data.current_page < _lastPage.data.last_page ? lastPageParam + 1 : undefined,
+			},
+			query: ({ queryArg, pageParam }) => ({
+				url: `admin/truck/index${queryArg ? "?" + buildQueryParams({ ...queryArg, page: pageParam }) : ""}`,
+				method: "GET",
+			}),
+			providesTags: ["AdminFleet"],
 		}),
 
 		getAdminFleetData: builder.mutation<unknown, unknown>({

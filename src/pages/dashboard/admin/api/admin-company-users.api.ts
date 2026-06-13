@@ -3,7 +3,7 @@ import { ApiWithAuth } from "../../../../Stores/apis/api";
 import buildQueryParams from "../../../../utilities/build-query-params";
 import CompanyUser from "../interfaces/company-user.interface";
 
-export const { useGetAdminCompanyUsersQuery, useChangeAdminCompanyUserStatusMutation } = ApiWithAuth.injectEndpoints({
+export const { useGetAdminCompanyUsersQuery, useGetInfiniteAdminCompanyUsersInfiniteQuery, useChangeAdminCompanyUserStatusMutation } = ApiWithAuth.injectEndpoints({
 	endpoints: (builder) => ({
 		getAdminCompanyUsers: builder.query<APIResponse<CompanyUser>, Record<string, string | number | boolean> | null>({
 			query: (params) => ({
@@ -19,6 +19,19 @@ export const { useGetAdminCompanyUsersQuery, useChangeAdminCompanyUserStatusMuta
 				message,
 				status,
 			}),
+		}),
+
+		getInfiniteAdminCompanyUsers: builder.infiniteQuery<APIResponse<CompanyUser>, Record<string, string | number | boolean>, number>({
+			infiniteQueryOptions: {
+				initialPageParam: 1,
+				getNextPageParam: (_lastPage, _allPages, lastPageParam) =>
+					_lastPage.data.current_page < _lastPage.data.last_page ? lastPageParam + 1 : undefined,
+			},
+			query: ({ queryArg, pageParam }) => ({
+				url: `admin/company/company-user/index${queryArg ? "?" + buildQueryParams({ ...queryArg, page: pageParam }) : ""}`,
+				method: "GET",
+			}),
+			providesTags: ["AdminCompanyUsers"],
 		}),
 
 		changeAdminCompanyUserStatus: builder.mutation<any, { id: number; status: 0 | 1; admin_description: string }>({

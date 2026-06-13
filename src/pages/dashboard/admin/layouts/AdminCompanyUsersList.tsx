@@ -122,32 +122,6 @@ const AdminCompanyUsersList: FC<AdminCompanyUsersListProps> = () => {
 			flex: 1,
 			valueFormatter: (_value, row) => (row.user.personal.birthdate ? GetShamsiDate(row.user.personal.birthdate) : ""),
 		},
-		// {
-		// 	field: "VIN",
-		// 	headerName: "VIN",
-		// 	type: "string",
-		// 	editable: false,
-		// 	align: "center",
-		// 	flex: 1,
-		// },
-		// {
-		// 	field: "loader",
-		// 	headerName: "نوع بارگیر",
-		// 	type: "string",
-		// 	editable: false,
-		// 	align: "center",
-		// 	flex: 1,
-		// 	valueGetter: (_value, row) => row.loader.name,
-		// },
-		// {
-		// 	field: "owner_phone_number",
-		// 	headerName: "شماره همراه مالک",
-		// 	type: "string",
-		// 	editable: false,
-		// 	align: "center",
-		// 	flex: 1,
-		// 	valueGetter: (_value, row) => row.trucks_info[0].owner_phone_number,
-		// },
 	];
 
 	useEffect(() => {

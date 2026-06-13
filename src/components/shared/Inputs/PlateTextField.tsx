@@ -3,15 +3,6 @@ import React, { RefObject, useEffect, useRef } from "react";
 import { Controller } from "react-hook-form";
 import { IMaskInput } from "react-imask";
 
-
-
-
-
-
-
-
-
-
 function SelectOnFocus(event: React.FocusEvent<HTMLInputElement>) {
   event.target.select();
 }

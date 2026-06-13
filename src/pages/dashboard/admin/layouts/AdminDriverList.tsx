@@ -1,3 +1,4 @@
+import ADriverCard from "../../../../components/Admin/ADriverCard";
 import SaferGrid from "../../../../components/shared/DataGrid/SaferGrid";
 import LoginAsDialog from "../../../../components/shared/dialogs/LoginAsDialog/LoginAsDialog";
 import SaferFilters from "../../../../components/shared/Filters/SaferFilters";
@@ -284,7 +285,13 @@ const AdminDriverList: FC<AdminDriverListProps> = ({
                 .reduce((a, b) => [...a, ...b]) ?? [])
             : (drivers.data?.data.data ?? [])
         }
-        renderCart={() => <></>}
+        renderCart={(data) => (
+          <ADriverCard
+            data={data}
+            onEditDriver={onEditDriver}
+            onLoginAs={(userId, fullName) => setLoginAsTarget({ userId, fullName })}
+          />
+        )}
         filterSetInUrl
         onCloseFilterDialog={() => {}}
         onFilterChange={() => {}}
