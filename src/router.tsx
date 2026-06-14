@@ -27,6 +27,8 @@ import SelfStatementCheckList from "./pages/dashboard/self-statement/checklist/S
 import DriverData from "./pages/dashboard/self-statement/DriverData";
 import SelfStatement from "./pages/dashboard/self-statement/SelfStatement";
 import AddTechnicalmanager from "./pages/dashboard/technicalmanagers/AddTechnicalmanager";
+import CompleteTechnicalManagerProfile from "./pages/dashboard/technicalmanagers/CompleteTechnicalManagerProfile";
+import RegisterTechnicalManager from "./pages/dashboard/technicalmanagers/RegisterTechnicalManager";
 import TechnicalManager from "./pages/dashboard/technicalmanagers/TechnicalManager";
 import Users from "./pages/dashboard/Users";
 import Wallet from "./pages/dashboard/wallet/Wallet";
@@ -101,6 +103,14 @@ const router = createBrowserRouter(
         <Route
           path="technicalmanagers/add-technicalmanager"
           element={<AddTechnicalmanager />}
+        />
+        <Route
+          path="technicalmanagers/complete-profile"
+          element={<CompleteTechnicalManagerProfile />}
+        />
+        <Route
+          path="technicalmanagers/inquery-technical-manager"
+          element={<RegisterTechnicalManager />}
         />
         <Route path="users" element={<Users />} />
         <Route path="wallet" element={<Wallet />} />

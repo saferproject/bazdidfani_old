@@ -52,6 +52,7 @@ interface UserState {
 	userCompanyRoles: IRole[];
 	companyUsage: CompanyUsage;
 	twoAuthentication: boolean;
+	newTechnicalManagerData: Record<string, any>
 }
 
 // مقدار اولیه
@@ -71,6 +72,7 @@ const initialState: UserState = {
 	userCompanyRoles: localStorage.getItem("userCompanyRoles") ? JSON.parse(localStorage.getItem("userCompanyRoles")) : [],
 	companyUsage: null,
 	twoAuthentication: localStorage.getItem("twoAuthentication") === "true",
+	newTechnicalManagerData: {}
 };
 
 export const userSlice = createSlice({
@@ -173,6 +175,9 @@ export const userSlice = createSlice({
 		setCompanyUsage: (state, action: PayloadAction<CompanyUsage>) => {
 			state.companyUsage = action.payload;
 		},
+		setNewTechnicalManagetData: (state, action) => {
+			state.newTechnicalManagerData = action.payload
+		},
 		clear: (state) => {
 			localStorage.clear();
 			state.personal = null;
@@ -189,6 +194,7 @@ export const userSlice = createSlice({
 			state.userCompanyPersonal = null;
 			state.userCompanyRoles = [];
 			state.twoAuthentication = false;
+			state.newTechnicalManagerData = {};
 		},
 	},
 });
@@ -218,6 +224,7 @@ export const {
 	setUserCompanyRoles,
 	setCompanyUsage,
 	setTwoAuthentication,
+	setNewTechnicalManagetData,
 	clear,
 } = userSlice.actions;
 

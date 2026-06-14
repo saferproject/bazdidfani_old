@@ -8,6 +8,7 @@ import { GetShamsiDate } from "../../../../utilities/DateTime";
 import { User } from "iconsax-reactjs";
 import SaferGrid from "../../../../components/shared/DataGrid/SaferGrid";
 import SaferFilters from "../../../../components/shared/Filters/SaferFilters";
+import ACompanyUsersCard from "../../../../components/Admin/ACompanyUsersCard";
 
 const AdminCompanyUsersList: FC<AdminCompanyUsersListProps> = () => {
 	const [paginatorProps, setPaginatorProps] = useState({ currentPage: 1, itemsPerPage: 10 });
@@ -146,12 +147,13 @@ const AdminCompanyUsersList: FC<AdminCompanyUsersListProps> = () => {
 					mode="SEARCH_PARAMS"
 					search={true}
 					onFilter={handleFilter}
+					onGetExcel={() => {}}
 				/>
 				<SaferGrid<any>
 					columns={columns}
 					loading={users.isLoading || users.isFetching}
 					rows={users.data?.data.data ?? []}
-					renderCart={() => <></>}
+					renderCart={(data) => <ACompanyUsersCard data={data}/>}
 					filterSetInUrl
 					onCloseFilterDialog={() => {}}
 					onFilterChange={() => {}}

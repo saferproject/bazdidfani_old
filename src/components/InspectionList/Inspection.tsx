@@ -11,7 +11,6 @@ import { clearSelfStatementData } from "../../Stores/slices/self-statement-data.
 import { closeTextDialog, setTextDialogData } from "../../Stores/slices/text-dialog.slice";
 import useIsPhone from "../../utilities/custom-hooks/use-is-phone";
 import SweetAlertToast from "../shared/Functions/SweetAlertToast";
-import MAX_IMAGE_UPLOAD_RETRIES from "./constants/max-image-upload-retries";
 import GroupInspectionItem from "./InspectionItem/GroupInspectionItem";
 import SingleInspectionItem from "./InspectionItem/SingleInspectionItem";
 import InspectionItemDialog from "./InspectionItemDialog/InspectionItemDialog";
@@ -442,27 +441,17 @@ const Inspection: FC<InspectionProps> = ({ loaderTypeCode }) => {
 
       for (let idx = 0; idx < total; idx++) {
         const formData = uploadQueueRef.current[idx];
-        let attempt = 0;
         let success = false;
 
-        while (attempt <= MAX_IMAGE_UPLOAD_RETRIES && !success) {
-          try {
-            await uploadInspectionImageFn(formData).unwrap();
-            success = true;
-          } catch {
-            attempt += 1;
-
-            if (attempt > MAX_IMAGE_UPLOAD_RETRIES) {
-              failedCount += 1;
-              SweetAlertToast.fire({
-                icon: "warning",
-                text: "ارسال عکس ناموفق بود",
-              });
-              break;
-            }
-
-            await new Promise((resolve) => setTimeout(resolve, 500));
-          }
+        try {
+          await uploadInspectionImageFn(formData).unwrap();
+          success = true;
+        } catch {
+          failedCount += 1;
+          SweetAlertToast.fire({
+            icon: "warning",
+            text: "ارسال عکس ناموفق بود",
+          });
         }
 
         if (success) sentCount += 1;

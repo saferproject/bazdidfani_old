@@ -2,12 +2,15 @@
 import {
   useAddTechnicalManagerMutation,
   useGetTechnicalManagersMutation,
+  useSendOTPToTechManagerMutation,
+  useVerifyOTPForTechManagerMutation,
 } from "../../../api/TechnicalManager/TechnicalManager";
 import DatePickerComponent from "../../../components/shared/DatePicker/DatePickerComponent";
 import SweetAlertToast from "../../../components/shared/Functions/SweetAlertToast";
 import { STORAGE_URL } from "../../../Stores/api-urls";
 import {
   Avatar,
+  Box,
   Button,
   Divider,
   Stack,
@@ -15,10 +18,17 @@ import {
   Typography,
 } from "@mui/material";
 import { InfoCircle } from "iconsax-reactjs";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
-import { FaLongArrowAltLeft } from "react-icons/fa";
+import { FaCode, FaLongArrowAltLeft, FaUserPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import CustomDialog from "../../../components/shared/Dialog/CustomeDialog";
+import OTPInput from "react-otp-input";
+import { ToPersianNumber } from "../../../components/shared/Functions/ChangeNumLang";
+import { BsCode, BsXCircle } from "react-icons/bs";
+import { CgPassword } from "react-icons/cg";
+import { useDispatch } from "react-redux";
+import { setPhone as setPhoneStore, setStep } from "../../../Stores/slices/user";
 
 interface IDivider {
   text?: string;
@@ -57,6 +67,77 @@ export default function AddTechnicalmanager() {
 
   const [addTechnicalManager, addTechnicalManagerResult] =
     useAddTechnicalManagerMutation();
+  const [sendOtp, sendOtpResult] =
+    useSendOTPToTechManagerMutation();
+  const [verifyOtp, verifyOtpResult] =
+    useVerifyOTPForTechManagerMutation();
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showOTPDialog, setShowOTPDialog] = useState(false);
+  const [phone, setPhone] = useState("");
+  const [token, setToken] = useState("");
+  const [otpStep, setOtpStep] = useState(0);
+  const [isValidToSend, setIsValidToSend] = useState(true);
+  const [minute, setMinute] = useState(1);
+  const [seconds, setSeconds] = useState(59);
+
+  const intervalRef = useRef(null);
+  const timeoutRef = useRef(null);
+
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    if (!sendOtpResult.isSuccess && !sendOtpResult.isLoading) {
+          SweetAlertToast.fire({
+            title: sendOtpResult.data?.message,
+            icon: "error",
+          });
+        }
+        else if (sendOtpResult.isSuccess) {
+          setOtpStep(2);
+          setIsValidToSend(false);
+          setTimeout(() => {
+            setIsValidToSend(true);
+          }, 120000);
+        }
+  }, [sendOtpResult]);
+
+  useEffect(() => {
+if (!verifyOtpResult.isSuccess && !verifyOtpResult.isLoading) {
+          SweetAlertToast.fire({
+            title: verifyOtpResult.data?.message,
+            icon: "error",
+          });
+        }
+        else if (verifyOtpResult.isSuccess) {
+          dispatch(setPhoneStore(phone));
+          navigate("/dashboard/technicalmanagers/complete-profile");
+        }
+  }, [verifyOtpResult]);
+
+  useEffect(() => {
+    if (!isValidToSend) {
+      setMinute(1);
+      setSeconds(59);
+      intervalRef.current = setInterval(() => {
+        setSeconds(sec => sec - 1);
+      }, 1000);
+      setTimeout(() => {
+        setMinute(0);
+        setSeconds(60);
+      }, 60000);
+      timeoutRef.current = setTimeout(() => {
+        clearInterval(intervalRef.current);
+      }, 120000);
+    }
+  }, [isValidToSend]);
+
+  useEffect(() => {
+    if (otpStep !== 2) {
+      clearTimeout(timeoutRef.current);
+      clearInterval(intervalRef.current);
+      setIsValidToSend(true);
+    }
+  }, [otpStep]);
 
   useEffect(() => {
     if (addTechnicalManagerResult.isSuccess) {
@@ -92,10 +173,7 @@ export default function AddTechnicalmanager() {
   useEffect(() => {
     if (getTechnicalManangerResult.isSuccess) {
       if (getTechnicalManangerResult.data.success === false) {
-        SweetAlertToast.fire({
-          icon: "error",
-          text: getTechnicalManangerResult.data.message,
-        });
+        setShowAddDialog(true);
       } else {
         const data = getTechnicalManangerResult.data[0];
         reset({
@@ -121,6 +199,11 @@ export default function AddTechnicalmanager() {
     if (validate) {
       getTechnicalManangerFn(`?national_code=${national_code}`);
     }
+  };
+
+  const handleChange = async (otp: string) => {
+    const persianOtp = ToPersianNumber(otp);
+    setToken(persianOtp);
   };
 
   return (
@@ -296,6 +379,100 @@ export default function AddTechnicalmanager() {
           </div>
         </>
       )}
+      <CustomDialog
+        show={showAddDialog}
+        onClose={() => setShowAddDialog(false)}
+        hasOnClose
+      >
+        <Box className="flex flex-col gap-4">
+          <Box className="flex flex-row justify-between items-center">
+            <Box className="flex flex-row items-center gap-4">
+              <div className="w-8 h-8 flex flex-row items-center justify-center rounded-full bg-primary">
+                <FaUserPlus className="text-secondary" />
+              </div>
+              <h2 className="font-bold text-2xl">افزودن کاربر</h2>
+              </Box>
+            <BsXCircle className="text-rose-600 select-none cursor-pointer" onClick={() => setShowAddDialog(false)} />
+          </Box>
+          <p>
+          مدیر فنی یافت نشد. آیا میخواهید مدیر فنی را خودتان اضافه کنید؟
+        </p>
+        <Box className="flex flex-row items-center gap-2">
+          <Button onClick={() => {
+            setShowAddDialog(false);
+            setShowOTPDialog(true);
+            setOtpStep(1);
+          }} className="flex-grow" variant="contained" color="primary">بله</Button>
+          <Button className="flex-grow" onClick={() => setShowAddDialog(false)} variant="contained" color="secondary">خیر</Button>
+        </Box>
+        </Box>
+      </CustomDialog>
+      <CustomDialog
+        show={showOTPDialog}
+        onClose={() => setShowOTPDialog(false)}
+        hasOnClose
+      >
+        <Box className="flex flex-col gap-4">
+          <Box className="flex flex-row justify-between items-center">
+            <Box className="flex flex-row items-center gap-4">
+              <div className="w-8 h-8 flex flex-row items-center justify-center rounded-full bg-primary">
+                <CgPassword className="text-secondary" />
+              </div>
+              <h2 className="font-bold text-2xl">دریافت کد تایید</h2>
+              </Box>
+            <BsXCircle className="text-rose-600 select-none cursor-pointer" onClick={() => setShowOTPDialog(false)} />
+          </Box>
+          {
+          otpStep === 1 ? (
+            <Box className="flex flex-col gap-2">
+              <Box className="!text-black/70 text-sm">
+                لطفا شماره همراه مدیر فنی را وارد نمایید.
+              </Box>
+              <Box className="self-stretch">
+                <TextField name="phone" label="شماره همراه" onChange={(event) => setPhone(event.target.value)}></TextField>
+              </Box>
+            </Box>
+          ) : (
+            <Box className="flex flex-col gap-2">
+              <Box className="!text-black/70">
+                کد تایید پیامک شده را وارد نمایید.
+              </Box>
+              <Box className="flex flex-row gap-4">
+                  <Button className="flex-grow" onClick={() => setOtpStep(1)}>تغییر شماره همراه</Button>
+                  <Button disabled={!isValidToSend} className="flex-grow" onClick={() => sendOtp({ phone })}>{ isValidToSend ? "ارسال مجدد کد" : `${Intl.NumberFormat("fa-IR", {
+                    minimumIntegerDigits: 2
+                  }).format(minute)}:${Intl.NumberFormat("fa-IR", {
+                    minimumIntegerDigits: 2
+                  }).format(seconds)}` }</Button>
+                </Box>
+              <Box>
+                <OTPInput
+                  onChange={handleChange}
+                  value={token}
+                  numInputs={4}
+                  renderInput={(props, index) => (
+                    <input
+                      {...props}
+                      id={`otp-${index}`}
+                      type="tel"
+                      inputMode="numeric"
+                      className={`border-b border-black text-[22.5pt]  w-[40px] md:w-[50px] h-[42px] md:h-[52px] outline-hidden focus:border-primary-dark text-center`}
+                    />
+                  )}
+                  containerStyle="flex flex-row-reverse gap-x-5 justify-evenly items-start"
+                />
+              </Box>
+            </Box>
+          )
+        }
+        <Button className="self-stretch" loading={sendOtpResult.isLoading || verifyOtpResult.isLoading} onClick={() => {
+            if (otpStep === 1)
+              sendOtp({ phone });
+            else 
+              verifyOtp({ phone, token });
+          }} variant="contained" color="primary">تایید</Button>
+        </Box>
+      </CustomDialog>
     </Stack>
   );
 }
