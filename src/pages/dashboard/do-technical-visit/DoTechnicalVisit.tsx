@@ -20,6 +20,8 @@ import { TruckFast } from "iconsax-reactjs";
 import { Add } from "iconsax-reactjs";
 import { FC, useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import buildQueryParams from "../../../utilities/build-query-params";
+import { API_URL } from "../../../Stores/api-urls";
 
 type TechnicalInspectionTypes = 1 | 2;
 
@@ -215,7 +217,7 @@ const DoTechnicalVisit: FC<iprops> = ({ type }) => {
         mode="SEARCH_PARAMS"
         plaque={true}
         onFilter={handleFilter}
-        onGetExcel={() => {}}
+        onGetExcel={() => window.open(`${API_URL}/api/technical-manager/bazdifani/export/excel${filters ? buildQueryParams(filters) : ""}`)}
       />
       <SaferGrid<any>
         columns={columns}

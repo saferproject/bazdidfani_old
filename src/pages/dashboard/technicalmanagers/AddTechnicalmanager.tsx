@@ -395,7 +395,7 @@ if (!verifyOtpResult.isSuccess && !verifyOtpResult.isLoading) {
             <BsXCircle className="text-rose-600 select-none cursor-pointer" onClick={() => setShowAddDialog(false)} />
           </Box>
           <p>
-          مدیر فنی یافت نشد. آیا میخواهید مدیر فنی را خودتان اضافه کنید؟
+          مدیر فنی با کد ملی وارد شده در سامانه بازدید فنی ثبت نام نشده است. آیا میخواهید ثبت نام کنید؟
         </p>
         <Box className="flex flex-row items-center gap-2">
           <Button onClick={() => {
@@ -411,6 +411,8 @@ if (!verifyOtpResult.isSuccess && !verifyOtpResult.isLoading) {
         show={showOTPDialog}
         onClose={() => setShowOTPDialog(false)}
         hasOnClose
+        maxWidth="sm"
+        fullWidth
       >
         <Box className="flex flex-col gap-4">
           <Box className="flex flex-row justify-between items-center">
@@ -424,28 +426,28 @@ if (!verifyOtpResult.isSuccess && !verifyOtpResult.isLoading) {
           </Box>
           {
           otpStep === 1 ? (
-            <Box className="flex flex-col gap-2">
-              <Box className="!text-black/70 text-sm">
+            <Box className="flex flex-col gap-6 self-stretch">
+              <Box className="!text-black/70 text-sm self-start">
                 لطفا شماره همراه مدیر فنی را وارد نمایید.
               </Box>
               <Box className="self-stretch">
-                <TextField name="phone" label="شماره همراه" onChange={(event) => setPhone(event.target.value)}></TextField>
+                <TextField slotProps={{ input: { dir: "ltr" } }} fullWidth name="phone" label="شماره همراه" onChange={(event) => setPhone(event.target.value)}></TextField>
               </Box>
             </Box>
           ) : (
             <Box className="flex flex-col gap-2">
-              <Box className="!text-black/70">
+              <Box className="!text-black/70 text-sm">
                 کد تایید پیامک شده را وارد نمایید.
               </Box>
               <Box className="flex flex-row gap-4">
                   <Button className="flex-grow" onClick={() => setOtpStep(1)}>تغییر شماره همراه</Button>
-                  <Button disabled={!isValidToSend} className="flex-grow" onClick={() => sendOtp({ phone })}>{ isValidToSend ? "ارسال مجدد کد" : `${Intl.NumberFormat("fa-IR", {
+                  <Button disabled={!isValidToSend} className="flex-grow" onClick={() => sendOtp({ phone })}>ارسال مجدد کد - { !isValidToSend && `${Intl.NumberFormat("fa-IR", {
                     minimumIntegerDigits: 2
                   }).format(minute)}:${Intl.NumberFormat("fa-IR", {
                     minimumIntegerDigits: 2
                   }).format(seconds)}` }</Button>
                 </Box>
-              <Box>
+              <Box className="self-center">
                 <OTPInput
                   onChange={handleChange}
                   value={token}

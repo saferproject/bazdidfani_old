@@ -3,7 +3,7 @@ import DatePickerComponent from "../DatePicker/DatePickerComponent";
 import PlateTextField from "../Inputs/PlateTextField";
 import SAFER_FILTERS_BASE_FORM_INITIAL from "./constants/safer-filters-base-form-initial";
 import SaferFiltersBaseForm from "./interfaces/safer-filters-base-form.interface";
-import { Button, FormControl, IconButton, InputLabel, MenuItem, Select, Switch, TextField } from "@mui/material";
+import { Button, CircularProgress, FormControl, IconButton, InputLabel, MenuItem, Select, Switch, TextField } from "@mui/material";
 import { CloseCircle, Eraser, Filter, SearchNormal1, TableDocument } from "iconsax-reactjs";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -20,6 +20,7 @@ export default function SaferFilters({
   filters = [],
   onFilter,
   onGetExcel,
+  excelLoading
 }: {
   mode?: "NO_SEARCH_PARAMS" | "SEARCH_PARAMS";
   search?: boolean;
@@ -40,6 +41,7 @@ export default function SaferFilters({
   onGetExcel: (
     filters: SaferFiltersBaseForm & Record<string, string | number | boolean>,
   ) => void;
+  excelLoading?: boolean;
 }) {
   const [isFiltersVisible, setFiltersVisibility] = useState(false);
 
@@ -288,8 +290,9 @@ export default function SaferFilters({
             size="small"
             className="border border-blue-500 rounded-lg"
             onClick={() => onGetExcel(values)}
+            disabled={excelLoading}
           >
-            <RiFileExcel2Line size="24" className="text-blue-500" />
+            { excelLoading ? <CircularProgress className="text-blue-500 w-6 h-6" /> : <RiFileExcel2Line size="24" className="text-blue-500" /> }
           </IconButton>
         </>
       )}

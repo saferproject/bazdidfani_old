@@ -62,6 +62,12 @@ const AInspectionsCard: FC<iprops> = ({ data, onViewInspection, isLoading }) => 
 					<p className="text-gray-900">{data.code}</p>
 				</div>
 			)}
+			{data.technical_inspection.sabaf_code && (
+				<div className="flex items-center justify-between">
+					<p className="text-gray-500">رهگیری</p>
+					<p className="text-gray-900">{data.technical_inspection.sabaf_code}</p>
+				</div>
+			)}
 		</div>
 	);
 };

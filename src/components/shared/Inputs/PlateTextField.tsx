@@ -14,6 +14,12 @@ type PlateTextFieldProps = {
   watch: any;
   error?: boolean;
   helperText?: string;
+
+
+
+
+
+
   rules?: any;
 };
 
@@ -181,10 +187,12 @@ export default function PlateTextField({
                 inputProps={{
                   mask: "#",
                   style: { textAlign: "center", padding: 0 },
+                  defaultValue: "ع"
                 }}
                 onFocus={SelectOnFocus}
                 autoComplete="off"
                 placeholder="-"
+                defaultValue={"ع"}
                 inputComponent={TextMaskCustom as any}
                 readOnly={readOnly}
                 disabled={disabled}

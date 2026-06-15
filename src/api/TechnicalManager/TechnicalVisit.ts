@@ -2,22 +2,6 @@ import { ApiWithAuth } from "../../Stores/apis/api";
 import buildQueryParams from "../../utilities/build-query-params";
 import APIResponse from "../interfaces/response.interface";
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const {
   useGetInspectionsWithPaginationQuery,
   useGetInspectionsInfiniteQuery,
