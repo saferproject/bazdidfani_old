@@ -189,7 +189,7 @@ export default function ValidatePhone(props: ValidatePhonePropsType) {
     if (validate) {
       const englishToken = ToEnglishNumber(watch("token"));
       checkOtpFn({
-        token: +englishToken,
+        token: String(englishToken),
         data: ToEnglishNumber(phone),
         "forget-pass": forgot || false,
         forgot: forgot || false,

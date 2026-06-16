@@ -5,7 +5,7 @@ export interface OTPSendCodeRequestDataType {
 }
 
 export interface OTPValidatePhoneType {
-	token: number;
+	token: string;
 	data: string;
 	"forget-pass": boolean;
 	two_authentication: boolean;
