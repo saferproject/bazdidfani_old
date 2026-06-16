@@ -480,7 +480,7 @@ export default function RegisterPhone(props: PropsType) {
                     icon={
                       <div
                         className={
-                          "w-5 h-5 rounded-md border border-font-color"
+                          "w-5 h-5 rounded-md border border-black/70 shadow-lg shadow-black/40"
                         }
                       ></div>
                     }
@@ -488,12 +488,12 @@ export default function RegisterPhone(props: PropsType) {
                     checkedIcon={
                       <div
                         className={
-                          "w-5 h-5 rounded-md border border-font-color " +
+                          "w-5 h-5 rounded-md border border-black/70 shadow-lg shadow-black/40 " +
                           "flex flex-row items-center justify-center"
                         }
                       >
                         <div
-                          className={"w-[14px] h-[14px] rounded-sm bg-primary"}
+                          className={"w-[15px] h-[15px] rounded-sm bg-primary"}
                         ></div>
                       </div>
                     }
