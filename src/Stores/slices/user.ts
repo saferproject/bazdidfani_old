@@ -70,7 +70,7 @@ const initialState: UserState = {
 	activeMenuId: localStorage.getItem("activeMenuId"),
 	userCompanyPersonal: localStorage.getItem("userCompanyPersonal") ? JSON.parse(localStorage.getItem("userCompanyPersonal")) : null,
 	userCompanyRoles: localStorage.getItem("userCompanyRoles") ? JSON.parse(localStorage.getItem("userCompanyRoles")) : [],
-	companyUsage: null,
+	companyUsage: localStorage.getItem("companyUsage") ? (Number(localStorage.getItem("companyUsage")) as CompanyUsage) : null,
 	twoAuthentication: localStorage.getItem("twoAuthentication") === "true",
 	newTechnicalManagerData: {}
 };
@@ -174,12 +174,15 @@ export const userSlice = createSlice({
 		},
 		setCompanyUsage: (state, action: PayloadAction<CompanyUsage>) => {
 			state.companyUsage = action.payload;
+			if (action.payload != null) localStorage.setItem("companyUsage", String(action.payload));
+			else localStorage.removeItem("companyUsage");
 		},
 		setNewTechnicalManagetData: (state, action) => {
 			state.newTechnicalManagerData = action.payload
 		},
 		clear: (state) => {
-			localStorage.clear();
+			localStorage.clear(); // also removes companyUsage
+			state.companyUsage = null;
 			state.personal = null;
 			state.profileImage = null;
 			state.roles = [];

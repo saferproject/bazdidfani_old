@@ -145,6 +145,9 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 
 
 const InspectionRequestForm: FC<InspectionRequestFormProps> = ({ isOpen, data, onClose }) => {
+	const companyUsage: CompanyUsage = useAppSelector((state) => state.user.companyUsage);
+	const initialType = companyUsage === CompanyUsage.PASSENGER ? 2 : 1;
+
 	//#region Form
 
 	const {
@@ -157,7 +160,7 @@ const InspectionRequestForm: FC<InspectionRequestFormProps> = ({ isOpen, data, o
 		control,
 		formState: { errors },
 	} = useForm<InspectionRequestFormType>({
-		defaultValues: { type: 1, smart_number: null, driver_national_code: null },
+		defaultValues: { type: initialType, smart_number: null, driver_national_code: null },
 		resolver: zodResolver(InspectionRequestformSchema),
 	});
 
@@ -466,8 +469,6 @@ const InspectionRequestForm: FC<InspectionRequestFormProps> = ({ isOpen, data, o
 	//#endregion
 
 	//#region Hooks
-
-	const companyUsage: CompanyUsage = useAppSelector((state) => state.user.companyUsage);
 
 	const getTechnicalManagers = useGetCompanyTechnicalManagersQuery({
     status: 1,
@@ -865,7 +866,7 @@ const InspectionRequestForm: FC<InspectionRequestFormProps> = ({ isOpen, data, o
 												plate_type: 0,
 												second_number: null,
 												third_character: "ع",
-												type: companyUsage === 1 ? 1 : companyUsage === 2 ? 2 : 1,
+												type: initialType,
 												validity_technical_examination: null,
 												loader_type: "",
 												insurance_validity: null,

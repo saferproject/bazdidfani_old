@@ -5,6 +5,7 @@ import SaferGrid from "../../../components/shared/DataGrid/SaferGrid";
 import CustomeDialog, { CustomDialogProps, EmptyCustomDialoProps } from "../../../components/shared/Dialog/CustomeDialog";
 import SaferFilters from "../../../components/shared/Filters/SaferFilters";
 import SweetAlertToast from "../../../components/shared/Functions/SweetAlertToast";
+import LoginAsDialog from "../../../components/shared/dialogs/LoginAsDialog/LoginAsDialog";
 import { RoleType } from "../../../types/RoleType";
 import useIsPhone from "../../../utilities/custom-hooks/use-is-phone";
 import { GetShamsiDate } from "../../../utilities/DateTime";
@@ -13,7 +14,7 @@ import EditTechnicalManagerDataDialog from "./dialogs/EditTechnicalManagerDataDi
 import EditTechnicalManagerDataDialogProps from "./interfaces/edit-technical-manager-data-dialog-props.interface";
 import { Button, CircularProgress, IconButton, Switch, Typography } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
-import { Add, Edit, UserOctagon } from "iconsax-reactjs";
+import { Add, Edit, Login, UserOctagon } from "iconsax-reactjs";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -51,6 +52,11 @@ export default function TechnicalManager() {
     itemsPerPage: 10,
   });
   const [filters, setFilters] = useState(null);
+  const [loginAsTarget, setLoginAsTarget] = useState<{
+    userId: number;
+    fullName: string;
+    tmWorkType: 1 | 2 | 3;
+  } | null>(null);
 
   const handleCloseEditDialog = () => {
     setEditFormProps((currentValue) => ({
@@ -248,14 +254,29 @@ export default function TechnicalManager() {
     {
       field: "actions",
       headerName: "عملیات",
-      width: 96,
+      width: 120,
       headerAlign: "center",
       align: "center",
-      renderCell: ({ row }) => (
-        <IconButton title="ویرایش" onClick={() => handleEditInspector(row)}>
-          <Edit size="24" className="text-amber-400" />
-        </IconButton>
-      ),
+      renderCell: ({ row }) => {
+        const hasFreighter = (row.freighter_capacity ?? 0) > 0;
+        const hasPassenger = (row.passenger_capacity ?? 0) > 0;
+        const tmWorkType: 1 | 2 | 3 = hasFreighter && hasPassenger ? 3 : hasPassenger ? 2 : 1;
+        return (
+          <div className="flex items-center justify-center">
+            <IconButton title="ویرایش" onClick={() => handleEditInspector(row)}>
+              <Edit size="24" className="text-amber-400" />
+            </IconButton>
+            <IconButton
+              title="ورود به‌جای کاربر"
+              onClick={() =>
+                setLoginAsTarget({ userId: row.id, fullName: row.full_name, tmWorkType })
+              }
+            >
+              <Login size="24" className="text-primary" />
+            </IconButton>
+          </div>
+        );
+      },
     },
     {
       field: "full_name",
@@ -348,6 +369,13 @@ export default function TechnicalManager() {
       {editFormProps.isOpen && (
         <EditTechnicalManagerDataDialog {...editFormProps} />
       )}
+      <LoginAsDialog
+        isOpen={!!loginAsTarget}
+        userId={loginAsTarget?.userId ?? null}
+        fullName={loginAsTarget?.fullName}
+        tmWorkType={loginAsTarget?.tmWorkType}
+        onClose={() => setLoginAsTarget(null)}
+      />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <UserOctagon size="32" className="text-primary" />

@@ -277,6 +277,8 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
   const isCompany = isCompanyAdmin || isCompanyUser;
   const isTechnicalManager = useHavePermission("technicalManager");
   const isAdmin = useHavePermission("admin");
+  // Work type of the logged-in technical manager: 1 = freighter, 2 = passenger, 3 = both
+  const tmWorkType = useAppSelector((state) => state.user.companyUsage);
 
   const menuItems2 = useMemo(
     () => [
@@ -287,24 +289,19 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
         title: "درخواست بازدید",
         permission: isCompany,
       },
-      // {
-      // 	id: "technical-visit-freighter",
-      // 	href: "/dashboard/do-technical-visit-freighter",
-      // 	image: (
-      // 		<TruckFast
-      // 			size="24"
-      // 			color="#000"
-      // 		/>
-      // 	),
-      // 	title: "بازدید باری",
-      // 	permission: isTechnicalManager,
-      // },
+      {
+        id: "technical-visit-freighter",
+        href: "/dashboard/do-technical-visit-freighter",
+        image: <TruckFast size="24" color="#000" />,
+        title: "بازدید باری",
+        permission: isTechnicalManager && tmWorkType !== 2,
+      },
       {
         id: "technical-visit-passenger",
         href: "/dashboard/do-technical-visit-passenger",
         image: <Bus size="24" color="#000" />,
         title: "بازدید مسافری",
-        permission: isTechnicalManager,
+        permission: isTechnicalManager && tmWorkType !== 1,
       },
       {
         id: "self-statement",
@@ -451,7 +448,7 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
         permission: isAdmin,
       },
     ],
-    [isCompany, isTechnicalManager, isDriver, isAdmin],
+    [isCompany, isTechnicalManager, isDriver, isAdmin, tmWorkType],
   );
 
   const menuItems = useMemo(() => {

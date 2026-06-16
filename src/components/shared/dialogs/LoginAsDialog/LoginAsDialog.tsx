@@ -4,10 +4,10 @@ import { CloseCircle, LoginCurve } from "iconsax-reactjs";
 import LoginAsDialogProps from "./interfaces/login-as-dialog-props.interface";
 import { useLoginAsMutation } from "../../../../api/Auth/LoginAs";
 import { useAppDispatch, useAppSelector } from "../../../../Stores/hooks";
-import { loginAs } from "../../../../Stores/slices/user";
+import { loginAs, setCompanyUsage } from "../../../../Stores/slices/user";
 import SweetAlertToast from "../../Functions/SweetAlertToast";
 
-const LoginAsDialog: FC<LoginAsDialogProps> = ({ isOpen, userId, fullName, onClose }) => {
+const LoginAsDialog: FC<LoginAsDialogProps> = ({ isOpen, userId, fullName, onClose, tmWorkType }) => {
 	const dispatch = useAppDispatch();
 	const currentToken = useAppSelector((state) => state.user.token);
 
@@ -30,6 +30,10 @@ const LoginAsDialog: FC<LoginAsDialogProps> = ({ isOpen, userId, fullName, onClo
 
 			// توکن مدیر فعلی در prev-token نگه داشته می‌شود و توکن کاربر هدف جایگزین token می‌گردد
 			dispatch(loginAs({ prevToken: currentToken, token: newToken }));
+
+			// اگر نوع فعالیت کارشناس فنی مشخص باشد، قبل از ریدایرکت ذخیره می‌شود
+			// تا پس از بارگذاری مجدد در initialState از localStorage بازیابی شود
+			if (tmWorkType != null) dispatch(setCompanyUsage(tmWorkType));
 
 			// بارگذاری مجدد کامل تا verify_token اطلاعات کاربر هدف را hydrate کند
 			window.location.href = "/dashboard";

@@ -5,4 +5,6 @@ export default interface LoginAsDialogProps {
 	/** نام نمایشی برای متن تایید */
 	fullName?: string;
 	onClose: () => void;
+	/** نوع فعالیت کارشناس فنی: ۱=باری، ۲=مسافری، ۳=هر دو — در صورت ارائه، قبل از ریدایرکت در Redux ذخیره می‌شود */
+	tmWorkType?: 1 | 2 | 3;
 }

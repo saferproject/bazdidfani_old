@@ -121,7 +121,11 @@ export const { useVerifyTokenQuery } = ApiWithAuth.injectEndpoints({
 						description: item?.role?.description,
 					}));
 					dispatch(setRoles(roles));
-					dispatch(setCompanyUsage(res?.data?.user?.user_company[0]?.company.company_usage));
+					// Only update companyUsage when the server provides a concrete value.
+					// TMs typically have no user_company entry, so this would be undefined —
+					// leaving the value that was correctly set at login time intact.
+					const freshCompanyUsage = res?.data?.user?.user_company[0]?.company.company_usage;
+					if (freshCompanyUsage !== undefined) dispatch(setCompanyUsage(freshCompanyUsage));
 				} catch (err) {
 					dispatch(clear());
 					const currentPath = window.location.pathname;

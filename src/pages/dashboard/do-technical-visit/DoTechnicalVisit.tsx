@@ -276,7 +276,7 @@ const DoTechnicalVisit: FC<iprops> = ({ type }) => {
       >
         <Add size="32" />
       </Fab>
-      <AddRequest isOpen={isAddRequestDialogOpen} onClose={handleCloseDialog} />
+      <AddRequest isOpen={isAddRequestDialogOpen} onClose={handleCloseDialog} visitType={type} />
     </div>
   );
 };

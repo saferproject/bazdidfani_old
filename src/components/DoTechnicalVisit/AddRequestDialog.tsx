@@ -44,7 +44,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
-export default function AddRequest({ isOpen, onClose }) {
+export default function AddRequest({ isOpen, onClose, visitType = 2 }: { isOpen: boolean; onClose: () => void; visitType?: 1 | 2 }) {
   const { currentLocation, isInIran, error, isLoading } = useIsInIran();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -61,7 +61,7 @@ export default function AddRequest({ isOpen, onClose }) {
     control,
     formState: { errors },
   } = useForm<TechnicalInspectionFormType>({
-    defaultValues: { type: 1, smart_number: null },
+    defaultValues: { type: visitType, smart_number: null },
     resolver: zodResolver(TechnicalInspectionFormSchema),
   });
 
@@ -99,8 +99,7 @@ export default function AddRequest({ isOpen, onClose }) {
       validity_technical_examination: truck.validity_technical_examination,
       loader_type: truck.loader.name,
       insurance_validity: data.truck_info.Insurance_validity,
-      // type: truck.usage === "passenger" ? 2 : 1,
-      type: 2,
+      type: visitType,
       is_new: false,
       loadingTypeSearch: truck.loader.name,
     }));
@@ -196,8 +195,7 @@ export default function AddRequest({ isOpen, onClose }) {
       ...prevData,
       ...truckInfoData,
       ...truckData,
-      // type: truckData.usage === "passenger" ? 2 : 1,
-      type: 2,
+      type: visitType,
       loader: truckData.loader,
       smart_number: truckData.smart_number,
       VIN: truckData.VIN,
@@ -239,16 +237,15 @@ export default function AddRequest({ isOpen, onClose }) {
   };
 
   const handleClose = () => {
-    reset({ type: 2, smart_number: null });
+    reset({ type: visitType, smart_number: null });
     setInquiredTruckData(false);
     setTruckFormState(null);
     onClose();
   };
 
-  // HINT: added for default passenger registering on plaque entering
   useEffect(() => {
-    reset({ type: 2, smart_number: null });
-  }, []);
+    reset({ type: visitType, smart_number: null });
+  }, [visitType]);
 
   const handleCloseRecreateDialog = () => {
     setRecreateInspectionRequestDialog((currentValue) => ({
@@ -266,7 +263,7 @@ export default function AddRequest({ isOpen, onClose }) {
       third_character: formData.third_character,
       fourth_number: formData.fourth_number,
       company_id: formData.company_id,
-      type: 2 /*String(formData.type)*/,
+      type: String(formData.type),
       force_create: true,
     });
 
@@ -373,7 +370,7 @@ export default function AddRequest({ isOpen, onClose }) {
           plate_type: truckData.plate_type,
           second_number: truckData.second_number,
           third_character: truckData.third_character,
-          type: 2 /* truckData.usage === "freighter" ? 1 : 2*/,
+          type: visitType,
           validity_technical_examination:
             truckData.validity_technical_examination,
           insurance_validity: truckData.Insurance_validity,
@@ -394,8 +391,7 @@ export default function AddRequest({ isOpen, onClose }) {
           plate_type: truckData.plate_type,
           second_number: truckData.second_number,
           third_character: truckData.third_character,
-          // type: truckData.usage === "freighter" ? 1 : 2,
-          type: 2,
+          type: visitType,
           validity_technical_examination:
             truckData.validity_technical_examination,
           insurance_validity: truckData.Insurance_validity,
@@ -744,11 +740,10 @@ export default function AddRequest({ isOpen, onClose }) {
                           plate_type: 0,
                           second_number: null,
                           third_character: "ع",
-                          type: 2,
-                          // companyUsage === 1 ? 1 : companyUsage === 2 ? 2 : 1,
                           validity_technical_examination: null,
                           loader_type: "",
                           insurance_validity: null,
+                          type: visitType,
                         }));
 
                         setInquiredTruckData(false);

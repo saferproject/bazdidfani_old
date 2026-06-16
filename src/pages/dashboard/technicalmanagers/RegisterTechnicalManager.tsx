@@ -4,7 +4,6 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { Button, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField } from "@mui/material";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import TechnicalManagerFormProps from "./interfaces/technical-manager-role-form-props.interface";
 import TechnicalManagerFormSchema, { TechnicalManagerFormType } from "./schemas/technical-manager-form.schema";
 
 import { useAppSelector } from "../../../Stores/hooks";
@@ -12,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useRegisterNewTechManagerMutation } from "../../../api/TechnicalManager/TechnicalManager";
 import DatePickerComponent from "../../../components/shared/DatePicker/DatePickerComponent";
 
-const RegisterTechnicalManager: FC<TechnicalManagerFormProps> = ({ formState }) => {
+const RegisterTechnicalManager: FC = () => {
 	const userPhoneNumber = useAppSelector((state) => state.user.newTechnicalManagerData.phone);
 	const nationalCode = useAppSelector((state) => state.user.newTechnicalManagerData.national_code);
 
@@ -158,7 +157,7 @@ const RegisterTechnicalManager: FC<TechnicalManagerFormProps> = ({ formState }) 
 						shrink: true,
 					},
 				}}
-				disabled={formState === "EDIT" || !!nationalCode}
+				disabled={!!nationalCode}
 				required
 				fullWidth
 			/>
