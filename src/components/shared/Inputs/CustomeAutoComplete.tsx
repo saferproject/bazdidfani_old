@@ -95,7 +95,9 @@ export default function CustomeAutoComplete({
 						id={`autocomplete-${name}`}
 						options={data ?? []}
 						loading={loading}
-						onChange={(_event, newValue) => !!onChange ? onChange(_event, newValue) : field.onChange(newValue)}
+						onChange={(_event, newValue) => {
+							!!onChange ? onChange(_event, newValue) : field.onChange(newValue);
+						}}
 						filterOptions={filterOptions}
 						value={field.value}
 						sx={{

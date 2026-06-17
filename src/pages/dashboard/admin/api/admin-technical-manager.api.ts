@@ -79,7 +79,7 @@ export const {
 
     addAdminTechnicalManager: builder.mutation<any, FormData>({
       query: (data) => ({
-        url: "/admin/technical-manager/store",
+        url: "admin/technical-manager/store",
         method: "POST",
         data,
       }),

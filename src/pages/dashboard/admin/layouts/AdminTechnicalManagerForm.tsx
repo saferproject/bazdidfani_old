@@ -15,6 +15,7 @@ import DatePickerComponent from "../../../../components/shared/DatePicker/DatePi
 import CustomeAutoComplete from "../../../../components/shared/Inputs/CustomeAutoComplete";
 import { useGetTechnicalManagerCompaniesQuery } from "../../../../api/TechnicalManager/TechnicalVisit";
 import { useGetCitiesQuery } from "../../../../api/Categories/Location";
+import { useGetCompaniesQuery } from "../../../../api/Company/NewRequest";
 
 const AdminTechnicalManagerForm: FC<AdminTechnicalManagerFormProps> = ({
 	formState,
@@ -36,6 +37,7 @@ const AdminTechnicalManagerForm: FC<AdminTechnicalManagerFormProps> = ({
 		trigger,
 		control,
 		setValue,
+		watch,
 		formState: { errors },
 	} = useForm<TechnicalManagerFormType>({
 		defaultValues: { type: null },
@@ -50,7 +52,7 @@ const AdminTechnicalManagerForm: FC<AdminTechnicalManagerFormProps> = ({
 	const [addTechnicalManagerFn, addTechnicalManagerResult] = useAddAdminTechnicalManagerMutation();
 	const [editTechnicalManagerFn, editTechnicalManagerResult] = useEditAdminTechnicalManagerMutation();
 
-	const getCompanies = useGetTechnicalManagerCompaniesQuery({});
+	const getCompanies = useGetCompaniesQuery();
 
 	const cities = useGetCitiesQuery({
 		query: citySearch,
@@ -355,12 +357,16 @@ const AdminTechnicalManagerForm: FC<AdminTechnicalManagerFormProps> = ({
 			/>
 			<CustomeAutoComplete
 				showField="name"
-				name="city_code"
+				name="city"
 				className="md:col-span-1"
 				control={control}
 				data={cities.data?.data}
 				loading={cities.isLoading || cities.isFetching}
 				setValue={setValue}
+				onChange={(_, newValue) => {
+					setValue("city_code", newValue.code);
+					setValue("city", newValue);
+				}}
 				searchName="citySearch"
 				label="شهر"
 				rules={{
@@ -368,14 +374,18 @@ const AdminTechnicalManagerForm: FC<AdminTechnicalManagerFormProps> = ({
 				}}
 			/>
 			<CustomeAutoComplete
-				showField="company.name"
-				name="company_id"
+				showField="name"
+				name="company"
 				className="md:col-span-1"
 				control={control}
 				data={getCompanies.data?.data}
 				loading={getCompanies.isLoading || getCompanies.isFetching}
 				setValue={setValue}
-				getOptionLabel={(option) => option.company.name}
+				getOptionLabel={(option) => option.name}
+				onChange={(_, newValue) => {
+					setValue("company_id", newValue.id);
+					setValue("company", newValue);
+				}}
 				searchName="companySearch"
 				label="شرکت حمل و نقل"
 				rules={{

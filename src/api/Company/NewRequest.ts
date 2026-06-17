@@ -1,7 +1,7 @@
 import { ApiWithAuth } from "../../Stores/apis/api";
 import { NewRequestType } from "../../types/Requests";
 
-export const { useAddNewRequestMutation, useAddSelfStatementByCompanyMutation, useRedirectInspectionMutation } =
+export const { useAddNewRequestMutation, useAddSelfStatementByCompanyMutation, useRedirectInspectionMutation, useGetCompaniesQuery } =
 	ApiWithAuth.injectEndpoints({
 		endpoints: (builder) => ({
 			// Endpoint برای ارسال درخواست جدید بازدید فنی
@@ -13,6 +13,13 @@ export const { useAddNewRequestMutation, useAddSelfStatementByCompanyMutation, u
 				}),
 				// Tag برای کش کردن یا بی‌اعتبار کردن درخواست‌ها
 				invalidatesTags: ["RequestsList"],
+			}),
+
+			getCompanies: builder.query<any, void>({
+				query: () => ({
+					url: "admin/company/active-list",
+					method: "GET"
+				})
 			}),
 
 			// ? ثبت درخواست خوداظهاری توسط شرکت
