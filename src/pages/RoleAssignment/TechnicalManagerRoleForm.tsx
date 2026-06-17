@@ -13,7 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRegisterTechnicalManagerMutation } from "../../api/Profile/Register/TechnicalManager";
 
 import TechnicalManagerFormProps from "./interfaces/technical-manager-role-form-props.interface";
-import TechnicalManagerFormSchema, { TechnicalManagerFormType } from "./schemas/technical-manager-form.schema";
+import TechnicalManagerFormSchema, { TechnicalManagerFormType, TechnicalManagerInqueryFormSchema, TechnicalManagerInqueryFormType } from "./schemas/technical-manager-form.schema";
 
 import { dataUrlToFile } from "../../utilities/dataURLToFile";
 import { useAppSelector } from "../../Stores/hooks";
@@ -48,9 +48,9 @@ const TechnicalManagerForm: FC<TechnicalManagerFormProps> = ({ formState }) => {
 		trigger,
 		control,
 		formState: { errors },
-	} = useForm<TechnicalManagerFormType>({
+	} = useForm<TechnicalManagerInqueryFormType>({
 		defaultValues: { type: 1, phone: userPhoneNumber, national_code: nationalCode ?? "" },
-		resolver: zodResolver(TechnicalManagerFormSchema),
+		resolver: zodResolver(TechnicalManagerInqueryFormSchema),
 	});
 
 	useEffect(() => {
