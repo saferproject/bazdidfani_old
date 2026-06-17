@@ -3,16 +3,22 @@ import { GridColDef } from "@mui/x-data-grid";
 import { FC, useEffect, useState } from "react";
 import AdminCompanyUsersListProps from "../interfaces/admin-company-users-list-props.interface";
 import { useChangeAdminCompanyUserStatusMutation, useGetAdminCompanyUsersQuery } from "../api/admin-company-users.api";
+import { useAppSelector } from "../../../../Stores/hooks";
+import { API_URL } from "../../../../Stores/api-urls";
 import SweetAlertToast from "../../../../components/shared/Functions/SweetAlertToast";
 import { GetShamsiDate } from "../../../../utilities/DateTime";
+import buildQueryParams from "../../../../utilities/build-query-params";
+import downloadExcelFile from "../../../../utilities/download-excel";
 import { User } from "iconsax-reactjs";
 import SaferGrid from "../../../../components/shared/DataGrid/SaferGrid";
 import SaferFilters from "../../../../components/shared/Filters/SaferFilters";
 import ACompanyUsersCard from "../../../../components/Admin/ACompanyUsersCard";
 
 const AdminCompanyUsersList: FC<AdminCompanyUsersListProps> = () => {
+	const token = useAppSelector((state) => state.user.token);
 	const [paginatorProps, setPaginatorProps] = useState({ currentPage: 1, itemsPerPage: 10 });
 	const [filters, setFilters] = useState(null);
+	const [excelLoading, setExcelLoading] = useState(false);
 
 	const users = useGetAdminCompanyUsersQuery(
 		{ page: paginatorProps.currentPage, per_page: paginatorProps.itemsPerPage, ...filters },
@@ -147,7 +153,19 @@ const AdminCompanyUsersList: FC<AdminCompanyUsersListProps> = () => {
 					mode="SEARCH_PARAMS"
 					search={true}
 					onFilter={handleFilter}
-					onGetExcel={() => {}}
+					onGetExcel={async () => {
+						setExcelLoading(true);
+						try {
+							await downloadExcelFile(
+								`${API_URL}/api/admin/company/company-user/index/export/excel${filters ? "?" + buildQueryParams(filters) : ""}`,
+								token,
+								"کاربران شرکت ها",
+							);
+						} finally {
+							setExcelLoading(false);
+						}
+					}}
+					excelLoading={excelLoading}
 				/>
 				<SaferGrid<any>
 					columns={columns}

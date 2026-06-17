@@ -8,12 +8,13 @@ import TechnicalCard from "../../../components/DoTechnicalVisit/TechnicalsCard";
 import Plate from "../../../components/shared/DataGrid/Plate";
 import SaferGrid from "../../../components/shared/DataGrid/SaferGrid";
 import SaferFilters from "../../../components/shared/Filters/SaferFilters";
-import { useAppDispatch } from "../../../Stores/hooks";
+import { useAppDispatch, useAppSelector } from "../../../Stores/hooks";
 import { setInspectionData } from "../../../Stores/slices/inspection-data.slice";
 import { setInspectionType } from "../../../Stores/slices/inspection-type.slice";
 import useIsPhone from "../../../utilities/custom-hooks/use-is-phone";
 import { GetShamsiTimeDate } from "../../../utilities/DateTime";
 import { useGetInspectionStates } from "../../../utilities/Inspection-Status/InspectionStatus";
+import axios from "axios";
 import { Fab } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
 import { TruckFast } from "iconsax-reactjs";
@@ -33,6 +34,7 @@ const DoTechnicalVisit: FC<iprops> = ({ type }) => {
   const isPhone = useIsPhone();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const token = useAppSelector((state) => state.user.token);
 
   const { getStatusColorClass } = useGetInspectionStates();
 
@@ -44,6 +46,7 @@ const DoTechnicalVisit: FC<iprops> = ({ type }) => {
   });
   const [filters, setFilters] = useState(null);
   const [isAddRequestDialogOpen, setAddRequestDialogOpen] = useState(false);
+  const [excelLoading, setExcelLoading] = useState(false);
 
   const { states, getStatus } = useGetInspectionStates();
 
@@ -197,6 +200,28 @@ const DoTechnicalVisit: FC<iprops> = ({ type }) => {
     [],
   );
 
+  const handleGetExcel = async () => {
+    setExcelLoading(true);
+    try {
+      const queryString = filters ? buildQueryParams(filters) : "";
+      const response = await axios.get(
+        `${API_URL}/api/technical-manager/bazdifani/export/excel${queryString ? "?" + queryString : ""}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          responseType: "blob",
+        },
+      );
+      const url = URL.createObjectURL(response.data);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "technical-visits.xlsx";
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setExcelLoading(false);
+    }
+  };
+
   const handleAddRequest = () => {
     setAddRequestDialogOpen(true);
   };
@@ -217,7 +242,8 @@ const DoTechnicalVisit: FC<iprops> = ({ type }) => {
         mode="SEARCH_PARAMS"
         plaque={true}
         onFilter={handleFilter}
-        onGetExcel={() => window.open(`${API_URL}/api/technical-manager/bazdifani/export/excel${filters ? buildQueryParams(filters) : ""}`)}
+        onGetExcel={handleGetExcel}
+        excelLoading={excelLoading}
       />
       <SaferGrid<any>
         columns={columns}

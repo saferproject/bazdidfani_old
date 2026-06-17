@@ -1,7 +1,11 @@
 import { GridColDef } from "@mui/x-data-grid";
 import { FC, useState } from "react";
 import { useGetAdminUsersQuery, useGetInfiniteAdminUsersInfiniteQuery, useGetUserRolesQuery } from "../api/admin-users.api";
+import { useAppSelector } from "../../../../Stores/hooks";
+import { API_URL } from "../../../../Stores/api-urls";
 import { formatJalaliDate } from "../../../../utilities/DateTime";
+import buildQueryParams from "../../../../utilities/build-query-params";
+import downloadExcelFile from "../../../../utilities/download-excel";
 import AdminUsersListProps from "../interfaces/admin-users-list-props.interface";
 import { IconButton } from "@mui/material";
 import { Edit, Login, SecurityUser, User as UserIcon } from "iconsax-reactjs";
@@ -16,6 +20,7 @@ import AUsersCard from "../../../../components/Admin/AUsersCard";
 
 const AdminUsersList: FC<AdminUsersListProps> = ({ onEditUser }) => {
 	const isPhone = useIsPhone();
+	const token = useAppSelector((state) => state.user.token);
 
 	const handleFilter = (filters: Record<string, string | number | boolean>) => {
 		setPaginatorProps((currentValue) => ({ ...currentValue, currentPage: 1 }));
@@ -35,6 +40,7 @@ const AdminUsersList: FC<AdminUsersListProps> = ({ onEditUser }) => {
 
 	const [paginatorProps, setPaginatorProps] = useState({ currentPage: 1, itemsPerPage: 10 });
 	const [filters, setFilters] = useState(null);
+	const [excelLoading, setExcelLoading] = useState(false);
 	const [changeRoleStatusDialog, setChangeRoleStatusDialog] = useState<AdminChangeRoleStatusProps>({
 		isOpen: false,
 		user: null,
@@ -192,7 +198,19 @@ const AdminUsersList: FC<AdminUsersListProps> = ({ onEditUser }) => {
 						},
 					]}
 					onFilter={handleFilter}
-					onGetExcel={() => {}}
+					onGetExcel={async () => {
+						setExcelLoading(true);
+						try {
+							await downloadExcelFile(
+								`${API_URL}/api/admin/user/users-list/export/excel${filters ? "?" + buildQueryParams(filters) : ""}`,
+								token,
+								"کل کاربران",
+							);
+						} finally {
+							setExcelLoading(false);
+						}
+					}}
+					excelLoading={excelLoading}
 				/>
 				<SaferGrid<any>
 					columns={columns}

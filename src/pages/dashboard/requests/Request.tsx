@@ -15,16 +15,18 @@ import SaferTextDialog from "../../../components/shared/dialogs/TextDialog/TextD
 import SaferFilters from "../../../components/shared/Filters/SaferFilters";
 import SweetAlertToast from "../../../components/shared/Functions/SweetAlertToast";
 import DEFAULT_LOCATION from "../../../shared/constants/default-location";
+import { API_URL } from "../../../Stores/api-urls";
 import buildQueryParams from "../../../utilities/build-query-params";
 import useIsPhone from "../../../utilities/custom-hooks/use-is-phone";
 import { GetShamsiDateTime } from "../../../utilities/DateTime";
-import downloadFile from "../../../utilities/download-file";
+import downloadExcelFile from "../../../utilities/download-excel";
 import { useGetInspectionStates } from "../../../utilities/Inspection-Status/InspectionStatus";
 import SabafCode from "../reports/SabafCode";
 import PrintMenu from "./components/PrintMenu";
 import InspectionRequestForm from "./InspectionRequestForm";
 import InspectionRequestFormProps from "./interfaces/inspection-request-form-props.interface";
 import InspectionRequest from "./interfaces/inspection-request.interface";
+import { useAppSelector } from "../../../Stores/hooks";
 import { Button, Fab, IconButton, MenuItem } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
 import { Add, ArrowForward, Copy, DocumentText1, Forbidden, Location, ReceiptSearch } from "iconsax-reactjs";
@@ -68,6 +70,7 @@ import { useEffect, useState } from "react";
 
 export default function Request() {
   const isPhone = useIsPhone();
+  const token = useAppSelector((state) => state.user.token);
 
   const handleCloseCheckInspectionDialog = () => {
     setCheckInspectionDialog({
@@ -178,27 +181,19 @@ export default function Request() {
       isOpen: false,
     }));
 
-  const handleGetExcel = async () => {
-    const excelFile = await fetch(
-      `${
-        import.meta.env.VITE_IS_TEST_API === "YES"
-          ? import.meta.env.VITE_TEST_API_URL
-          : import.meta.env.VITE_API_URL
-      }/api/company/bazdidfani/index?isExcel=true${filters ? "&" + buildQueryParams(filters) : ""}`,
-      {
-        headers: {
-          Authorization: `Bearer ${window.localStorage.getItem("token")}`,
-          "Content-Type":
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        },
-      },
-    );
+  const [excelLoading, setExcelLoading] = useState(false);
 
-    downloadFile(
-      await excelFile.blob(),
-      "لیست درخواست های بازدید فنی",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    );
+  const handleGetExcel = async () => {
+    setExcelLoading(true);
+    try {
+      await downloadExcelFile(
+        `${API_URL}/api/company/bazdidfani/index/export/excel${filters ? "?" + buildQueryParams(filters) : ""}`,
+        token,
+        "لیست درخواست های بازدید فنی",
+      );
+    } finally {
+      setExcelLoading(false);
+    }
   };
 
   const [checkingInspection, setCheckingInspection] =
@@ -657,6 +652,7 @@ export default function Request() {
         ]}
         onFilter={handleFilter}
         onGetExcel={handleGetExcel}
+        excelLoading={excelLoading}
       />
       <SaferGrid<any>
         columns={columns}

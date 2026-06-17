@@ -294,6 +294,25 @@ const AdminUsersForm: FC<AdminUsersFormProps> = ({ formState, formData, onCancel
 				)}
 			/>
 			<TextField
+				{...register("password", { 
+					onChange: (event) => {
+						if (event.target.value === "" || event.target.value === null) event.target.value = undefined;
+					}
+				})}
+				label="پسوورد"
+				type="text"
+				autoComplete="off"
+				placeholder="پسوورد را وارد کنید"
+				error={!!errors.password}
+				helperText={errors.password?.message}
+				slotProps={{
+					inputLabel: {
+						shrink: true,
+					},
+				}}
+				fullWidth
+			/>
+			<TextField
 				className="lg:col-start-1 lg:col-end-5"
 				label="آدرس"
 				type="text"

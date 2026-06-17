@@ -1,6 +1,10 @@
 import { useChangeDriverStatusMutation, useGetDriverQuery, useGetInfiniteDriverInfiniteQuery } from "../../api/Driver/Driver";
+import { useAppSelector } from "../../Stores/hooks";
+import { API_URL } from "../../Stores/api-urls";
 import useIsPhone from "../../utilities/custom-hooks/use-is-phone";
+import buildQueryParams from "../../utilities/build-query-params";
 import { GetShamsiDate } from "../../utilities/DateTime";
+import downloadExcelFile from "../../utilities/download-excel";
 import SaferGrid from "../shared/DataGrid/SaferGrid";
 import CustomDialog, { CustomDialogProps, EmptyCustomDialoProps } from "../shared/Dialog/CustomeDialog";
 import SaferFilters from "../shared/Filters/SaferFilters";
@@ -33,9 +37,11 @@ import { useNavigate } from "react-router-dom";
 export default function DriverList({ isDialog, onSuccess }: { isDialog?: boolean; onSuccess?: (data: any) => void }) {
 	const navigate = useNavigate();
 	const isPhone = useIsPhone();
+	const token = useAppSelector((state) => state.user.token);
 
 	const [paginatorProps, setPaginatorProps] = useState({ currentPage: 1, itemsPerPage: 10 });
 	const [filters, setFilters] = useState(null);
+	const [excelLoading, setExcelLoading] = useState(false);
 	const [columnVisibilityModel, setColumnVisibilityModel] = useState<GridColumnVisibilityModel>({
 		status: !isDialog,
 	});
@@ -331,6 +337,19 @@ export default function DriverList({ isDialog, onSuccess }: { isDialog?: boolean
         mode="SEARCH_PARAMS"
         search={true}
         onFilter={handleFilter}
+        onGetExcel={async () => {
+          setExcelLoading(true);
+          try {
+            await downloadExcelFile(
+              `${API_URL}/api/company/drivers/index/export/excel${filters ? "?" + buildQueryParams(filters) : ""}`,
+              token,
+              "رانندگان",
+            );
+          } finally {
+            setExcelLoading(false);
+          }
+        }}
+        excelLoading={excelLoading}
       />
       <SaferGrid
         columns={columns}

@@ -46,6 +46,7 @@ const AdminUserFormSchema = z.object({
 		.max(255, "طول آدرس بیشتر از 255 کاراکتر نمیتواند باشد")
 		.regex(/[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF0-9،\s]/g),
 	citySearch: z.string().optional().nullable(),
+	password: z.string().nullable(),
 });
 
 export type AdminUserFormType = z.infer<typeof AdminUserFormSchema>;

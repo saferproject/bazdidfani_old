@@ -36,6 +36,18 @@ const TechnicalManagerFormSchema = z
 			.number({ invalid_type_error: "حداکثر پذیرش مسافری باید فقط عدد باشد" })
 			.min(0, "حداکثر پذیرش مسافری کمتر از 0 نمیتواند باشد")
 			.nullish(),
+		full_name: z.string({ invalid_type_error: "نام کامل الزامی است", required_error: "نام کامل الزامی است" }),
+		father_name: z.string({ invalid_type_error: "نام پدر الزامی است", required_error: "نام پدر الزامی است" }),
+		address: z.string({ invalid_type_error: "آدرس الزامی است", required_error: "آدرس الزامی است" }),
+		email: z.string({ invalid_type_error: "ایمیل الزامی است", required_error: "ایمیل الزامی است" }),
+		telephone: z.string({ invalid_type_error: "تلفن ثابت الزامی است", required_error: "تلفن ثابت الزامی است" }),
+		birthdate: z.string({ invalid_type_error: "تاریخ تولد الزامی است", required_error: "تاریخ تولد الزامی است" }),
+		city_code: z.number({ invalid_type_error: "شهر الزامی است", required_error: "شهر الزامی است" }),
+		image: z.string({ invalid_type_error: "نام پدر الزامی است", required_error: "نام پدر الزامی است" }),
+		company_id: z.number({ invalid_type_error: "شرکت الزامی است", required_error: "شرکت الزامی است" }),
+		start_cooperate: z.string({ invalid_type_error: "تاریخ شروع همکاری الزامی است", required_error: "تاریخ شروع همکاری الزامی است" }),
+		end_cooperate: z.string({ invalid_type_error: "تاریخ پایان همکاری الزامی است", required_error: "تاریخ پایان همکاری الزامی است" }),
+		citySearch: z.string().nullable(),
 	})
 	.superRefine((values, ctx) => {
 		if (values.type === 3) {

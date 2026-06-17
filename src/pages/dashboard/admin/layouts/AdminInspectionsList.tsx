@@ -3,7 +3,11 @@ import CheckInspectionDialog from "../../../../components/shared/dialogs/CheckIn
 import CheckInspectionDialogProps from "../../../../components/shared/dialogs/CheckInspectionDialog/interfaces/check-inspection-dialog-props.interface";
 import SaferFilters from "../../../../components/shared/Filters/SaferFilters";
 import PlateTextField from "../../../../components/shared/Inputs/PlateTextField";
+import { useAppSelector } from "../../../../Stores/hooks";
+import { API_URL } from "../../../../Stores/api-urls";
 import { GetShamsiDateTime } from "../../../../utilities/DateTime";
+import buildQueryParams from "../../../../utilities/build-query-params";
+import downloadExcelFile from "../../../../utilities/download-excel";
 import { useGetInspectionStates } from "../../../../utilities/Inspection-Status/InspectionStatus";
 import InspectionRequest from "../../requests/interfaces/inspection-request.interface";
 import {
@@ -35,6 +39,7 @@ const PlateTextFieldCell = ({ row }: any): JSX.Element => {
 
 const AdminInspectionsList: FC<AdminInspectionsListProps> = () => {
   const isPhone = useIsPhone();
+  const token = useAppSelector((state) => state.user.token);
 
   const handleFilter = (filters: Record<string, string | number | boolean>) => {
     setPaginatorProps((currentValue) => ({ ...currentValue, currentPage: 1 }));
@@ -59,6 +64,7 @@ const AdminInspectionsList: FC<AdminInspectionsListProps> = () => {
     itemsPerPage: 10,
   });
   const [filters, setFilters] = useState(null);
+  const [excelLoading, setExcelLoading] = useState(false);
   const [checkingInspection, setCheckingInspection] =
     useState<InspectionRequest | null>(null);
   const [checkInspectionDialog, setCheckInspectionDialog] =
@@ -316,7 +322,19 @@ const AdminInspectionsList: FC<AdminInspectionsListProps> = () => {
             },
           ]}
           onFilter={handleFilter}
-          onGetExcel={() => {}}
+          onGetExcel={async () => {
+            setExcelLoading(true);
+            try {
+              await downloadExcelFile(
+                `${API_URL}/api/admin/list-bazdidfani/export/excel${filters ? "?" + buildQueryParams(filters) : ""}`,
+                token,
+                "بازدید های فنی و خوداظهاری ها",
+              );
+            } finally {
+              setExcelLoading(false);
+            }
+          }}
+          excelLoading={excelLoading}
         />
         <SaferGrid<any>
           columns={columns}

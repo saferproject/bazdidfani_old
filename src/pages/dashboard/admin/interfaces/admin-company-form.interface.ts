@@ -7,8 +7,11 @@ export default interface AdminCompanyForm {
 	name: string;
 	ceo_name: string;
 	ceo_phone: string;
+	father_name: string;
 	coordinator_name: string;
 	coordinator_phone: string;
+	national_code: string;
+	password: string;
 	company_type: null;
 	company_usage: CompanyUsage;
 	company_website: string;

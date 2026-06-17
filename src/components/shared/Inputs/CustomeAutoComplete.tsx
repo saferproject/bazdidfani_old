@@ -1,4 +1,4 @@
-import { Autocomplete, FilterOptionsState, TextField } from "@mui/material";
+import { Autocomplete, AutocompleteChangeDetails, AutocompleteChangeReason, FilterOptionsState, TextField } from "@mui/material";
 import { useEffect, useMemo } from "react";
 import { Controller, Control, UseFormSetValue } from "react-hook-form";
 
@@ -38,6 +38,8 @@ interface CustomAutoCompleteProps {
 	placeholder?: string;
 	required?: boolean;
 	filterOptions?: (options: any[], state: FilterOptionsState<any>) => any[];
+	getOptionLabel?: (option: any) => string; 
+	onChange?: (event: React.SyntheticEvent<Element, Event>, value: any, reason?: AutocompleteChangeReason, details?: AutocompleteChangeDetails<any>) => void;
 }
 
 export default function CustomeAutoComplete({
@@ -57,6 +59,8 @@ export default function CustomeAutoComplete({
 	placeholder = "",
 	required,
 	filterOptions,
+	getOptionLabel,
+	onChange
 }: CustomAutoCompleteProps) {
 	const handleDebouncedChange = useMemo(
 		() =>
@@ -91,7 +95,7 @@ export default function CustomeAutoComplete({
 						id={`autocomplete-${name}`}
 						options={data ?? []}
 						loading={loading}
-						onChange={(_event, newValue) => field.onChange(newValue)}
+						onChange={(_event, newValue) => !!onChange ? onChange(_event, newValue) : field.onChange(newValue)}
 						filterOptions={filterOptions}
 						value={field.value}
 						sx={{
@@ -102,7 +106,7 @@ export default function CustomeAutoComplete({
 								borderRadius: "8px",
 							},
 						}}
-						getOptionLabel={(option: any) => (option ? option[showField] : null)}
+						getOptionLabel={(option: any) => !!getOptionLabel ? getOptionLabel(option) : (option ? option[showField] : null)}
 						renderInput={(params) => (
 							<TextField
 								{...params}

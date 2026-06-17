@@ -415,6 +415,70 @@ const AdminCompanyForm: FC<AdminCompanyFormProps> = ({ formState, formData, onSu
 				fullWidth
 				required
 			/>
+			<TextField
+				label="نام پدر مدیر عامل"
+				type="text"
+				autoComplete="off"
+				placeholder="نام پدر مدیر عامل را وارد کنید"
+				error={!!errors.father_name}
+				helperText={errors.father_name?.message}
+				{...register("father_name", {
+					deps: "ceo_name",
+					required: "نام پدر الزامی است."
+				})}
+				slotProps={{
+					inputLabel: {
+						shrink: true,
+					},
+				}}
+				fullWidth
+				required
+			/>
+			<TextField
+				label="کد ملی مدیر عامل"
+				type="text"
+				autoComplete="off"
+				placeholder="کد ملی مدیر عامل را وارد کنید"
+				error={!!errors.national_code}
+				helperText={errors.national_code?.message}
+				{...register("national_code", {
+					deps: "ceo_name",
+					required: "کد ملی الزامی است.",
+					valueAsNumber: false
+				})}
+				onChange={(event) => {
+					const newValue = event.target.value;
+
+					event.target.value = newValue.slice(0, 10);
+				}}
+				slotProps={{
+					inputLabel: {
+						shrink: true,
+					},
+				}}
+				fullWidth
+				required
+			/>
+			<TextField
+				label="پسوورد مدیر عامل"
+				type="text"
+				autoComplete="off"
+				placeholder="پسووردی برای مدیر عامل وارد کنید"
+				error={!!errors.password}
+				helperText={errors.password?.message}
+				{...register("password", {
+					deps: "ceo_name",
+					required: "پسوورد الزامی است.",
+					min: { value: 6, message: "پسوورد حداقل باید ۶ کارکتر باشد." }
+				})}
+				slotProps={{
+					inputLabel: {
+						shrink: true,
+					},
+				}}
+				fullWidth
+				required
+			/>
 			<FormControlLabel
 				control={
 					<Checkbox

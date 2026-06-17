@@ -79,7 +79,7 @@ export const {
 
     addAdminTechnicalManager: builder.mutation<any, FormData>({
       query: (data) => ({
-        url: "/admin/technical-manager/update",
+        url: "/admin/technical-manager/store",
         method: "POST",
         data,
       }),
@@ -89,7 +89,7 @@ export const {
     editAdminTechnicalManager: builder.mutation<any, FormData>({
       query: (data) => ({
         url: "admin/technical-manager/update",
-        method: "POST",
+        method: "PUT",
         data,
       }),
       invalidatesTags: ["TechnicalManagers"],

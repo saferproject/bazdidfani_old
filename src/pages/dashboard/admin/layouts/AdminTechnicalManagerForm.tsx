@@ -1,19 +1,20 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import AdminTechnicalManagerFormProps from "../interfaces/admin-technical-manager-form-porps.interface";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import TechnicalManagerFormSchema, { TechnicalManagerFormType } from "../../../RoleAssignment/schemas/technical-manager-form.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import CertificateImage from "../../../RoleAssignment/interfaces/certificate-image.interface";
 import { dataUrlToFile } from "../../../../utilities/dataURLToFile";
-import { Button, FormControl, FormControlLabel, FormLabel, IconButton, Radio, RadioGroup, TextField } from "@mui/material";
-import ImageComponent from "../../../../components/shared/Image/Image";
-import { Trash, Image } from "iconsax-reactjs";
+import { Box, Button, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField } from "@mui/material";
 import TechnicalManagerRoleData from "../../../RoleAssignment/interfaces/technical-manager-role-data.interface";
-import { useDeleteTechnicalManagerCertificateMutation } from "../../../RoleAssignment/api/role-assignment.api";
 import { useAddAdminTechnicalManagerMutation, useEditAdminTechnicalManagerMutation } from "../api/admin-technical-manager.api";
 import SweetAlertToast from "../../../../components/shared/Functions/SweetAlertToast";
 import { STORAGE_URL } from "../../../../Stores/api-urls";
 import { compressImage } from "../../../../utilities/compress-image";
+import DatePickerComponent from "../../../../components/shared/DatePicker/DatePickerComponent";
+import CustomeAutoComplete from "../../../../components/shared/Inputs/CustomeAutoComplete";
+import { useGetTechnicalManagerCompaniesQuery } from "../../../../api/TechnicalManager/TechnicalVisit";
+import { useGetCitiesQuery } from "../../../../api/Categories/Location";
 
 const AdminTechnicalManagerForm: FC<AdminTechnicalManagerFormProps> = ({
 	formState,
@@ -22,9 +23,6 @@ const AdminTechnicalManagerForm: FC<AdminTechnicalManagerFormProps> = ({
 	onCancelAddTechnicalManager,
 	onCancelEditTechnicalManager,
 }) => {
-	const freighterCertificationInput = useRef<HTMLInputElement>(null);
-	const passengerCertificationInput = useRef<HTMLInputElement>(null);
-
 	const [freighterCertificationImage, setFreighterCertificationImage] = useState<CertificateImage | null>(null);
 	const [passengerCertificationImage, setPassengerCertificationImage] = useState<CertificateImage | null>(null);
 
@@ -37,18 +35,26 @@ const AdminTechnicalManagerForm: FC<AdminTechnicalManagerFormProps> = ({
 		resetField,
 		trigger,
 		control,
+		setValue,
 		formState: { errors },
 	} = useForm<TechnicalManagerFormType>({
-		defaultValues: { type: 1 },
+		defaultValues: { type: null },
 		resolver: zodResolver(TechnicalManagerFormSchema),
 		mode: "onBlur",
 	});
+
+	const { citySearch } = useWatch({ control });
 
 	const { capacity, freighter_capacity, passenger_capacity, type } = useWatch<TechnicalManagerFormType>({ control });
 
 	const [addTechnicalManagerFn, addTechnicalManagerResult] = useAddAdminTechnicalManagerMutation();
 	const [editTechnicalManagerFn, editTechnicalManagerResult] = useEditAdminTechnicalManagerMutation();
-	const [deleteTechnicalManagerCertificateFn] = useDeleteTechnicalManagerCertificateMutation();
+
+	const getCompanies = useGetTechnicalManagerCompaniesQuery({});
+
+	const cities = useGetCitiesQuery({
+		query: citySearch,
+	  });
 
 	const onSubmit = async (data: TechnicalManagerFormType) => {
 		const newFormData = new FormData();
@@ -114,36 +120,6 @@ const AdminTechnicalManagerForm: FC<AdminTechnicalManagerFormProps> = ({
 				id: imagePassenger.id,
 				user_id: imagePassenger.user_id,
 			});
-	};
-
-	const handleImageSelectFreighterCertification = () => {
-		if (freighterCertificationInput.current.files[0]?.type.match(/^image\/(jpeg|png|webp)$/)) {
-			setFreighterCertificationImage({
-				image: URL.createObjectURL(freighterCertificationInput.current.files[0]),
-				name: freighterCertificationInput.current.files[0].name,
-			});
-		} else freighterCertificationInput.current.value = null;
-	};
-
-	const handleImageSelectPassengerCertification = () => {
-		if (passengerCertificationInput.current.files[0]?.type.match(/^image\/(jpeg|png|webp)$/)) {
-			setPassengerCertificationImage({
-				image: URL.createObjectURL(passengerCertificationInput.current.files[0]),
-				name: passengerCertificationInput.current.files[0].name,
-			});
-		} else passengerCertificationInput.current.value = null;
-	};
-
-	const handleRemoveFreighterCertificationImage = () => {
-		if (freighterCertificationImage.id)
-			deleteTechnicalManagerCertificateFn({ id: freighterCertificationImage.id, user_id: freighterCertificationImage.user_id });
-		else setFreighterCertificationImage(null);
-	};
-
-	const handleRemovePassengerCertificationImage = () => {
-		if (passengerCertificationImage.id)
-			deleteTechnicalManagerCertificateFn({ id: passengerCertificationImage.id, user_id: passengerCertificationImage.user_id });
-		else setPassengerCertificationImage(null);
 	};
 
 	useEffect(() => {
@@ -240,7 +216,7 @@ const AdminTechnicalManagerForm: FC<AdminTechnicalManagerFormProps> = ({
 						<RadioGroup
 							{...field}
 							onChange={(event) => field.onChange(Number(event.target.value))}
-							defaultValue={1}
+							defaultValue={null}
 						>
 							<FormControlLabel
 								value={1}
@@ -285,8 +261,126 @@ const AdminTechnicalManagerForm: FC<AdminTechnicalManagerFormProps> = ({
 					},
 				}}
 				disabled={formState === "EDIT"}
-				required
 				fullWidth
+			/>
+			<TextField
+				{...register("full_name")}
+				label="نام کامل"
+				type="text"
+				error={!!errors.full_name}
+				helperText={errors.full_name?.message ?? ""}
+				placeholder="نام کامل را وارد کنید"
+				autoComplete="off"
+				slotProps={{
+					inputLabel: {
+						shrink: true,
+					},
+				}}
+				fullWidth
+			/>
+			<TextField
+				{...register("father_name")}
+				label="نام پدر"
+				type="text"
+				error={!!errors.father_name}
+				helperText={errors.father_name?.message ?? ""}
+				placeholder="نام پدر را وارد کنید"
+				autoComplete="off"
+				slotProps={{
+					inputLabel: {
+						shrink: true,
+					},
+				}}
+				fullWidth
+			/>
+			<TextField
+				{...register("address")}
+				label="آدرس"
+				type="text"
+				error={!!errors.address}
+				helperText={errors.address?.message ?? ""}
+				placeholder="آدرس را وارد کنید"
+				autoComplete="off"
+				slotProps={{
+					inputLabel: {
+						shrink: true,
+					},
+				}}
+				fullWidth
+			/>
+			<TextField
+				{...register("email")}
+				label="ایمیل"
+				type="text"
+				error={!!errors.email}
+				helperText={errors.email?.message ?? ""}
+				placeholder="ایمیل را وارد کنید"
+				autoComplete="off"
+				slotProps={{
+					inputLabel: {
+						shrink: true,
+					},
+				}}
+				fullWidth
+			/>
+			<TextField
+				{...register("telephone")}
+				label="تلفن ثابت‌"
+				type="text"
+				error={!!errors.telephone}
+				helperText={errors.telephone?.message ?? ""}
+				placeholder="تلفن ثابت‌ را وارد کنید"
+				autoComplete="off"
+				slotProps={{
+					inputLabel: {
+						shrink: true,
+					},
+				}}
+				fullWidth
+			/>
+			<DatePickerComponent
+				{...register("birthdate")}
+				control={control}
+				label="تاریخ تولد"
+				error={!!errors.birthdate}
+				helperText={errors.birthdate?.message ?? ""}
+				placeholder="تاریخ تولد را وارد کنید"
+				autoComplete="off"
+				slotProps={{
+					inputLabel: {
+						shrink: true,
+					},
+				}}
+				fullWidth
+			/>
+			<CustomeAutoComplete
+				showField="name"
+				name="city_code"
+				className="md:col-span-1"
+				control={control}
+				data={cities.data?.data}
+				loading={cities.isLoading || cities.isFetching}
+				setValue={setValue}
+				searchName="citySearch"
+				label="شهر"
+				rules={{
+					required: "این فیلد الزامی است",
+				}}
+			/>
+			<CustomeAutoComplete
+				showField="company.name"
+				name="company_id"
+				className="md:col-span-1"
+				control={control}
+				data={getCompanies.data?.data}
+				loading={getCompanies.isLoading || getCompanies.isFetching}
+				setValue={setValue}
+				getOptionLabel={(option) => option.company.name}
+				searchName="companySearch"
+				label="شرکت حمل و نقل"
+				rules={{
+					required: "این فیلد الزامی است",
+				}}
 			/>
 			<TextField
 				{...register("phone")}
@@ -312,7 +406,6 @@ const AdminTechnicalManagerForm: FC<AdminTechnicalManagerFormProps> = ({
 					},
 				}}
 				disabled={formState === "EDIT"}
-				required
 				fullWidth
 			/>
 			<TextField
@@ -344,7 +437,7 @@ const AdminTechnicalManagerForm: FC<AdminTechnicalManagerFormProps> = ({
 				required
 				fullWidth
 			/>
-			{type === 3 && (
+			{type !== 2 && (
 				<TextField
 					{...register("freighter_capacity", { valueAsNumber: true })}
 					label="حداکثر پذیرش باری"
@@ -374,7 +467,7 @@ const AdminTechnicalManagerForm: FC<AdminTechnicalManagerFormProps> = ({
 					fullWidth
 				/>
 			)}
-			{type === 3 && (
+			{type !== 1 && (
 				<TextField
 					{...register("passenger_capacity", { valueAsNumber: true })}
 					label="حداکثر پذیرش مسافری"
@@ -396,122 +489,31 @@ const AdminTechnicalManagerForm: FC<AdminTechnicalManagerFormProps> = ({
 
 						event.target.value = newValue;
 					}}
+					slotProps={{
+						inputLabel: {
+							shrink: true,
+						},
+					}}
 					fullWidth
 				/>
 			)}
-			{(type === 1 || type === 3) && (
-				<>
-					<div
-						className="relative flex flex-col items-center justify-center gap-4 border-2 border-dashed rounded-lg h-32 cursor-pointer border-primary-dark overflow-hidden lg:col-start-1"
-						onClick={() => freighterCertificationInput.current.click()}
-					>
-						{freighterCertificationImage ? (
-							<>
-								<ImageComponent
-									image={freighterCertificationImage.image}
-									alt={freighterCertificationImage.name}
-									stopPropagation={true}
-								/>
-								<IconButton
-									className="absolute bottom-2 right-2 text-red-500 bg-red-200/30"
-									onClick={(event) => {
-										event.stopPropagation();
-										handleRemoveFreighterCertificationImage();
-									}}
-								>
-									<Trash size="24" />
-								</IconButton>
-							</>
-						) : (
-							<>
-								<Image
-									size="32"
-									color="#00be77"
-								/>
-								<h4>افزودن عکس گواهی بازدید باری</h4>
-							</>
-						)}
-					</div>
-					<input
-						ref={freighterCertificationInput}
-						type="file"
-						className="hidden"
-						id="Certification_technicalmanager_freighter"
-						name="Certification_technicalmanager_freighter"
-						accept="image/jpeg, image/png, image/webp"
-						capture="environment"
-						onInput={handleImageSelectFreighterCertification}
-					/>
-				</>
-			)}
-			{(type === 2 || type === 3) && (
-				<>
-					<div
-						className={
-							"relative flex flex-col items-center justify-center gap-4 border-2 border-dashed rounded-lg h-32 cursor-pointer border-primary-dark overflow-hidden" +
-							(type !== 3 ? " col-start-1" : "")
-						}
-						onClick={() => passengerCertificationInput.current.click()}
-					>
-						{passengerCertificationImage ? (
-							<>
-								<ImageComponent
-									image={passengerCertificationImage.image}
-									alt={passengerCertificationImage.name}
-									stopPropagation={true}
-									orientation="horizontal"
-								/>
-								<IconButton
-									className="absolute bottom-2 right-2 text-red-500 bg-red-200/30"
-									onClick={(event) => {
-										event.stopPropagation();
-										handleRemovePassengerCertificationImage();
-									}}
-								>
-									<Trash size="24" />
-								</IconButton>
-							</>
-						) : (
-							<>
-								<Image
-									className="object-contain"
-									size="32"
-									color="#00be77"
-								/>
-								<h4>افزودن عکس گواهی بازدید مسافری</h4>
-							</>
-						)}
-					</div>
-					<input
-						ref={passengerCertificationInput}
-						type="file"
-						className="hidden"
-						name="Certification_technicalmanager_passenger"
-						id="Certification_technicalmanager_passenger"
-						accept="image/jpeg, image/png, image/webp"
-						capture="environment"
-						onInput={handleImageSelectPassengerCertification}
-					/>
-				</>
-			)}
-			<Button
-				className="lg:row-start-4 lg:h-fit"
-				variant="outlined"
-				color="secondary"
-				onClick={formState === "ADD" ? onCancelAddTechnicalManager : onCancelEditTechnicalManager}
-			>
-				انصراف
-			</Button>
-			<Button
-				className="lg:row-start-4 lg:h-fit"
-				variant="contained"
-				type="submit"
-				size="large"
-				loading={addTechnicalManagerResult.isLoading || editTechnicalManagerResult.isLoading}
-				fullWidth
-			>
-				{formState === "ADD" ? "افزودن مدیر فنی" : "ویرایش اطلاعات مدیر فنی"}
-			</Button>
+			<Box className="flex flex-row items-stretch gap-4! col-span-4 w-full! justify-start">
+				<Button
+					variant="outlined"
+					color="secondary"
+					onClick={formState === "ADD" ? onCancelAddTechnicalManager : onCancelEditTechnicalManager}
+				>
+					انصراف
+				</Button>
+				<Button
+					variant="contained"
+					type="submit"
+					size="large"
+					loading={addTechnicalManagerResult.isLoading || editTechnicalManagerResult.isLoading}
+				>
+					{formState === "ADD" ? "افزودن مدیر فنی" : "ویرایش اطلاعات مدیر فنی"}
+				</Button>
+			</Box>
 		</form>
 	);
 };

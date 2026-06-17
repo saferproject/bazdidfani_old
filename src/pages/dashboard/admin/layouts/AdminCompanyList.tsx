@@ -3,9 +3,13 @@ import SaferGrid from "../../../../components/shared/DataGrid/SaferGrid";
 import LoginAsDialog from "../../../../components/shared/dialogs/LoginAsDialog/LoginAsDialog";
 import SaferFilters from "../../../../components/shared/Filters/SaferFilters";
 import SweetAlertToast from "../../../../components/shared/Functions/SweetAlertToast";
+import { useAppSelector } from "../../../../Stores/hooks";
+import { API_URL } from "../../../../Stores/api-urls";
 import { RoleType } from "../../../../types/RoleType";
 import useIsPhone from "../../../../utilities/custom-hooks/use-is-phone";
+import buildQueryParams from "../../../../utilities/build-query-params";
 import { GetShamsiDateTime } from "../../../../utilities/DateTime";
+import downloadExcelFile from "../../../../utilities/download-excel";
 import {
   useChangeCompanyStatusMutation,
   useGetAllCompaniesQuery,
@@ -22,12 +26,14 @@ const AdminCompanyList: FC<CompanyListProps> = ({
   onEditCompany,
 }) => {
   const isPhone = useIsPhone();
+  const token = useAppSelector((state) => state.user.token);
 
   const [paginatorProps, setPaginatorProps] = useState({
     currentPage: 1,
     itemsPerPage: 10,
   });
   const [filters, setFilters] = useState(null);
+  const [excelLoading, setExcelLoading] = useState(false);
   const [loginAsTarget, setLoginAsTarget] = useState<{
     userId: number;
     fullName: string;
@@ -257,6 +263,19 @@ const AdminCompanyList: FC<CompanyListProps> = ({
     setFilters(filters);
   };
 
+  const handleGetExcel = async () => {
+    setExcelLoading(true);
+    try {
+      await downloadExcelFile(
+        `${API_URL}/api/admin/company/index/export/excel${filters ? "?" + buildQueryParams(filters) : ""}`,
+        token,
+        "لیست شرکت های حمل و نقل",
+      );
+    } finally {
+      setExcelLoading(false);
+    }
+  };
+
   return (
     <div className="w-full flex flex-col gap-8">
       <div className="w-full flex justify-between items-center">
@@ -291,7 +310,8 @@ const AdminCompanyList: FC<CompanyListProps> = ({
           },
         ]}
         onFilter={handleFilter}
-        onGetExcel={() => {}}
+        onGetExcel={handleGetExcel}
+        excelLoading={excelLoading}
       />
       <SaferGrid<any>
         columns={columns}

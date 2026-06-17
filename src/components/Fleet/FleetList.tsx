@@ -6,8 +6,12 @@ import {
   useGetInfiniteFleetForCompanyInfiniteQuery,
   useGetInfiniteFleetForDriverInfiniteQuery,
 } from "../../api/fleet/Fleet";
+import { useAppSelector } from "../../Stores/hooks";
+import { API_URL } from "../../Stores/api-urls";
 import useIsPhone from "../../utilities/custom-hooks/use-is-phone";
+import buildQueryParams from "../../utilities/build-query-params";
 import { GetShamsiDate } from "../../utilities/DateTime";
+import downloadExcelFile from "../../utilities/download-excel";
 import Plate from "../shared/DataGrid/Plate";
 import SaferGrid from "../shared/DataGrid/SaferGrid";
 import CustomDialog, {
@@ -33,6 +37,7 @@ interface iprops {
 
 const FleetList: FC<iprops> = ({ onSelect, isDialog, owner = "company" }) => {
   const isPhone = useIsPhone();
+  const token = useAppSelector((state) => state.user.token);
 
   const [columnVisibilityModel, setColumnVisibilityModel] =
     useState<GridColumnVisibilityModel>({
@@ -51,6 +56,7 @@ const FleetList: FC<iprops> = ({ onSelect, isDialog, owner = "company" }) => {
     itemsPerPage: 10,
   });
   const [filters, setFilters] = useState(null);
+  const [excelLoading, setExcelLoading] = useState(false);
   const [textDialog, setTextDialog] = useState<SaferTextDialogProps>({
     isOpen: false,
     title: "حذف ناوگان",
@@ -473,7 +479,20 @@ const FleetList: FC<iprops> = ({ onSelect, isDialog, owner = "company" }) => {
           },
         ]}
         onFilter={handleFilter}
-        onGetExcel={() => {}}
+        onGetExcel={async () => {
+          setExcelLoading(true);
+          try {
+            const base = owner === "me" ? "driver" : "company";
+            await downloadExcelFile(
+              `${API_URL}/api/${base}/trucks/export/excel${filters ? "?" + buildQueryParams(filters) : ""}`,
+              token,
+              "ناوگان",
+            );
+          } finally {
+            setExcelLoading(false);
+          }
+        }}
+        excelLoading={excelLoading}
       />
       <SaferGrid<any>
         columns={columns}

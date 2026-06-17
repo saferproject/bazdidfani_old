@@ -12,6 +12,10 @@ import { GetShamsiDate } from "../../../utilities/DateTime";
 import { useGetAdminInfiniteTechnicalManagersInfiniteQuery } from "../admin/api/admin-technical-manager.api";
 import EditTechnicalManagerDataDialog from "./dialogs/EditTechnicalManagerDataDialog";
 import EditTechnicalManagerDataDialogProps from "./interfaces/edit-technical-manager-data-dialog-props.interface";
+import { useAppSelector } from "../../../Stores/hooks";
+import { API_URL } from "../../../Stores/api-urls";
+import buildQueryParams from "../../../utilities/build-query-params";
+import downloadExcelFile from "../../../utilities/download-excel";
 import { Button, CircularProgress, IconButton, Switch, Typography } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
 import { Add, Edit, Login, UserOctagon } from "iconsax-reactjs";
@@ -43,6 +47,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function TechnicalManager() {
   const isPhone = useIsPhone();
+  const token = useAppSelector((state) => state.user.token);
 
   const [customDialogprops, setCustomDialogProps] = useState<CustomDialogProps>(
     { ...EmptyCustomDialoProps },
@@ -52,6 +57,7 @@ export default function TechnicalManager() {
     itemsPerPage: 10,
   });
   const [filters, setFilters] = useState(null);
+  const [excelLoading, setExcelLoading] = useState(false);
   const [loginAsTarget, setLoginAsTarget] = useState<{
     userId: number;
     fullName: string;
@@ -396,6 +402,19 @@ export default function TechnicalManager() {
         mode="SEARCH_PARAMS"
         search={true}
         onFilter={handleFilter}
+        onGetExcel={async () => {
+          setExcelLoading(true);
+          try {
+            await downloadExcelFile(
+              `${API_URL}/api/company/technicalManager/index/export/excel${filters ? "?" + buildQueryParams(filters) : ""}`,
+              token,
+              "مدیران فنی",
+            );
+          } finally {
+            setExcelLoading(false);
+          }
+        }}
+        excelLoading={excelLoading}
       />
       <SaferGrid
         filterSetInUrl
