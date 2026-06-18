@@ -1,7 +1,7 @@
 import { Button, CircularProgress, IconButton, Switch } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
 import { Add, Edit, Truck } from "iconsax-reactjs";
-import { FC, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import PlateTextFieldCell from "../../self-statement/PlatetextFieldCell";
 import { GetShamsiDate } from "../../../../utilities/DateTime";
 import { useChangeAdminFleetStatusMutation, useGetAdminFleetQuery, useGetInfiniteAdminFleetInfiniteQuery } from "../api/admin-fleet.api";
@@ -12,11 +12,16 @@ import SaferFilters from "../../../../components/shared/Filters/SaferFilters";
 import useIsPhone from "../../../../utilities/custom-hooks/use-is-phone";
 import AFleetCard from "../../../../components/Admin/AFleetCard";
 import { Fab } from "@mui/material";
+import { useAppSelector } from "../../../../Stores/hooks";
+import downloadExcelFile from "../../../../utilities/download-excel";
+import { API_URL } from "../../../../Stores/api-urls";
+import buildQueryParams from "../../../../utilities/build-query-params";
 
 const AdminFleetList: FC<AdminFleetListProps> = ({ onAddFleet, onEditFleet }) => {
 	const isPhone = useIsPhone();
 	const [paginatorProps, setPaginatorProps] = useState({ currentPage: 1, itemsPerPage: 10 });
 	const [filters, setFilters] = useState(null);
+	const [excelLoading, setExcelLoading] = useState(false);
 
 	const fleet = useGetAdminFleetQuery(
 		{ page: paginatorProps.currentPage, per_page: paginatorProps.itemsPerPage, ...filters },
@@ -160,6 +165,21 @@ const AdminFleetList: FC<AdminFleetListProps> = ({ onAddFleet, onEditFleet }) =>
 			});
 	}, [changeStatusResult.isSuccess, changeStatusResult.data]);
 
+	const token = useAppSelector((state) => state.user.token);
+
+	const handleGetExcel = useCallback(async () => {
+      setExcelLoading(true);
+      try {
+        await downloadExcelFile(
+          `${API_URL}/api/admin/truck/export/excel${filters ? "?" + buildQueryParams(filters) : ""}`,
+          token,
+          "لیست ناوگان ها",
+        );
+      } finally {
+        setExcelLoading(false);
+      }
+    }, [filters, API_URL, buildQueryParams, token, setExcelLoading]);
+
 	return (
 		<section className="flex flex-col gap-8">
 			<header className="flex items-center justify-between">
@@ -183,7 +203,8 @@ const AdminFleetList: FC<AdminFleetListProps> = ({ onAddFleet, onEditFleet }) =>
 					search={true}
 					plaque={true}
 					onFilter={handleFilter}
-					onGetExcel={() => {}}
+					onGetExcel={handleGetExcel}
+					excelLoading={excelLoading}
 				/>
 				<SaferGrid<any>
 					columns={columns}

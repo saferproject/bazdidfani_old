@@ -1,12 +1,15 @@
 import { useLogoutMutation } from "../../../api/Auth/Logout";
 import HeaderAvatar from "../../../assets/images/HeaderAvatar.png";
+import CompanyUsage from "../../../pages/dashboard/admin/enums/company-usage.enum";
 import { useAppDispatch } from "../../../Stores/hooks";
 import { openChangePasswordDialog } from "../../../Stores/slices/change-passwrod-dialog.slice";
 import { clear, restorePrevToken } from "../../../Stores/slices/user";
 import { RootState } from "../../../Stores/store";
+import useHavePermission from "../Functions/CostumeHooks/CheckPermissions";
 import SweetAlertToast from "../Functions/SweetAlertToast";
 import {
   Avatar,
+  Button,
   IconButton,
   ListItemIcon,
   ListItemText,
@@ -14,11 +17,13 @@ import {
   MenuItem,
 } from "@mui/material";
 import {
+  Bus,
   Key,
   Logout,
   Notification,
   ProfileCircle,
   Setting2,
+  TruckFast,
   UserTag,
 } from "iconsax-reactjs";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -35,6 +40,8 @@ export default function Header() {
     (state: RootState) => state.user.profileImage,
   );
   const prevToken = useSelector((state: RootState) => state.user.prevToken);
+  const companyUsage = useSelector((state: RootState) => state.user.companyUsage);
+  const isTechnicalManager = useHavePermission("technicalManager");
 
   const settingsButtonRef = useRef(null);
 
@@ -103,14 +110,45 @@ export default function Header() {
 
   return (
     <div className="w-full h-full flex items-center justify-between p-2">
-      <div className="flex items-center justify-between">
+      {/* Left: avatar + name */}
+      <div className="flex items-center">
         <Avatar alt="Profile Image" src={profileImage || HeaderAvatar} />
         <div className="hidden lg:block mx-3 text-gray-700">
           <h1 className="font-bold text-[1vw]">{personal?.full_name}</h1>
           <p className="font-semibold text-[0.7vw]">{rolesText}</p>
         </div>
       </div>
-      <div className="flex items-center justify-between gap-x-2">
+
+      {/* Center: technical visit buttons */}
+      <div className="flex items-center gap-2">
+        {isTechnicalManager && companyUsage !== CompanyUsage.PASSENGER && (
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            startIcon={<TruckFast size="18" />}
+            onClick={() => navigate("/dashboard/do-technical-visit-freighter")}
+            className="whitespace-nowrap"
+          >
+            بازدید فنی باری
+          </Button>
+        )}
+        {isTechnicalManager && companyUsage !== CompanyUsage.FREIGHTER && (
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            startIcon={<Bus size="18" />}
+            onClick={() => navigate("/dashboard/do-technical-visit-passenger")}
+            className="whitespace-nowrap"
+          >
+            بازدید فنی مسافری
+          </Button>
+        )}
+      </div>
+
+      {/* Right: notification, settings, logout */}
+      <div className="flex items-center gap-x-2">
         <IconButton
           title="اعلان ها"
           onMouseEnter={(event) => {

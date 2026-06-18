@@ -1,5 +1,5 @@
 import { GridColDef } from "@mui/x-data-grid";
-import { FC, useState } from "react";
+import { FC, useCallback, useState } from "react";
 import { useGetAdminUsersQuery, useGetInfiniteAdminUsersInfiniteQuery, useGetUserRolesQuery } from "../api/admin-users.api";
 import { useAppSelector } from "../../../../Stores/hooks";
 import { API_URL } from "../../../../Stores/api-urls";
@@ -177,6 +177,19 @@ const AdminUsersList: FC<AdminUsersListProps> = ({ onEditUser }) => {
 		},
 	];
 
+	const handleGetExcel = useCallback(async () => {
+		setExcelLoading(true);
+		try {
+			await downloadExcelFile(
+				`${API_URL}/api/admin/user/users-list/export/excel${filters ? "?" + buildQueryParams(filters) : ""}`,
+				token,
+				"کل کاربران",
+			);
+		} finally {
+			setExcelLoading(false);
+		}
+	}, [filters, API_URL, buildQueryParams, token, setExcelLoading]);
+
 	return (
 		<section className="flex flex-col gap-8">
 			{changeRoleStatusDialog.isOpen && <AdminChangeRoleStatus {...changeRoleStatusDialog} />}
@@ -198,18 +211,7 @@ const AdminUsersList: FC<AdminUsersListProps> = ({ onEditUser }) => {
 						},
 					]}
 					onFilter={handleFilter}
-					onGetExcel={async () => {
-						setExcelLoading(true);
-						try {
-							await downloadExcelFile(
-								`${API_URL}/api/admin/user/users-list/export/excel${filters ? "?" + buildQueryParams(filters) : ""}`,
-								token,
-								"کل کاربران",
-							);
-						} finally {
-							setExcelLoading(false);
-						}
-					}}
+					onGetExcel={handleGetExcel}
 					excelLoading={excelLoading}
 				/>
 				<SaferGrid<any>

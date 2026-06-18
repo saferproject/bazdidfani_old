@@ -116,12 +116,7 @@ const ChangePasswordDialog: FC = () => {
 								<TextField
 									{...register("newPassword", {
 										required: "رمز عبور فعلی الزامی است",
-										minLength: { value: 8, message: "رمز عبور باید حداقل 8 کاراکتر باشد" },
-										maxLength: { value: 32, message: "رمز عبور نباید بیشتر از 32 کاراکتر باشد" },
-										pattern: {
-											value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{4,32}$/,
-											message: "رمز عبور باید شامل حروف بزرگ، کوچک و اعداد باشد",
-										},
+										minLength: { value: 4, message: "رمز عبور باید حداقل 4 کاراکتر باشد" },
 									})}
 									autoComplete="off"
 									name="newPassword"

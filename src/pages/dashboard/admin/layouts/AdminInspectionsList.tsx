@@ -19,7 +19,7 @@ import AdminInspectionsListProps from "../interfaces/admin-inspections-list-prop
 import { IconButton } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
 import { ReceiptSearch } from "iconsax-reactjs";
-import { FC, JSX, useEffect, useState } from "react";
+import { FC, JSX, useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import useIsPhone from "../../../../utilities/custom-hooks/use-is-phone";
 import AInspectionsCard from "../../../../components/Admin/AInspectionsCard";
@@ -279,6 +279,19 @@ const AdminInspectionsList: FC<AdminInspectionsListProps> = () => {
     },
   ];
 
+  const handleGetExcel = useCallback(async () => {
+      setExcelLoading(true);
+      try {
+        await downloadExcelFile(
+          `${API_URL}/api/admin/list-bazdidfani/export/excel${filters ? "?" + buildQueryParams(filters) : ""}`,
+          token,
+          "بازدید های فنی و خوداظهاری ها",
+        );
+      } finally {
+        setExcelLoading(false);
+      }
+    }, [filters, API_URL, buildQueryParams, token, setExcelLoading]);
+
   return (
     <section className="flex flex-col gap-8">
       {checkInspectionDialog.isOpen && (
@@ -322,18 +335,7 @@ const AdminInspectionsList: FC<AdminInspectionsListProps> = () => {
             },
           ]}
           onFilter={handleFilter}
-          onGetExcel={async () => {
-            setExcelLoading(true);
-            try {
-              await downloadExcelFile(
-                `${API_URL}/api/admin/list-bazdidfani/export/excel${filters ? "?" + buildQueryParams(filters) : ""}`,
-                token,
-                "بازدید های فنی و خوداظهاری ها",
-              );
-            } finally {
-              setExcelLoading(false);
-            }
-          }}
+          onGetExcel={handleGetExcel}
           excelLoading={excelLoading}
         />
         <SaferGrid<any>

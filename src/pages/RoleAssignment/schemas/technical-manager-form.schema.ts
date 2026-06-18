@@ -43,11 +43,11 @@ const TechnicalManagerFormSchema = z
 		telephone: z.string({ invalid_type_error: "تلفن ثابت الزامی است", required_error: "تلفن ثابت الزامی است" }),
 		birthdate: z.string({ invalid_type_error: "تاریخ تولد الزامی است", required_error: "تاریخ تولد الزامی است" }),
 		city_code: z.number({ invalid_type_error: "شهر الزامی است", required_error: "شهر الزامی است" }),
-		image: z.string({ invalid_type_error: "نام پدر الزامی است", required_error: "نام پدر الزامی است" }),
+		image: z.string({ invalid_type_error: "عکس باید فایل باشد." }).optional(),
 		company_id: z.number({ invalid_type_error: "شرکت الزامی است", required_error: "شرکت الزامی است" }),
 		start_cooperate: z.string({ invalid_type_error: "تاریخ شروع همکاری الزامی است", required_error: "تاریخ شروع همکاری الزامی است" }),
 		end_cooperate: z.string({ invalid_type_error: "تاریخ پایان همکاری الزامی است", required_error: "تاریخ پایان همکاری الزامی است" }),
-		citySearch: z.string().nullable(),
+		citySearch: z.string().optional(),
 	})
 	.superRefine((values, ctx) => {
 		if (values.type === 3) {

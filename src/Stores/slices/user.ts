@@ -52,7 +52,8 @@ interface UserState {
 	userCompanyRoles: IRole[];
 	companyUsage: CompanyUsage;
 	twoAuthentication: boolean;
-	newTechnicalManagerData: Record<string, any>
+	newTechnicalManagerData: Record<string, any>;
+	company: Record<string, any>;
 }
 
 // مقدار اولیه
@@ -72,7 +73,8 @@ const initialState: UserState = {
 	userCompanyRoles: localStorage.getItem("userCompanyRoles") ? JSON.parse(localStorage.getItem("userCompanyRoles")) : [],
 	companyUsage: localStorage.getItem("companyUsage") ? (Number(localStorage.getItem("companyUsage")) as CompanyUsage) : null,
 	twoAuthentication: localStorage.getItem("twoAuthentication") === "true",
-	newTechnicalManagerData: {}
+	newTechnicalManagerData: {},
+	company: {}
 };
 
 export const userSlice = createSlice({
@@ -178,7 +180,10 @@ export const userSlice = createSlice({
 			else localStorage.removeItem("companyUsage");
 		},
 		setNewTechnicalManagetData: (state, action) => {
-			state.newTechnicalManagerData = action.payload
+			state.newTechnicalManagerData = action.payload;
+		},
+		setCompany: (state, action) => {
+			state.company = action.payload;
 		},
 		clear: (state) => {
 			localStorage.clear(); // also removes companyUsage
@@ -198,6 +203,7 @@ export const userSlice = createSlice({
 			state.userCompanyRoles = [];
 			state.twoAuthentication = false;
 			state.newTechnicalManagerData = {};
+			state.company = {};
 		},
 	},
 });
@@ -228,6 +234,7 @@ export const {
 	setCompanyUsage,
 	setTwoAuthentication,
 	setNewTechnicalManagetData,
+	setCompany,
 	clear,
 } = userSlice.actions;
 

@@ -13,7 +13,7 @@ import useHavePermission from "../Functions/CostumeHooks/CheckPermissions";
 import SweetAlertToast from "../Functions/SweetAlertToast";
 import PlateTextField from "../Inputs/PlateTextField";
 import Header from "./Header";
-import { CircularProgress, Menu, MenuItem, Typography } from "@mui/material";
+import { Button, CircularProgress, Divider, Menu, MenuItem, Typography } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
@@ -501,11 +501,19 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
     [menuItems2, location.pathname, handleMenuClick],
   );
 
+  const company = useAppSelector(state => state.user.company);
+  const user = useAppSelector(state => state.user.personal)
+
   const drawer = (
     <div className="sticky overflow-x-hidden drawer-container">
       <Toolbar className="flex items-center justify-center">
         <img className="max-h-32" alt="logo" src={TechnicalVisitLogo} />
       </Toolbar>
+      <Divider className="w-full!" />
+      <Typography className="text-center bg-secondary/15 p-1 font-black! text-xl">
+        {company?.name ?? user?.full_name}
+      </Typography>
+      <Divider className="w-full!" />
       <MenuItem2
         id="dashboard"
         href="/dashboard"
@@ -569,9 +577,40 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
           } h-fit  shadow-lg z-60 md:hidden`}
         >
           <div className="flex justify-between items-center min-w-[300px] max-w-[650px] w-[90%]">
+            {/* Left: hamburger */}
             <IconButton onClick={handleDrawerToggle}>
               <HamburgerMenu size="24" color="#000" />
             </IconButton>
+
+            {/* Center: technical visit buttons */}
+            <div className="flex items-center gap-1">
+              {isTechnicalManager && tmWorkType !== 2 && (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="small"
+                  startIcon={<TruckFast size="16" />}
+                  onClick={() => navigate("/dashboard/do-technical-visit-freighter")}
+                  sx={{ fontSize: "0.7rem", py: 0.5, px: 1, whiteSpace: "nowrap" }}
+                >
+                  بازدید فنی باری
+                </Button>
+              )}
+              {isTechnicalManager && tmWorkType !== 1 && (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="small"
+                  startIcon={<Bus size="16" />}
+                  onClick={() => navigate("/dashboard/do-technical-visit-passenger")}
+                  sx={{ fontSize: "0.7rem", py: 0.5, px: 1, whiteSpace: "nowrap" }}
+                >
+                  بازدید فنی مسافری
+                </Button>
+              )}
+            </div>
+
+            {/* Right: settings, notification */}
             <div className="flex items-center gap-2">
               <IconButton
                 title="تنظیمات"

@@ -61,7 +61,12 @@ const AdminTechnicalManagerForm: FC<AdminTechnicalManagerFormProps> = ({
 	const onSubmit = async (data: TechnicalManagerFormType) => {
 		const newFormData = new FormData();
 
-		for (const key in data) newFormData.append(key, data[key]);
+		for (const key in data) {
+			if (key === "freighter_capacity" || key === "passenger_capacity")
+				newFormData.append(key, data[key] ?? 0);
+			else
+				newFormData.append(key, data[key]);
+		}
 
 		// ? چون به عکس های روی سرور دسترسی در کد نداریم شرط دوم را گذاشتم
 		if (
@@ -193,6 +198,8 @@ const AdminTechnicalManagerForm: FC<AdminTechnicalManagerFormProps> = ({
 			onSubmitTechnicalManager();
 		}
 	}, [editTechnicalManagerResult.isSuccess, editTechnicalManagerResult.data]);
+
+	console.log(errors)
 
 	return (
 		<form
@@ -354,6 +361,7 @@ const AdminTechnicalManagerForm: FC<AdminTechnicalManagerFormProps> = ({
 					},
 				}}
 				fullWidth
+				disableFuture
 			/>
 			<CustomeAutoComplete
 				showField="name"
@@ -507,6 +515,36 @@ const AdminTechnicalManagerForm: FC<AdminTechnicalManagerFormProps> = ({
 					fullWidth
 				/>
 			)}
+			<DatePickerComponent
+				{...register("start_cooperate")}
+				control={control}
+				label="تاریخ شروع همکاری"
+				error={!!errors.start_cooperate}
+				helperText={errors.start_cooperate?.message ?? ""}
+				placeholder="تاریخ شروع همکاری را وارد کنید"
+				autoComplete="off"
+				slotProps={{
+					inputLabel: {
+						shrink: true,
+					},
+				}}
+				fullWidth
+			/>
+			<DatePickerComponent
+				{...register("end_cooperate")}
+				control={control}
+				label="تاریخ پایان همکاری"
+				error={!!errors.end_cooperate}
+				helperText={errors.end_cooperate?.message ?? ""}
+				placeholder="تاریخ پایان همکاری را وارد کنید"
+				autoComplete="off"
+				slotProps={{
+					inputLabel: {
+						shrink: true,
+					},
+				}}
+				fullWidth
+			/>
 			<Box className="flex flex-row items-stretch gap-4! col-span-4 w-full! justify-start">
 				<Button
 					variant="outlined"

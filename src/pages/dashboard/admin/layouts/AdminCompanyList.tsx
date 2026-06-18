@@ -19,7 +19,7 @@ import CompanyListProps from "../interfaces/company-list-props.interface";
 import { Button, CircularProgress, IconButton, Switch } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
 import { Add, Buildings, Edit, Login } from "iconsax-reactjs";
-import { FC, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 
 const AdminCompanyList: FC<CompanyListProps> = ({
   onAddCompany,
@@ -263,18 +263,18 @@ const AdminCompanyList: FC<CompanyListProps> = ({
     setFilters(filters);
   };
 
-  const handleGetExcel = async () => {
+  const handleGetExcel = useCallback(async () => {
     setExcelLoading(true);
     try {
       await downloadExcelFile(
-        `${API_URL}/api/admin/company/index/export/excel${filters ? "?" + buildQueryParams(filters) : ""}`,
+        `${API_URL}/api/admin/company/export/excel${filters ? "?" + buildQueryParams(filters) : ""}`,
         token,
         "لیست شرکت های حمل و نقل",
       );
     } finally {
       setExcelLoading(false);
     }
-  };
+  }, [filters, API_URL, buildQueryParams, token, setExcelLoading]);
 
   return (
     <div className="w-full flex flex-col gap-8">

@@ -5,15 +5,6 @@ import AdminPageStates from "./types/admin-page-states.type";
 import { FC, useState } from "react";
 
 
-
-
-
-
-
-
-
-
-
 const AdminTechnicalManagers: FC = () => {
   const [pageState, setPageState] = useState<AdminPageStates>("LIST");
   const [formState, setFormState] = useState<AdminFormState | null>(null);

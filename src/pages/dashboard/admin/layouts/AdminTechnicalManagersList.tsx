@@ -13,7 +13,11 @@ import AdminTechnicalManagersListProps from "../interfaces/admin-technical-manag
 import { Button, CircularProgress, IconButton, Switch } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
 import { Add, Edit, Login, UserOctagon } from "iconsax-reactjs";
-import { FC, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
+import downloadExcelFile from "../../../../utilities/download-excel";
+import buildQueryParams from "../../../../utilities/build-query-params";
+import { API_URL } from "../../../../Stores/api-urls";
+import { useAppSelector } from "../../../../Stores/hooks";
 
 const AdminTechnicalManagersList: FC<AdminTechnicalManagersListProps> = ({
   onEditTechnicalManager,
@@ -26,6 +30,7 @@ const AdminTechnicalManagersList: FC<AdminTechnicalManagersListProps> = ({
     itemsPerPage: 10,
   });
   const [filters, setFilters] = useState(null);
+  const [excelLoading, setExcelLoading] = useState(false);
   const [loginAsTarget, setLoginAsTarget] = useState<{
     userId: number;
     fullName: string;
@@ -235,6 +240,21 @@ const AdminTechnicalManagersList: FC<AdminTechnicalManagersListProps> = ({
     },
   ];
 
+  const token = useAppSelector((state) => state.user.token);
+
+  const handleGetExcel = useCallback(async () => {
+      setExcelLoading(true);
+      try {
+        await downloadExcelFile(
+          `${API_URL}/api/admin/technical-manager/export/excel${filters ? "?" + buildQueryParams(filters) : ""}`,
+          token,
+          "لیست مدیران فنی",
+        );
+      } finally {
+        setExcelLoading(false);
+      }
+    }, [filters, API_URL, buildQueryParams, token, setExcelLoading]);
+
   return (
     <div className="w-full flex flex-col gap-8">
       <div className="flex justify-between items-center">
@@ -268,6 +288,8 @@ const AdminTechnicalManagersList: FC<AdminTechnicalManagersListProps> = ({
           },
         ]}
         onFilter={handleFilter}
+        onGetExcel={handleGetExcel}
+        excelLoading={excelLoading}
       />
       <SaferGrid<any>
         columns={columns}

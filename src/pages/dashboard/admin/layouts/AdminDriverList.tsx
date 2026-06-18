@@ -14,7 +14,11 @@ import AdminDriverListProps from "../interfaces/admin-driver-list-props.interfac
 import { Button, CircularProgress, IconButton, Switch } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
 import { Add, Edit, Login, UserSquare } from "iconsax-reactjs";
-import { FC, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
+import downloadExcelFile from "../../../../utilities/download-excel";
+import { API_URL } from "../../../../Stores/api-urls";
+import buildQueryParams from "../../../../utilities/build-query-params";
+import { useAppSelector } from "../../../../Stores/hooks";
 
 const AdminDriverList: FC<AdminDriverListProps> = ({
   onAddDriver,
@@ -27,6 +31,7 @@ const AdminDriverList: FC<AdminDriverListProps> = ({
     itemsPerPage: 10,
   });
   const [filters, setFilters] = useState(null);
+  const [excelLoading, setExcelLoading] = useState(false);
   const [loginAsTarget, setLoginAsTarget] = useState<{
     userId: number;
     fullName: string;
@@ -235,6 +240,21 @@ const AdminDriverList: FC<AdminDriverListProps> = ({
     setFilters(filters);
   };
 
+  const token = useAppSelector((state) => state.user.token);
+
+  const handleGetExcel = useCallback(async () => {
+      setExcelLoading(true);
+      try {
+        await downloadExcelFile(
+          `${API_URL}/api/admin/driver/export/excel${filters ? "?" + buildQueryParams(filters) : ""}`,
+          token,
+          "لیست رانندگان",
+        );
+      } finally {
+        setExcelLoading(false);
+      }
+    }, [filters, API_URL, buildQueryParams, token, setExcelLoading]);
+
   return (
     <div className="w-full flex flex-col gap-8">
       <div className="flex items-center justify-between">
@@ -268,7 +288,8 @@ const AdminDriverList: FC<AdminDriverListProps> = ({
           },
         ]}
         onFilter={handleFilter}
-        onGetExcel={() => {}}
+        onGetExcel={handleGetExcel}
+        excelLoading={excelLoading}
       />
       <SaferGrid<any>
         columns={columns}

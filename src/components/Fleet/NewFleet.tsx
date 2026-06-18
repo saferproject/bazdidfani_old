@@ -66,7 +66,6 @@ interface formInterface {
   system_id: number | null;
   tip_id: number | null;
   tip: any;
-  VIN: string;
   date_made: number;
   validity_technical_examination: string;
   status: 0 | 1;
@@ -109,7 +108,6 @@ const EmptyFormData: formInterface = {
   system_id: null,
   tip_id: null,
   tip: null,
-  VIN: "",
   date_made: null,
   validity_technical_examination: "",
   status: 0, //0 , 1
@@ -169,7 +167,7 @@ export default function NewFleet({
     },
   });
 
-  const { usage, loadingTypeSearch, smart_number, date_made, VIN } = useWatch({
+  const { usage, loadingTypeSearch, smart_number, date_made } = useWatch({
     control,
   });
 
@@ -228,7 +226,6 @@ export default function NewFleet({
         system: truckInfo.system,
         tip: truckInfo.tip,
         allowed_certificate: truckInfo.allowed_certificate,
-        VIN: truck.VIN,
         Chassis_number: truckInfo.Chassis_number,
         document_number: truckInfo.document_number,
         document_date: truckInfo.document_date,
@@ -277,7 +274,6 @@ export default function NewFleet({
         system: truckInfo.system,
         tip: truckInfo.tip,
         allowed_certificate: truckInfo.allowed_certificate,
-        VIN: truck.VIN,
         Chassis_number: truckInfo.Chassis_number,
         document_number: truckInfo.document_number,
         document_date: truckInfo.document_date,
@@ -345,7 +341,6 @@ export default function NewFleet({
         system: data.system,
         tip: data.tip,
         allowed_certificate: data.allowed_certificate,
-        VIN: data.VIN,
         Chassis_number: data.Chassis_number,
         document_number: data.document_number,
         document_date: data.document_date,
@@ -891,34 +886,6 @@ export default function NewFleet({
                 readOnly={
                   initialData?.usage === "freighter" &&
                   mode !== "ADD_WITHOUT_INQUIRY"
-                }
-              />
-            </SkeletonCondition>
-            <SkeletonCondition
-              loading={
-                getDataDriverTruck.isLoading || getDataDriverTruck.isFetching
-              }
-              variant="rounded-sm"
-            >
-              <TextField
-                slotProps={{
-                  htmlInput: {
-                    maxLength: 17,
-                    dir: "ltr",
-                    autoComplete: "off",
-                  },
-                  inputLabel: {
-                    shrink: !!VIN,
-                  },
-                }}
-                error={!!errors.VIN}
-                helperText={errors.VIN?.message.toString() ?? ""}
-                {...register("VIN")}
-                fullWidth
-                label="VIN خودرو"
-                disabled={
-                  mode !== "ADD_WITHOUT_INQUIRY" &&
-                  initialData?.usage === "freighter"
                 }
               />
             </SkeletonCondition>

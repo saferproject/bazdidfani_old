@@ -200,27 +200,27 @@ const DoTechnicalVisit: FC<iprops> = ({ type }) => {
     [],
   );
 
-  const handleGetExcel = async () => {
-    setExcelLoading(true);
-    try {
-      const queryString = filters ? buildQueryParams(filters) : "";
-      const response = await axios.get(
-        `${API_URL}/api/technical-manager/bazdifani/export/excel${queryString ? "?" + queryString : ""}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          responseType: "blob",
-        },
-      );
-      const url = URL.createObjectURL(response.data);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "technical-visits.xlsx";
-      a.click();
-      URL.revokeObjectURL(url);
-    } finally {
-      setExcelLoading(false);
-    }
-  };
+  const handleGetExcel = useCallback(async () => {
+      setExcelLoading(true);
+      try {
+        const queryString = filters ? buildQueryParams(filters) : "";
+        const response = await axios.get(
+          `${API_URL}/api/technical-manager/bazdifani/export/excel${queryString ? "?" + queryString : ""}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            responseType: "blob",
+          },
+        );
+        const url = URL.createObjectURL(response.data);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "technical-visits.xlsx";
+        a.click();
+        URL.revokeObjectURL(url);
+      } finally {
+        setExcelLoading(false);
+      }
+    }, [filters, API_URL, buildQueryParams, token, setExcelLoading]);
 
   const handleAddRequest = () => {
     setAddRequestDialogOpen(true);

@@ -1,6 +1,6 @@
 import { CircularProgress, Switch } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
-import { FC, useEffect, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import AdminCompanyUsersListProps from "../interfaces/admin-company-users-list-props.interface";
 import { useChangeAdminCompanyUserStatusMutation, useGetAdminCompanyUsersQuery } from "../api/admin-company-users.api";
 import { useAppSelector } from "../../../../Stores/hooks";
@@ -139,6 +139,19 @@ const AdminCompanyUsersList: FC<AdminCompanyUsersListProps> = () => {
 			});
 	}, [changeAdminCompanyUserStatusResult.isSuccess, changeAdminCompanyUserStatusResult.data]);
 
+	const handleGetExcel = useCallback(async () => {
+		setExcelLoading(true);
+		try {
+			await downloadExcelFile(
+				`${API_URL}/api/admin/company/company-user/export/excel${filters ? "?" + buildQueryParams(filters) : ""}`,
+				token,
+				"کاربران شرکت ها",
+			);
+		} finally {
+			setExcelLoading(false);
+		}
+	}, [filters, API_URL, buildQueryParams, token, setExcelLoading]);
+
 	return (
 		<section className="flex flex-col gap-8">
 			<header className="flex items-center gap-4">
@@ -153,18 +166,7 @@ const AdminCompanyUsersList: FC<AdminCompanyUsersListProps> = () => {
 					mode="SEARCH_PARAMS"
 					search={true}
 					onFilter={handleFilter}
-					onGetExcel={async () => {
-						setExcelLoading(true);
-						try {
-							await downloadExcelFile(
-								`${API_URL}/api/admin/company/company-user/index/export/excel${filters ? "?" + buildQueryParams(filters) : ""}`,
-								token,
-								"کاربران شرکت ها",
-							);
-						} finally {
-							setExcelLoading(false);
-						}
-					}}
+					onGetExcel={handleGetExcel}
 					excelLoading={excelLoading}
 				/>
 				<SaferGrid<any>
