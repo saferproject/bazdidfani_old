@@ -3,9 +3,9 @@ import DatePickerComponent from "../DatePicker/DatePickerComponent";
 import PlateTextField from "../Inputs/PlateTextField";
 import SAFER_FILTERS_BASE_FORM_INITIAL from "./constants/safer-filters-base-form-initial";
 import SaferFiltersBaseForm from "./interfaces/safer-filters-base-form.interface";
-import { Button, CircularProgress, FormControl, IconButton, InputLabel, MenuItem, Select, Switch, TextField } from "@mui/material";
+import { Autocomplete, Box, Button, CircularProgress, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, Switch, TextField, Typography } from "@mui/material";
 import { CloseCircle, Eraser, Filter, SearchNormal1, TableDocument } from "iconsax-reactjs";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { FaX } from "react-icons/fa6";
 import { RiFileExcel2Line } from "react-icons/ri";
@@ -20,7 +20,7 @@ export default function SaferFilters({
   filters = [],
   onFilter,
   onGetExcel,
-  excelLoading
+  excelLoading,
 }: {
   mode?: "NO_SEARCH_PARAMS" | "SEARCH_PARAMS";
   search?: boolean;
@@ -30,10 +30,17 @@ export default function SaferFilters({
   filters?: Array<{
     label: string;
     field: string;
-    type: "string" | "number" | "boolean" | "select";
+    type: "string" | "number" | "boolean" | "select" | "autocomplete";
     options?: Array<{ value: number | string; label: string }>;
     activeLabel?: string;
     inActiveLabel?: string;
+    autocompleteOptions?: any[];
+    autocompleteLoading?: boolean;
+    optionLabel?: string;
+    optionValue?: string;
+    onSearchChange?: (query: string) => void;
+    CustomPaperComponent?: (props: any) => ReactNode;
+    disableCloseOnSelect?: boolean;
   }>;
   onFilter: (
     filters: SaferFiltersBaseForm & Record<string, string | number | boolean>,
@@ -94,7 +101,7 @@ export default function SaferFilters({
   const filterInputs = useMemo(
     () =>
       filters.map(
-        ({ label, field, type, options, activeLabel, inActiveLabel }) => {
+        ({ label, field, type, options, activeLabel, inActiveLabel, autocompleteOptions, autocompleteLoading, optionLabel, optionValue, disableCloseOnSelect, onSearchChange, CustomPaperComponent }) => {
           switch (type) {
             case "number":
               return (
@@ -182,6 +189,73 @@ export default function SaferFilters({
                         </IconButton>
                       )}
                     </FormControl>
+                  )}
+                />
+              );
+
+            case "autocomplete":
+              return (
+                <Controller
+                  name={field}
+                  control={control}
+                  render={() => (
+                    <Autocomplete
+                      slots={{
+                        paper: CustomPaperComponent
+                      }}
+                      options={autocompleteOptions ?? []}
+                      loading={autocompleteLoading}
+                      getOptionLabel={(option: any) =>
+                        typeof option === "string" ? option : (option[optionLabel ?? "name"] ?? "")
+                      }
+                      value={
+                          watch(`${field}-field`)
+                      }
+                      disableCloseOnSelect={disableCloseOnSelect}
+                      onChange={(_event, newValue, reason) => {
+                        if (reason === "clear") {
+                          setValue(`${field}-field`, undefined);
+                          setValue(`${field}`, undefined);
+                        } else{
+                          setValue(`${field}-field`, newValue);
+                          setValue(field, newValue[`${optionValue}`]);
+                        }
+                      }}
+                      onInputChange={(_event, _newInputValue, reason) => {
+                        if (reason === "input" && onSearchChange) {
+                          onSearchChange(_newInputValue);
+                        }
+                      }}
+                      isOptionEqualToValue={(option, value) =>
+                        String(option[optionValue ?? "id"]) === String(value[optionValue ?? "id"])
+                      }
+                      className={isPhone ? "w-full" : "w-48"}
+                      size="small"
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "8px",
+                        },
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label={label}
+                          slotProps={{
+                            input: {
+                              ...params.InputProps,
+                              endAdornment: (
+                                <>
+                                  {autocompleteLoading ? (
+                                    <CircularProgress color="inherit" size={20} />
+                                  ) : null}
+                                  {params.InputProps.endAdornment}
+                                </>
+                              ),
+                            },
+                          }}
+                        />
+                      )}
+                    />
                   )}
                 />
               );

@@ -372,6 +372,10 @@ input {
 	direction: rtl;
 }
 
+.MuiOutlinedInput-notchedOutline {
+	direction: rtl !important;
+}
+
 .MuiDataGrid-row > div:nth-last-of-type(2)::after {
 	height: 0 !important;
 }

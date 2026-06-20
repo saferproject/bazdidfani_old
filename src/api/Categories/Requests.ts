@@ -6,7 +6,7 @@ export const { useGetLoadingTypesQuery } = ApiWithAuth.injectEndpoints({
     // Endpoint برای دریافت Loading Types
     getLoadingTypes: builder.query<
       any,
-      { query: string; activityType: CompanyUsage }
+      { query: string; activityType?: CompanyUsage }
     >({
       query: (params) => ({
         url: `loading-types${

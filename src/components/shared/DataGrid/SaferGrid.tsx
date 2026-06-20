@@ -127,7 +127,7 @@ export default function SaferGrid<DataType>({
           hideFooter
           loading={loading}
           rowHeight={50}
-          getRowClassName={getRowClassName}
+          getRowClassName={(props) => "transition-all " + getRowClassName?.(props)}
           columnVisibilityModel={columnVisibilityModel}
           onColumnVisibilityModelChange={onColumnVisibilityModelChange}
           hideFooterPagination={true}

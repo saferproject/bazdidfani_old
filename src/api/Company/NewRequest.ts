@@ -1,5 +1,6 @@
 import { ApiWithAuth } from "../../Stores/apis/api";
 import { NewRequestType } from "../../types/Requests";
+import buildQueryParams from "../../utilities/build-query-params";
 
 export const { useAddNewRequestMutation, useAddSelfStatementByCompanyMutation, useRedirectInspectionMutation, useGetCompaniesQuery } =
 	ApiWithAuth.injectEndpoints({
@@ -15,9 +16,9 @@ export const { useAddNewRequestMutation, useAddSelfStatementByCompanyMutation, u
 				invalidatesTags: ["RequestsList"],
 			}),
 
-			getCompanies: builder.query<any, void>({
-				query: () => ({
-					url: "admin/company/active-list",
+			getCompanies: builder.query<any, { status: 2 | 3 }>({
+				query: (data) => ({
+					url: "admin/company/active-list?" + buildQueryParams(data),
 					method: "GET"
 				})
 			}),

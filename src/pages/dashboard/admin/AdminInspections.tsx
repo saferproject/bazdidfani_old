@@ -17,11 +17,6 @@ const AdminInspections: FC = () => {
 		setFormState(state);
 	};
 
-	const handleAddInspection = () => {
-		changePageState("FORM");
-		changeFormState("ADD");
-	};
-
 	const handleCancelAddInspection = () => {
 		changePageState("LIST");
 		changeFormState(null);

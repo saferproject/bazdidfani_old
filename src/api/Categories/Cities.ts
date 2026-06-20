@@ -1,6 +1,6 @@
 import { ApiWithAuth } from "../../Stores/apis/api";
 
-export const { useGetCitiesQuery } = ApiWithAuth.injectEndpoints({
+export const { useGetCitiesQuery, useGetStatesQuery } = ApiWithAuth.injectEndpoints({
 	endpoints: (builder) => ({
 		getCities: builder.query<any, string>({
 			query: (query = "") => ({
@@ -8,6 +8,14 @@ export const { useGetCitiesQuery } = ApiWithAuth.injectEndpoints({
 				method: "GET",
 			}),
 			providesTags: ["Cities"],
+		}),
+
+		getStates: builder.query<any, string>({
+			query: (query = "") => ({
+				url: `states${query ? `?query=${query}` : ""}`,
+				method: "GET",
+			}),
+			providesTags: ["States"],
 		}),
 	}),
 });

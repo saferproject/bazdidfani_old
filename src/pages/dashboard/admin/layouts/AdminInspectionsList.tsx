@@ -15,14 +15,17 @@ import {
   useGetAdminInspectionsQuery,
   useGetInfiniteAdminInspectionsInfiniteQuery,
 } from "../api/admin-inspections.api";
+import { useGetStatesQuery } from "../../../../api/Categories/Location";
+import { useGetCompaniesQuery } from "../../../../api/Company/NewRequest";
 import AdminInspectionsListProps from "../interfaces/admin-inspections-list-props.interface";
-import { IconButton } from "@mui/material";
+import { Box, IconButton, Paper, Switch, Typography } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
 import { ReceiptSearch } from "iconsax-reactjs";
 import { FC, JSX, useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import useIsPhone from "../../../../utilities/custom-hooks/use-is-phone";
 import AInspectionsCard from "../../../../components/Admin/AInspectionsCard";
+import { useGetLoadingTypesQuery } from "../../../../api/Categories/Requests";
 
 const PlateTextFieldCell = ({ row }: any): JSX.Element => {
   const { control, watch } = useForm({
@@ -65,6 +68,8 @@ const AdminInspectionsList: FC<AdminInspectionsListProps> = () => {
   });
   const [filters, setFilters] = useState(null);
   const [excelLoading, setExcelLoading] = useState(false);
+  const [loaderTypeSearch, setLoaderTypeSearch] = useState("");
+  const [stateSearch, setStateSearch] = useState("");
   const [checkingInspection, setCheckingInspection] =
     useState<InspectionRequest | null>(null);
   const [checkInspectionDialog, setCheckInspectionDialog] =
@@ -73,6 +78,7 @@ const AdminInspectionsList: FC<AdminInspectionsListProps> = () => {
       data: null,
       onClose: handleCloseCheckInspectionDialog,
     });
+  const [activeCompanies, setActiveCompanies] = useState(true);
 
   const inspections = useGetAdminInspectionsQuery(
     {
@@ -92,6 +98,16 @@ const AdminInspectionsList: FC<AdminInspectionsListProps> = () => {
     { id: checkingInspection?.id ?? 0 },
     { skip: !checkingInspection },
   );
+
+  const loadingTypes = useGetLoadingTypesQuery({
+    query: loaderTypeSearch,
+  });
+
+  const statesData = useGetStatesQuery(stateSearch);
+
+  const companiesData = useGetCompaniesQuery({
+    status: activeCompanies ? 2 : 3
+  });
 
   const { states, getStatus, getStatusColorClass } = useGetInspectionStates();
 
@@ -332,6 +348,46 @@ const AdminInspectionsList: FC<AdminInspectionsListProps> = () => {
               type: "boolean",
               activeLabel: "خوداظهاری",
               inActiveLabel: "بازدید فنی",
+            },
+            {
+              label: "نوع بارگیر",
+              field: "loader_type_id",
+              type: "autocomplete",
+              autocompleteOptions: loadingTypes.data?.data ?? [],
+              autocompleteLoading: loadingTypes.isLoading || loadingTypes.isFetching,
+              optionLabel: "name",
+              optionValue: "uuid",
+              onSearchChange: setLoaderTypeSearch,
+            },
+            {
+              label: "استان",
+              field: "state_id",
+              type: "autocomplete",
+              autocompleteOptions: statesData.data?.data ?? [],
+              autocompleteLoading: statesData.isLoading || statesData.isFetching,
+              optionLabel: "name",
+              optionValue: "id",
+              onSearchChange: setStateSearch,
+            },
+            {
+              label: "شرکت",
+              field: "company_id",
+              type: "autocomplete",
+              autocompleteOptions: companiesData.data?.data ?? [],
+              autocompleteLoading: companiesData.isLoading || companiesData.isFetching,
+              optionLabel: "name",
+              optionValue: "id",
+              CustomPaperComponent: (props) => (
+                <Paper {...props}>
+                  <Box className="flex flex-row items-center gap-4 justify-center p-1">
+                    <Typography>فعال</Typography>
+                    <Switch onChange={(event) => event.target.value ? setActiveCompanies(false) : setActiveCompanies(true)} />
+                    <Typography>غیرفعال</Typography>
+                  </Box>
+                  {props.children}
+                </Paper>
+              ),
+              disableCloseOnSelect: true
             },
           ]}
           onFilter={handleFilter}

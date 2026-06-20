@@ -225,7 +225,6 @@ export default function LoginUsernamePassword(props: PropsType) {
             <div className="flex flex-col items-center justify-center space-y-[30px] mb-[5vh]">
               <TextField
                 id="outlined-required"
-                dir="ltr"
                 label={!forgot ? "شماره همراه" : "رمز عبور"}
                 autoFocus
                 inputMode="numeric"
@@ -257,6 +256,7 @@ export default function LoginUsernamePassword(props: PropsType) {
                 inputProps={{
                   maxLength: "11",
                   inputMode: !forgot ? "numeric" : undefined,
+                  dir: "ltr",
                 }}
                 InputProps={{
                   sx: {
@@ -274,7 +274,6 @@ export default function LoginUsernamePassword(props: PropsType) {
               <TextField
                 id="outlined-required"
                 label={!forgot ? "رمز عبور" : "تکرار رمز عبور"}
-                dir="ltr"
                 placeholder="******"
                 fullWidth
                 {...register(forgot ? "confirmPassword" : "password", {
@@ -296,6 +295,7 @@ export default function LoginUsernamePassword(props: PropsType) {
                     ? errors.confirmPassword?.message
                     : errors.password?.message
                 }
+                inputProps={{ dir: "ltr" }}
                 slotProps={{
                   input: {
                     sx: {
