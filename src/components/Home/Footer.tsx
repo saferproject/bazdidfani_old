@@ -6,6 +6,7 @@ import { FaCode } from "react-icons/fa";
 export default function Footer() {
   return (
     <div
+      id="footer"
       className={
         "tablet:rounded-2xl bg-[#8d99ae] flex flex-col items-stretch " +
         "text-white tablet:my-4 tablet:w-[92%] tablet:mx-auto min-w-full"

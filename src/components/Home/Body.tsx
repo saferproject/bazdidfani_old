@@ -720,7 +720,7 @@ export default function Body() {
 					className={"pointer-events-none hidden tablet:block desktop:w-[700px] tablet:w-[500px]"}
 				/>
 			</div>
-			<div className={"flex flex-col tablet:items-start items-center gap-2"}>
+			<div id="training" className={"flex flex-col tablet:items-start items-center gap-2"}>
 				<div className={"flex tablet:flex-row flex-col items-center gap-4 tablet:gap-2 w-[90%] tablet:w-[80%] mx-auto"}>
 					<div className={"flex flex-col tablet:items-start items-center -mt-8 tablet:my-0 gap-2 tablet:gap-1 tablet:me-10 tablet:ps-4"}>
 						<span className={"font-Yekan-Bakh desktop:text-[120%] tablet:text-[100%]  font-black"}>نظرات مشتریان بازدید فنی</span>

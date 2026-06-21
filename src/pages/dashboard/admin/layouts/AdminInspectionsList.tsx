@@ -106,7 +106,7 @@ const AdminInspectionsList: FC<AdminInspectionsListProps> = () => {
   const statesData = useGetStatesQuery(stateSearch);
 
   const companiesData = useGetCompaniesQuery({
-    status: activeCompanies ? 2 : 3
+    status: activeCompanies ? 3 : 2
   });
 
   const { states, getStatus, getStatusColorClass } = useGetInspectionStates();
@@ -308,6 +308,20 @@ const AdminInspectionsList: FC<AdminInspectionsListProps> = () => {
       }
     }, [filters, API_URL, buildQueryParams, token, setExcelLoading]);
 
+    const CustomPaperComponent = useCallback((props) => (
+          <Paper {...props}>
+            <Box
+              className="flex flex-row items-center gap-4 justify-center p-1"
+              onMouseDown={(e) => e.preventDefault()}
+            >
+              <Typography>فعال</Typography>
+              <Switch checked={!activeCompanies} onChange={(_event, checked) => setActiveCompanies(!checked)} />
+              <Typography>غیرفعال</Typography>
+            </Box>
+            {props.children}
+          </Paper>
+        ), [activeCompanies]);
+
   return (
     <section className="flex flex-col gap-8">
       {checkInspectionDialog.isOpen && (
@@ -377,18 +391,8 @@ const AdminInspectionsList: FC<AdminInspectionsListProps> = () => {
               autocompleteLoading: companiesData.isLoading || companiesData.isFetching,
               optionLabel: "name",
               optionValue: "id",
-              CustomPaperComponent: (props) => (
-                <Paper {...props}>
-                  <Box className="flex flex-row items-center gap-4 justify-center p-1">
-                    <Typography>فعال</Typography>
-                    <Switch onChange={(event) => event.target.value ? setActiveCompanies(false) : setActiveCompanies(true)} />
-                    <Typography>غیرفعال</Typography>
-                  </Box>
-                  {props.children}
-                </Paper>
-              ),
-              disableCloseOnSelect: true
-            },
+              CustomPaperComponent: CustomPaperComponent,
+            }
           ]}
           onFilter={handleFilter}
           onGetExcel={handleGetExcel}

@@ -1,12 +1,15 @@
+import { FaX } from "react-icons/fa6";
 import { useGetTechnicalManagerInspectionItemsQuery } from "../../../../api/TechnicalManager/CheckList";
 import Plate from "../../../../components/shared/DataGrid/Plate";
 import { useAppSelector } from "../../../../Stores/hooks";
 import { formatJalaliDate } from "../../../../utilities/DateTime";
 import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function TechnicalInspectionPrintForm() {
   const { loaderType } = useParams();
+
+  const navigate  = useNavigate();
 
   const {
     company: { name: company },
@@ -35,6 +38,10 @@ export default function TechnicalInspectionPrintForm() {
   }, [isSuccess]);
 
   return (
+    <>
+    <div className="w-full! flex flex-row gap-4 justify-start p-2">
+      <FaX onClick={() => navigate(-1)} className="select-none cursor-pointer w-6 h-6 hover:bg-black/20 transiion-all text-rose-500 "/>
+    </div>
     <div className="w-full h-full p-4 m-auto bg-white text-xs">
       <div className="grid grid-cols-3 grid-rows-2 gap-x-12 gap-y-1 border border-black px-4 rounded-lg mb-2">
         <div className="flex items-center gap-4">
@@ -146,5 +153,6 @@ export default function TechnicalInspectionPrintForm() {
         <p className="ml-30">نام و نام خانوادگی و امضا راننده</p>
       </div>
     </div>
+    </>
   );
 }

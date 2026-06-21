@@ -1,24 +1,11 @@
 import useIsPhone from "../../../utilities/custom-hooks/use-is-phone";
 import SaferPagination from "../Pagination/SaferPagination";
 import SaferGridProps from "./interfaces/safer-grid-props.interface";
-import { CircularProgress, Skeleton } from "@mui/material";
+import { Skeleton } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { Warning2 } from "iconsax-reactjs";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export default function SaferGrid<DataType>({
   columns,

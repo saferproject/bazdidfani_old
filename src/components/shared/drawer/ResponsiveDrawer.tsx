@@ -509,11 +509,11 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
       <Toolbar className="flex items-center justify-center">
         <img className="max-h-32" alt="logo" src={TechnicalVisitLogo} />
       </Toolbar>
-      <Divider className="w-full!" />
-      <Typography className="text-center bg-secondary/15 p-1 font-black! text-xl">
+      <Divider className="w-full! bg-primary!" />
+      <Typography className="text-center bg-primary/25 p-1 font-black! text-xl">
         {company?.name ?? user?.full_name}
       </Typography>
-      <Divider className="w-full!" />
+      <Divider className="w-full! bg-primary!" />
       <MenuItem2
         id="dashboard"
         href="/dashboard"

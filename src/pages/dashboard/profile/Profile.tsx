@@ -361,7 +361,7 @@ const Profile: FC<{ isNewUser?: boolean }> = ({ isNewUser }) => {
       </div>
       <div className="mx-3 my-8 flex md:flex-row flex-col gap-4 gap-y-9 justify-start">
         <div className="flex flex-col gap-y-9 grow">
-          <p className="mr-80">
+          <p className="lg:mr-80">
             اطلاعات شخصی خودتان را به عنوان کاربر سامانه وارد نمایید
           </p>
           <div className="lg:grid lg:grid-cols-5 lg:grid-rows-3 lg:gap-4 flex flex-col w-full gap-4">

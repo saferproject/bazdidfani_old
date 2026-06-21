@@ -40,7 +40,6 @@ const AdminCompanyForm: FC<AdminCompanyFormProps> = ({ formState, formData, onSu
 		setValue,
 		setError,
 		getValues,
-		clearErrors,
 		control,
 		formState: { errors },
 	} = useForm<AdminCompanyFormInterface>({
@@ -91,46 +90,6 @@ const AdminCompanyForm: FC<AdminCompanyFormProps> = ({ formState, formData, onSu
 	const handleSetCenter = (location: LatLngExpression) => {
 		setLocation(location);
 	};
-
-	useEffect(() => {
-		if (errors.organization_code?.type === "pattern") setTimeout(() => clearErrors("organization_code"), 3000);
-	}, [errors.organization_code]);
-
-	useEffect(() => {
-		if (errors.company_national_code?.type === "pattern") setTimeout(() => clearErrors("company_national_code"), 3000);
-	}, [errors.company_national_code]);
-
-	useEffect(() => {
-		if (errors.branch_code?.type === "pattern") setTimeout(() => clearErrors("branch_code"), 3000);
-	}, [errors.branch_code]);
-
-	useEffect(() => {
-		if (errors.postal_code?.type === "pattern") setTimeout(() => clearErrors("postal_code"), 3000);
-	}, [errors.postal_code]);
-
-	useEffect(() => {
-		if (errors.ceo_name?.type === "pattern") setTimeout(() => clearErrors("ceo_name"), 3000);
-	}, [errors.ceo_name]);
-
-	useEffect(() => {
-		if (errors.ceo_phone?.type === "pattern") setTimeout(() => clearErrors("ceo_phone"), 3000);
-	}, [errors.ceo_phone]);
-
-	useEffect(() => {
-		if (errors.coordinator_name?.type === "pattern") setTimeout(() => clearErrors("coordinator_name"), 3000);
-	}, [errors.coordinator_name]);
-
-	useEffect(() => {
-		if (errors.coordinator_phone?.type === "pattern") setTimeout(() => clearErrors("coordinator_phone"), 3000);
-	}, [errors.coordinator_phone]);
-
-	useEffect(() => {
-		if (errors.company_original_fee?.type === "pattern") setTimeout(() => clearErrors("company_original_fee"), 3000);
-	}, [errors.company_original_fee]);
-
-	useEffect(() => {
-		if (errors.address?.type === "pattern") setTimeout(() => clearErrors("address"), 3000);
-	}, [errors.address]);
 
 	useEffect(() => {
 		if (GetCityLocation.isSuccess && GetCityLocation.data?.[0]) setLocation([GetCityLocation.data[0].lat, GetCityLocation.data[0].lon]);

@@ -50,6 +50,7 @@ const Plate: FC<iprops> = ({
           color: PlateColors.color,
           borderRadius: "4px",
         }}
+        className="xl:w-44! lg:w-40! md:w-36! w-28!"
       >
         <Stack>
           <img

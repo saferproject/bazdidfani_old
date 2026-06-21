@@ -6,6 +6,7 @@ import LoginUsernamePassword from "../components/Authentication/LoginUsernamePas
 import RegisterPhone from "../components/Authentication/RegisterPhone";
 import ValidatePhone from "../components/Authentication/ValidatePhone";
 import AuthenticationFooter from "../components/Authentication/AuthenticationFooter";
+import { useNavigate } from "react-router-dom";
 
 const activeStyle = "block z-30";
 const prevStyle = "absolute z-20 translate-y-8 scale-95 hidden 2xl:block";
@@ -15,6 +16,12 @@ const activeCardStyle = "translate-y-0";
 export default function Auth() {
 	const dispatch = useDispatch();
 	const step = useSelector((state: RootState) => state.user.step) || 0;
+
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		if (!!localStorage.getItem("token")) navigate("/dashboard");
+	}, []);
 
 	const setStepFn = (number: 0 | 1 | 2) => {
 		dispatch(setStep(number));
