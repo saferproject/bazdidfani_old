@@ -2,6 +2,7 @@ import { Button, TextField } from "@mui/material";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { BsDownload } from "react-icons/bs";
 import { FaCode } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
@@ -41,12 +42,13 @@ export default function Footer() {
                 }
               ></div>
             </div>
-            <Button
+            <Link
               className={
                 "bg-transparent desktop:text-[100%] " +
-                "tablet:text-[80%] tablet:hidden text-[70%] flex flex-row " +
-                "tablet:gap-2 gap-1 font-Yekan-Bakh font-black -me-3"
+                "tablet:text-[80%] hover:text-primary transition-all tablet:hidden text-[70%] flex flex-row " +
+                "tablet:gap-2 gap-1 font-Yekan-Bakh font-black"
               }
+              to={"/auth"}
             >
               پیوستن
               <div className={"tablet:p-2 p-1 bg-[#586781] rounded-e-3xl"}>
@@ -54,7 +56,7 @@ export default function Footer() {
                   className={"tablet:w-3 tablet:h-3  fill-primary"}
                 />
               </div>
-            </Button>
+            </Link>
           </div>
           <p
             className={
@@ -67,17 +69,18 @@ export default function Footer() {
             میکنیم. برای یک هدف خاص تلاش میکنیم و بر این باوریم یکه تاز این صنعت
             بزرگ هستیم.
           </p>
-          <Button
+          <Link
             className={
               "bg-transparent desktop:text-[100%] " +
-              "tablet:text-[80%] tablet:flex hidden flex-row gap-2 font-Yekan-Bakh font-black"
+              "tablet:text-[80%] tablet:flex hidden flex-row gap-2 font-Yekan-Bakh font-black hover:text-primary transition-all"
             }
+            to={"/auth"}
           >
             پیوستن به سامانه بازدید فنی
             <div className={"p-2 bg-[#586781] rounded-e-3xl"}>
               <FaArrowLeftLong className={"w-3 h-3 fill-primary"} />
             </div>
-          </Button>
+          </Link>
         </div>
         <div
           className={"self-stretch border-b border-b-[#828da2] my-4 mx-2"}
@@ -85,8 +88,7 @@ export default function Footer() {
         <div
           className={
             "basis-1/6 border border-[#2ae5b8] mt-3 relative after:content-[''] after:-right-12 " +
-            "desktop:after:-top-[0.05rem] tablet:after:-top-[0.1rem] after:bottom-0 after:w-12 after:absolute after:bg-[#2ae5b8] " +
-            "after:border after:border-[#2ae5b8] hidden tablet:block"
+            "hidden tablet:block"
           }
         ></div>
         <div
@@ -105,7 +107,7 @@ export default function Footer() {
           </h1>
           <div
             className={
-              "border border-black/10 rounded-2xl p-2 flex flex-row items-center justify-between gap-8 self-stretch"
+              "border hover:bg-black/20 select-none cursor-pointer transition-all border-black/10 rounded-2xl p-2 flex flex-row items-center justify-between gap-8 self-stretch"
             }
           >
             <div
@@ -154,7 +156,7 @@ export default function Footer() {
           </div>
           <div
             className={
-              "border border-black/10 rounded-2xl p-2 flex flex-row items-center justify-between gap-8 self-stretch"
+              "border hover:bg-black/20 select-none cursor-pointer transition-all border-black/10 rounded-2xl p-2 flex flex-row items-center justify-between gap-8 self-stretch"
             }
           >
             <div
@@ -258,14 +260,15 @@ export default function Footer() {
               >
                 پشتیبانی ایمیل
               </h1>
-              <span
+              <a
                 className={
                   " text-[85%] tracking-wider " +
                   "desktop:text-[100%] font-Yekan-Bakh tablet:text-[80%] font-normal"
                 }
+                href="mailto:Bazdidfani@safer.ir"
               >
                 Bazdidfani@safer.ir
-              </span>
+              </a>
             </div>
             <div
               className={
@@ -286,10 +289,11 @@ export default function Footer() {
               >
                 پشتیبانی بازدید فنی
               </h1>
-              <span
+              <a
                 className={
                   " font-extrabold flex flex-row-reverse desktop:text-[105%] tablet:text-[95%] text-[85%] items-center gap-2 text-[#2ae5b8]"
                 }
+                href="tel:03191081075"
               >
                 ۰۳۱{" "}
                 <span
@@ -299,7 +303,7 @@ export default function Footer() {
                 >
                   ۹۱۰۸۱۰۷۵
                 </span>
-              </span>
+              </a>
             </div>
           </div>
         </div>

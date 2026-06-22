@@ -169,7 +169,7 @@ const DraggableScroll: React.FC<DraggableScrollProps> = ({
       stopDragging();
     };
 
-    wrapper.addEventListener("wheel", preventScroll, { passive: false });
+    // wrapper.addEventListener("wheel", preventScroll, { passive: false });
     wrapper.addEventListener("mousedown", handleMouseDown);
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseup", handleMouseUp);
@@ -178,7 +178,7 @@ const DraggableScroll: React.FC<DraggableScrollProps> = ({
     window.addEventListener("touchend", handleTouchEnd);
 
     return () => {
-      wrapper.removeEventListener("wheel", preventScroll);
+      // wrapper.removeEventListener("wheel", preventScroll);
       wrapper.removeEventListener("mousedown", handleMouseDown);
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);

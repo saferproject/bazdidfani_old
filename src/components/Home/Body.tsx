@@ -21,7 +21,7 @@ import Etemad from "../../assets/images/EtemadHome.png";
 import Hamgaman from "../../assets/images/HamgamanTosee.png";
 import { Badge, Box, Button, Slider, styled, Typography } from "@mui/material";
 import { FaPlay } from "react-icons/fa";
-import { FaArrowDownLong, FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
+import { FaArrowDownLong, FaArrowLeftLong } from "react-icons/fa6";
 import Driver from "../../assets/images/driver.gif";
 import University from "../../assets/images/university.gif";
 import TopFile from "../../assets/images/top-file.gif";
@@ -32,7 +32,7 @@ import TruckTopRightIcon from "../../assets/images/TruckTopRightIcon.png";
 import ShabahangAzin from "../../assets/images/ShabahangAzinHome.png";
 import CustomSwiper from "../UI/SwipeScroll";
 import DraggableScroll from "../UI/DraggableScroll";
-import { Link, Login } from "iconsax-reactjs";
+import { Login } from "iconsax-reactjs";
 import { useNavigate } from "react-router-dom";
 
 const TinyText = styled(Typography)({
@@ -51,6 +51,10 @@ export default function Body() {
 	const [rotation, setRotation] = useState(0);
 	const startTimeRef = useRef<number | null>(null);
 	const animationFrameRef = useRef<number | null>(null);
+
+	const element1Ref = useRef(null);
+	const element2Ref = useRef(null);
+	const element3Ref = useRef(null);
 
 	function formatDuration(value: number) {
 		const minute = Math.floor(value / 60);
@@ -339,19 +343,20 @@ export default function Body() {
 					</div>
 					<div
 						className={
-							"tablet:flex hidden shadow-2xl flex-col desktop:basis-[44%] tablet:basis-[35%] items-center gap-4 p-4 bg-white rounded-3xl grow"
+							"tablet:flex hidden shadow-2xl hover:scale-105 transition-all flex-col desktop:basis-[44%] tablet:basis-[35%] items-center gap-4 p-4 bg-white rounded-3xl grow"
 						}
+						onMouseOver={() => {
+							if (element1Ref.current.src !== KhodEzhari)
+								element1Ref.current.src = Driver;
+						}}
+						onMouseOut={() => {
+							if (element1Ref.current.src !== Driver)
+								element1Ref.current.src = KhodEzhari;
+						}}
 					>
 						<img
 							src={KhodEzhari}
-							onMouseOver={(event) => {
-								event.preventDefault();
-								event.currentTarget.src = Driver;
-							}}
-							onMouseOut={(event) => {
-								event.preventDefault();
-								event.currentTarget.src = KhodEzhari;
-							}}
+							ref={element1Ref}
 							alt={"Khod ezhari"}
 							className={"desktop:w-[107px] desktop:h-[107px] tablet:w-[70px] tablet:h-[70px]"}
 							draggable={false}
@@ -375,19 +380,20 @@ export default function Body() {
 					</div>
 					<div
 						className={
-							"tablet:flex hidden shadow-2xl flex-col desktop:basis-[44%] tablet:basis-[35%] items-center gap-4 p-4 bg-white rounded-3xl grow"
+							"tablet:flex hidden shadow-2xl hover:scale-105 transition-all flex-col desktop:basis-[44%] tablet:basis-[35%] items-center gap-4 p-4 bg-white rounded-3xl grow"
 						}
+						onMouseOver={() => {
+							if (element2Ref.current.src !== HamlCo)
+								element2Ref.current.src = University;
+						}}
+						onMouseOut={() => {
+							if (element2Ref.current.src !== University)
+								element2Ref.current.src = HamlCo;
+						}}
 					>
 						<img
 							src={HamlCo}
-							onMouseOver={(event) => {
-								event.preventDefault();
-								event.currentTarget.src = University;
-							}}
-							onMouseOut={(event) => {
-								event.preventDefault();
-								event.currentTarget.src = HamlCo;
-							}}
+							ref={element2Ref}
 							draggable={false}
 							alt={"Haml co Haml co"}
 							className={"desktop:w-[105px] desktop:h-[105px] tablet:w-[70px] tablet:h-[70px]"}
@@ -411,7 +417,7 @@ export default function Body() {
 					</div>
 					<div
 						className={
-							"tablet:flex shadow-2xl hidden flex-col desktop:basis-[44%] tablet:basis-[35%] items-center gap-4 p-4 bg-white rounded-3xl grow"
+							"tablet:flex shadow-2xl hidden flex-col hover:scale-105 transition-all desktop:basis-[44%] tablet:basis-[35%] items-center gap-4 p-4 bg-white rounded-3xl grow"
 						}
 					>
 						<img
@@ -439,19 +445,20 @@ export default function Body() {
 					</div>
 					<div
 						className={
-							"tablet:flex hidden shadow-2xl flex-col desktop:basis-[44%] tablet:basis-[35%] items-center gap-4 p-4 bg-white rounded-3xl grow"
+							"tablet:flex hidden hover:scale-105 transition-all shadow-2xl flex-col desktop:basis-[44%] tablet:basis-[35%] items-center gap-4 p-4 bg-white rounded-3xl grow"
 						}
+						onMouseOver={() => {
+							if (element3Ref.current.src !== ExportCode)
+								element3Ref.current.src = TopFile;
+						}}
+						onMouseOut={() => {
+							if (element3Ref.current.src !== TopFile)
+								element3Ref.current.src = ExportCode;
+						}}
 					>
 						<img
 							src={ExportCode}
-							onMouseOver={(event) => {
-								event.preventDefault();
-								event.currentTarget.src = TopFile;
-							}}
-							onMouseOut={(event) => {
-								event.preventDefault();
-								event.currentTarget.src = ExportCode;
-							}}
+							ref={element3Ref}
 							draggable={false}
 							alt={"Export code"}
 							className={"desktop:w-[105px] desktop:h-[105px] tablet:w-[70px] tablet:h-[70px]"}
@@ -474,7 +481,7 @@ export default function Body() {
 						</div>
 					</div>
 					<CustomSwiper className={"tablet:hidden shadow-2xl px-4 self-center flex flex-row mt-12 items-center justify-center"}>
-						<div className={"flex   flex-col w-4/5 items-center gap-4 p-4 bg-white rounded-2xl grow"}>
+						<div className={"flex flex-col w-4/5 items-center gap-4 p-4 bg-white rounded-2xl grow"}>
 							<img
 								src={KhodEzhari}
 								onMouseOver={(event) => {
@@ -603,78 +610,84 @@ export default function Body() {
 						alt={"Bars"}
 						className={"pointer-events-none tablet:self-start desktop:self-center tablet:block hidden"}
 					/>
-					<Button
+					<a
 						className={
-							"bg-white text-[#868e96]  py-4 font-Yekan-Bakh desktop:text-[100%] tablet:text-[75%]  font-medium text-font-color/60 flex flex-row gap-3 items-center ms-24"
+							"bg-white text-[#868e96] rounded-2xl p-4 font-Yekan-Bakh desktop:text-[100%] tablet:text-[75%]  font-medium text-font-color/60 flex flex-row gap-3 items-center ms-24"
 						}
 						style={{
 							boxShadow: "0 0 1px #666666",
 						}}
+						href="#footer"
 					>
 						ثبت نام و دریافت اپلیکیشن ها
 						<FaArrowDownLong className={"fill-black w-3 h-3"} />
-					</Button>
-					<Button
+					</a>
+					<a
 						className={
-							"bg-white py-4 font-Yekan-Bakh text-[#868e96] desktop:text-[100%] tablet:text-[75%]  font-medium text-font-color/60 flex flex-row gap-3 items-center"
+							"bg-white p-4 font-Yekan-Bakh rounded-2xl text-[#868e96] desktop:text-[100%] tablet:text-[75%]  font-medium text-font-color/60 flex flex-row gap-3 items-center"
 						}
 						style={{
 							boxShadow: "0 0 1px #666666",
 						}}
+						href="#footer"
 					>
 						درخواست مشاوره از تیم بازدید فنی
 						<FaArrowDownLong className={"fill-black w-3 h-3"} />
-					</Button>
-					<Button
+					</a>
+					<a
 						className={
-							"bg-white text-[#868e96] py-4 px-4 gap-12 font-Yekan-Bakh desktop:text-[100%] tablet:text-[75%]  font-medium text-font-color/60 flex flex-row gap-3 items-center"
+							"bg-white text-[#868e96] rounded-2xl p-4 gap-12 font-Yekan-Bakh desktop:text-[100%] tablet:text-[75%]  font-medium text-font-color/60 flex flex-row gap-3 items-center"
 						}
 						style={{
 							boxShadow: "0 0 1px #666666",
 						}}
+						href="#training"
 					>
 						مشاهده خدمات ما
 						<FaArrowDownLong className={"fill-black w-3 h-3"} />
-					</Button>
+					</a>
 				</div>
 				<div className={"tablet:hidden mt-12 overflow-visible"}>
 					<DraggableScroll
 						gap={8}
 						className={"w-[107%]"}
 					>
-						<Button
+						<a
 							className={
 								"bg-white shrink-0 font-Yekan-Bakh desktop:text-[100%] tablet:text-[75%]  font-medium text-font-color/60 flex flex-row gap-3 items-center"
 							}
 							style={{
 								boxShadow: "0 0 1px #666666",
 							}}
+							href="#footer"
 						>
 							ثبت نام و دریافت اپلیکیشن ها
 							<FaArrowDownLong className={"fill-black w-3 h-3"} />
-						</Button>
-						<Button
+						</a>
+						<a
 							className={
 								"bg-white font-Yekan-Bakh shrink-0 desktop:text-[100%] tablet:text-[75%]  font-medium text-font-color/60 flex flex-row gap-3 items-center"
 							}
 							style={{
 								boxShadow: "0 0 1px #666666",
 							}}
+							href="#footer"
 						>
 							درخواست مشاوره از تیم بازدید فنی
 							<FaArrowDownLong className={"fill-black w-3 h-3"} />
-						</Button>
-						<Button
+						</a>
+						<a
 							className={
 								"bg-white shrink-0 font-Yekan-Bakh desktop:text-[100%] tablet:text-[75%]  font-medium text-font-color/60 flex flex-row gap-3 items-center"
 							}
 							style={{
 								boxShadow: "0 0 1px #666666",
 							}}
+							href="#training"
 						>
 							مشاهده خدمات ما
 							<FaArrowDownLong className={"fill-black w-3 h-3"} />
-						</Button>
+						</a>
 					</DraggableScroll>
 				</div>
 			</div>
@@ -707,7 +720,7 @@ export default function Body() {
 						ها، نه تنها به ایمنی و سلامت خودرو ها اهمیت میدهیم، بلکه به سهم خود در کاهش آلاینده های جوی و حفاظت از محیط زیست نیز متعهد
 						هستیم.
 					</p>
-					<h1 className={"font-Yekan-Bakh my-1 mt-4 font-black text-[#5fe9c2] desktop:text-[130%] tablet:text-[105%] text-[150%] tracking-wide"}>
+					<h1 className={"font-Yekan-Bakh my-1 mt-4 font-blac2 text-[#5fe9c2] desktop:text-[130%] tablet:text-[105%] text-[150%] tracking-wide"}>
 						شعار بازدید فنی
 					</h1>
 					<span className={"font-Yekan-Bakh my-1 desktop:text-[100%] tablet:text-[80%] tablet:font-semibold font-bold"}>
@@ -723,8 +736,8 @@ export default function Body() {
 			<div id="training" className={"flex flex-col tablet:items-start items-center gap-2"}>
 				<div className={"flex tablet:flex-row flex-col items-center gap-4 tablet:gap-2 w-[90%] tablet:w-[80%] mx-auto"}>
 					<div className={"flex flex-col tablet:items-start items-center -mt-8 tablet:my-0 gap-2 tablet:gap-1 tablet:me-10 tablet:ps-4"}>
-						<span className={"font-Yekan-Bakh desktop:text-[120%] tablet:text-[100%]  font-black"}>نظرات مشتریان بازدید فنی</span>
-						<span className={"text-font-color/70 desktop:text-[90%] tablet:text-[70%] font-Yekan-Bakh font-extrabold"}>اعتماد شما اعتبار رسمی ماست</span>
+						<span className={"font-Yekan-Bakh desktop:text-[120%] tablet:text-[100%]  font-black"}>مدیا سنتر</span>
+						<span className={"text-font-color/70 desktop:text-[90%] tablet:text-[70%] font-Yekan-Bakh font-extrabold"}>از فیلم های آموزشی تا ویس و عکس</span>
 					</div>
 					<div className={"flex flex-row items-center gap-4 tablet:gap-2"}>
 				
@@ -2047,7 +2060,7 @@ export default function Body() {
 						پیوستن به سامانه بزرگ بازدید فنی
 					</h2>
 				</div>
-				<DraggableScroll className={"tablet:p-2 tablet:gap-3 pb-4 tablet:pb-0"}>
+				<DraggableScroll className={"tablet:p-2 tablet:gap-3 pb-4 mb-4 tablet:pb-0"}>
 					<img
 						draggable={false}
 						onClick={() => open("https://tukatrans.com")}
@@ -2107,10 +2120,6 @@ export default function Body() {
 						className={"hover:opacity-60 scale-[85%] tablet:scale-100 cursor-pointer transition-all duration-150 ease-in companions"}
 					/>
 				</DraggableScroll>
-				<div className={"self-end tablet:flex hidden fle-row gap-2 items-center desktop:pe-88 tablet:pe-68 pb-4 mt-6"}>
-					<FaArrowRightLong className={"w-4 h-4"} />
-					<FaArrowLeftLong className={"w-4 h-4"} />
-				</div>
 			</div>
 		</div>
 	);

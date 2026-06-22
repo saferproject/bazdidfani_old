@@ -20,6 +20,29 @@
 	}
 }
 
+@theme {
+	--animate-rotate-bottom-small: rotate-bottom-small 1s linear infinite;
+	--animate-rotate-top-small: rotate-top-small 1s linear infinite;
+
+	@keyframes rotate-bottom-small {
+		from {
+			transform: rotate(0deg) translateX(-0.25rem) rotate(0deg);
+		}
+		to {
+			transform: rotate(-360deg) translateX(-0.25rem) rotate(360deg);
+		}
+	}
+
+	@keyframes rotate-top-small {
+		from {
+			transform: rotate(0deg) translateX(0.25rem) rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg) translateX(0.25rem) rotate(-360deg);
+		}
+	}
+}
+
 html,
 body {
 	scroll-behavior: auto !important;
