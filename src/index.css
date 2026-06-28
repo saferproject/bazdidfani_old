@@ -49,6 +49,37 @@ body {
 	direction: rtl !important;
 }
 
+.notranslate,
+.notranslate * {
+	font-family: "Yekan Bakh FaNum", sans-serif !important;
+}
+
+font[style],
+font[class],
+font[color],
+font[face] {
+	font-family: inherit !important;
+	color: inherit !important;
+}
+
+.translated-ltr,
+.translated-rtl,
+.translated-ltr *,
+.translated-rtl * {
+	font-family: "Yekan Bakh FaNum", sans-serif !important;
+}
+
+.skiptranslate {
+	display: none !important;
+}
+
+#goog-gt-tt,
+.goog-te-banner-frame,
+.goog-te-menu-value,
+#google_translate_element {
+	display: none !important;
+}
+
 .custom-duration {
 	animation-duration: var(--duration) !important;
 	transition-duration: var(--duration) !important;

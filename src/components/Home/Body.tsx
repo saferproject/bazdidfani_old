@@ -739,8 +739,7 @@ export default function Body() {
 						<span className={"font-Yekan-Bakh desktop:text-[120%] tablet:text-[100%]  font-black"}>مدیا سنتر</span>
 						<span className={"text-font-color/70 desktop:text-[90%] tablet:text-[70%] font-Yekan-Bakh font-extrabold"}>از فیلم های آموزشی تا ویس و عکس</span>
 					</div>
-					<div className={"flex flex-row items-center gap-4 tablet:gap-2"}>
-				
+					<div className={"flex flex-row items-center gap-4 tablet:gap-2"}>			
 						<Button
 							className={
 								"border border-[#dee2e6] py-3 px-6 desktop:text-[100%] tablet:text-[80%] font-bold " +

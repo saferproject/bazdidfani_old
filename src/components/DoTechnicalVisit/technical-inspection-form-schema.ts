@@ -31,10 +31,10 @@ const TechnicalInspectionFormSchema = z.object({
   user_id: z.number(),
   company: z.object({}),
   company_id: z.number(),
-  date_made: z.number(),
-  VIN: z.string(),
+  date_made: z.number().optional().nullish(),
+  VIN: z.string().optional().nullish(),
   validity_technical_examination: z.string(),
-  allowed_certificate: z.union([z.literal(1), z.literal(2), z.literal(3)]),
+  allowed_certificate: z.union([z.literal(1), z.literal(2), z.literal(3)]).optional().nullish(),
   is_new: z.boolean(),
   loader: z.object({
     id: z.string(),

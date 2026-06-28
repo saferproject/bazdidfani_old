@@ -831,7 +831,7 @@ export default function AddRequest({ isOpen, onClose, visitType = 2 }: { isOpen:
                     loading={truckTypesIsLoading || truckTypesIsFetching}
                     setValue={setValue}
                     searchName="loadingTypeSearch"
-                    label="نوع بارگیر"
+                    label={watch("type") === 1 ? "بارگیر" : "ظرفیت"}
                     name="loader"
                     readOnly
                     disabled

@@ -80,10 +80,77 @@ function App() {
       MuiAutocomplete: {
         defaultProps: {
           size: "small",
+          slotProps: {
+            paper: { lang: "fa", translate: "no", className: "notranslate" },
+            popper: { lang: "fa", translate: "no", className: "notranslate" },
+          },
         },
       },
 
-      MuiSelect: { defaultProps: { size: "small" } },
+      MuiSelect: {
+        defaultProps: {
+          size: "small",
+          MenuProps: {
+            PaperProps: { lang: "fa", translate: "no", className: "notranslate" },
+          },
+        },
+      },
+
+      MuiMenu: {
+        defaultProps: {
+          PaperProps: { lang: "fa", translate: "no", className: "notranslate" },
+        },
+      },
+
+      MuiModal: {
+        defaultProps: {
+          slotProps: {
+            root: { lang: "fa", translate: "no", className: "notranslate" },
+          },
+        },
+      },
+
+      MuiDialog: {
+        defaultProps: {
+          PaperProps: { lang: "fa", translate: "no", className: "notranslate" },
+        },
+      },
+
+      MuiTooltip: {
+        defaultProps: {
+          slotProps: {
+            tooltip: { lang: "fa", translate: "no", className: "notranslate" },
+          },
+        },
+      },
+
+      MuiPopover: {
+        defaultProps: {
+          PaperProps: { lang: "fa", translate: "no", className: "notranslate" },
+        },
+      },
+
+      MuiPopper: {
+        defaultProps: {
+          lang: "fa",
+          translate: "no",
+          className: "notranslate",
+        },
+      },
+
+      MuiDrawer: {
+        defaultProps: {
+          PaperProps: { lang: "fa", translate: "no", className: "notranslate" },
+        },
+      },
+
+      MuiSnackbar: {
+        defaultProps: {
+          lang: "fa",
+          translate: "no",
+          className: "notranslate",
+        },
+      },
 
       MuiButton: {
         styleOverrides: {
@@ -201,7 +268,7 @@ function App() {
     <Provider store={store}>
       <CacheProvider value={cacheRtl}>
         <ThemeProvider theme={theme}>
-          <div className="App" dir="rtl">
+          <div className="App notranslate" dir="rtl" lang="fa" translate="no">
             <CssBaseline />
             <Toaster
               closeButton

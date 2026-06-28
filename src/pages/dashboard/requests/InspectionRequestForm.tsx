@@ -954,7 +954,7 @@ const InspectionRequestForm: FC<InspectionRequestFormProps> = ({ isOpen, data, o
 										loading={truckTypesIsLoading || truckTypesIsFetching}
 										setValue={setValue}
 										searchName="loadingTypeSearch"
-										label="نوع بارگیر"
+										label={watch("type") === 1 ? "بارگیر" : "ظرفیت"}
 										name="loader"
 										readOnly
 										disabled

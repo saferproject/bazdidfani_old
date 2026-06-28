@@ -389,7 +389,7 @@ const SelfStatementTruckData: FC<SelfStatementFormProps> = ({ isOpen, onClose })
 									loading={loadingTypes.isLoading || loadingTypes.isFetching}
 									setValue={setValue}
 									searchName="loaderTypeSearch"
-									label="نوع بارگیر"
+									label={watch("type") === 1 ? "بارگیر" : "ظرفیت"}
 									disabled
 								/>
 							</div>

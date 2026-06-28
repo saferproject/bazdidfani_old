@@ -364,7 +364,7 @@ const AdminInspectionsList: FC<AdminInspectionsListProps> = () => {
               inActiveLabel: "بازدید فنی",
             },
             {
-              label: "نوع بارگیر",
+              label: "نوع",
               field: "loader_type_id",
               type: "autocomplete",
               autocompleteOptions: loadingTypes.data?.data ?? [],

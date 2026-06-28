@@ -390,7 +390,7 @@ const FleetList: FC<iprops> = ({ onSelect, isDialog, owner = "company" }) => {
     },
     {
       field: "loaderType",
-      headerName: "نوع بارگیر",
+      headerName: "نوع",
       minWidth: 192,
       flex: 1,
       align: "left",

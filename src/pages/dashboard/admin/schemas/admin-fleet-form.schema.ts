@@ -11,10 +11,10 @@ const AdminFleetFormSchema = z.object({
 	Insurance_validity: z.string(),
 	validity_technical_examination: z.string(),
 	description: z.string().max(255, "طول توضیحات بیشتر از 255 حرف نمیتواند باشد").optional().nullable(),
-	date_made: z.number(),
-	VIN: z.string(),
+	date_made: z.number().optional().nullish(),
+	VIN: z.string().optional().nullish(),
 	loader_type_id: z.string().uuid(),
-	allowed_certificate: z.union([z.literal(1), z.literal(2), z.literal(3)]),
+	allowed_certificate: z.union([z.literal(1), z.literal(2), z.literal(3)]).optional().nullish(),
 	owner_phone_number: z
 		.string()
 		.length(11, "شماره همراه باید 11 رقم باشد")

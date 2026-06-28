@@ -105,7 +105,7 @@ const AdminFleetList: FC<AdminFleetListProps> = ({ onAddFleet, onEditFleet }) =>
 		},
 		{
 			field: "loader",
-			headerName: "نوع بارگیر",
+			headerName: "نوع",
 			type: "string",
 			editable: false,
 			align: "center",

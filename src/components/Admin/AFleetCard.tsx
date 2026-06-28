@@ -46,7 +46,7 @@ const AFleetCard: FC<iprops> = ({ data, onEditFleet }) => {
 			</div>
 			<Divider />
 			<div className="flex items-center justify-between">
-				<p className="text-gray-500">نوع بارگیر</p>
+				<p className="text-gray-500">{data.loader?.type === 1 ? "بارگیر" : "ظرفیت"}</p>
 				<p className="text-gray-900">{data.loader?.name ?? ""}</p>
 			</div>
 			<div className="flex items-center justify-between">

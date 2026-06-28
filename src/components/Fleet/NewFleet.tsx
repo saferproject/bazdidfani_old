@@ -192,10 +192,10 @@ export default function NewFleet({
   // برای تغییر نام ورودی های loader و capacity طبق کاربری
   useEffect(() => {
     if (usage === "passenger") {
-      setLoaderLabel("نوع خودرو");
+      setLoaderLabel("ظرفیت");
       setCapacityUnit("مسافر");
     } else if (usage === "freighter") {
-      setLoaderLabel("نوع بارگیر");
+      setLoaderLabel("بارگیر");
       setCapacityUnit("کیلوگرم");
     }
   }, [usage]);

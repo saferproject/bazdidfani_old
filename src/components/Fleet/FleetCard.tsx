@@ -51,7 +51,7 @@ const FleetCard: FC<iprops> = ({ data, isDialog, onEditButtonClick, onRemoveButt
 			</div>
 			<Divider />
 			<div className="flex justify-between items-center">
-				<p className="text-gray-500">نوع بارگیر</p>
+				<p className="text-gray-500">{data?.truck?.loader?.type === 1 ? "بارگیر" : "ظرفیت"}</p>
 				<p className="text-gray-900">{UndefinedToEmptyString(data?.truck.loader.name)}</p>
 			</div>
 			<div className="flex justify-between items-center">

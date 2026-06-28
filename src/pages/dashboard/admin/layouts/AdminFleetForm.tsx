@@ -312,7 +312,7 @@ const AdminFleetForm: FC<AdminFleetFormProps> = ({ formState, formData, onSubmit
 			<Controller
 				name="loader_type_id"
 				control={control}
-				rules={{ required: "نوع بارگیر الزامی است" }}
+				rules={{ required: "نوع الزامی است" }}
 				render={({ field }) => (
 					<Autocomplete
 						{...field}
@@ -325,7 +325,7 @@ const AdminFleetForm: FC<AdminFleetFormProps> = ({ formState, formData, onSubmit
 							field.onChange(newValue ? newValue.uuid : null);
 						}}
 						loading={loaders.isLoading || loaders.isFetching}
-						loadingText="در حال دریافت بارگیر ها"
+						loadingText="در حال دریافت"
 						onInputChange={(_event, newInputValue) => {
 							if (newInputValue !== "undefined") setValue("loaderSearch", newInputValue);
 						}}
@@ -338,8 +338,8 @@ const AdminFleetForm: FC<AdminFleetFormProps> = ({ formState, formData, onSubmit
 						renderInput={(params) => (
 							<TextField
 								{...params}
-								label="نوع بارگیر"
-								placeholder="نوع بارگیر را وارد کنید"
+								label={watch("usage") === "freighter" ? "بارگیر" : "ظرفیت"}
+								placeholder="نوع را وارد کنید"
 								slotProps={{
 									input: {
 										...params.InputProps,
