@@ -155,6 +155,8 @@ export default defineConfig({
         type: 'module',
       },
       injectManifest: {
+        swSrc: 'src/pwa/sw.ts',
+        swDest: 'dist/sw.js',
         injectionPoint: undefined
       }
     }),
