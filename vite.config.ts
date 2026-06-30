@@ -119,7 +119,11 @@ export default defineConfig({
   },
   plugins: [
     VitePWA({
-      registerType: "autoUpdate", // Automatically updates the service worker
+      registerType: "prompt",
+      injectRegister: "auto",
+      strategies: "injectManifest",
+      srcDir: "src/pwa",
+      filename: "sw.ts",
       workbox: {
         disableDevLogs: true,
         globPatterns: ["**/*.{js,css,html,ico,png,svg,jpeg,jpg,webp,woff,woff2,ttf,eot}"],
@@ -148,7 +152,11 @@ export default defineConfig({
       },
       devOptions: {
         enabled: true,
+        type: 'module',
       },
+      injectManifest: {
+        injectionPoint: undefined
+      }
     }),
     react(),
     mkcert(),

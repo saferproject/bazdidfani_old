@@ -20,7 +20,7 @@ import InspectionRequestFormProps from "./interfaces/inspection-request-form-pro
 import InspectionRequestformSchema, { InspectionRequestFormType } from "./schemas/inspection-reqeust-form.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Autocomplete, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, TextField } from "@mui/material";
-import { ArrowSwapHorizontal, DocumentText1, Edit, InfoCircle, SearchNormal1, TruckFast, UserOctagon, UserSquare } from "iconsax-reactjs";
+import { ArrowSwapHorizontal, CloseCircle, DocumentText1, Edit, InfoCircle, SearchNormal1, TruckFast, UserOctagon, UserSquare } from "iconsax-reactjs";
 import { FC, useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 
@@ -263,9 +263,10 @@ const InspectionRequestForm: FC<InspectionRequestFormProps> = ({ isOpen, data, o
 					</div>
 				),
 				hasOnClose: true,
+				hideCloseButton: true,
 				onClose: () => {
 					setCustomDialoProps({ ...EmptyCustomDialoProps });
-				},
+		},
 				show: true,
 				fullWidth: true,
 				maxWidth: "md",
@@ -714,6 +715,7 @@ const InspectionRequestForm: FC<InspectionRequestFormProps> = ({ isOpen, data, o
 							</div>
 						),
 						hasOnClose: true,
+						hideCloseButton: true,
 						onClose: () => {
 							setCustomDialoProps({ ...EmptyCustomDialoProps });
 						},
@@ -742,9 +744,10 @@ const InspectionRequestForm: FC<InspectionRequestFormProps> = ({ isOpen, data, o
 					</div>
 				),
 				hasOnClose: true,
+				hideCloseButton: true,
 				onClose: () => {
 					setCustomDialoProps({ ...EmptyCustomDialoProps });
-				},
+		},
 				show: true,
 				fullWidth: true,
 				maxWidth: "md",
@@ -814,6 +817,9 @@ const InspectionRequestForm: FC<InspectionRequestFormProps> = ({ isOpen, data, o
 							/>
 							<h2 className="font-extrabold text-xl">درخواست جدید بازدید فنی</h2>
 						</div>
+						<IconButton onClick={onClose}>
+							<CloseCircle size="24" className="text-red-500" />
+						</IconButton>
 					</div>
 				</DialogTitle>
 				<DialogContent

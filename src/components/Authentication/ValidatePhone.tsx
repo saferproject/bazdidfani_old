@@ -17,13 +17,14 @@ import {
 } from "../../Stores/slices/user";
 import { RootState } from "../../Stores/store";
 import { ValidatePhonePropsType } from "../../types/AuthType";
+import { getOTPSentTime, setOTPSentForPhone } from "../../utils/otpStore";
 import {
   ToEnglishNumber,
   ToPersianNumber,
 } from "../shared/Functions/ChangeNumLang";
 import SweetAlertToast from "../shared/Functions/SweetAlertToast";
 import { Button } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { FaChevronLeft } from "react-icons/fa";
 import { FiUser } from "react-icons/fi";
@@ -41,10 +42,40 @@ export default function ValidatePhone(props: ValidatePhonePropsType) {
   );
   const navigate = useNavigate();
   const [timer, setTimer] = useState<number>(0);
-  const [timerSat, setTimerSat] = useState(false);
   const [searchParams] = useSearchParams();
   const [persianPhone, setPersianPhonePhone] = useState<string>("");
   const forgot = searchParams.get("forgot") === "true";
+
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timerPhoneRef = useRef<string>("");
+
+  const clearTimerInterval = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    timerPhoneRef.current = "";
+  }, []);
+
+  const startCountdown = useCallback(
+    (seconds: number, forPhone: string) => {
+      clearTimerInterval();
+      timerPhoneRef.current = forPhone;
+      setTimer(seconds);
+      timerRef.current = setInterval(() => {
+        setTimer((prev) => {
+          if (prev <= 1) {
+            if (timerRef.current) clearInterval(timerRef.current);
+            timerRef.current = null;
+            timerPhoneRef.current = "";
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    },
+    [clearTimerInterval],
+  );
 
   const phone = useSelector((state: RootState) => state.user.phone) || "";
 
@@ -63,19 +94,10 @@ export default function ValidatePhone(props: ValidatePhonePropsType) {
         icon: "success",
         title: sendOTPCodeResult.data?.message,
       });
-      if (timerSat) return;
-      setTimerSat(true);
-      setTimer(120);
-      const timeInterval = setInterval(() => {
-        setTimer((prevTime) => {
-          if (prevTime <= 1) {
-            setTimerSat(false);
-            clearInterval(timeInterval);
-            return 0;
-          }
-          return prevTime - 1;
-        });
-      }, 1000);
+      if (phone) {
+        setOTPSentForPhone(phone);
+        startCountdown(120, phone);
+      }
     }
   }, [sendOTPCodeResult, dispatch]);
 
@@ -141,34 +163,47 @@ export default function ValidatePhone(props: ValidatePhonePropsType) {
     });
   };
 
-  // ? اگر 120 ثانیه از زمان ارسال کد گذشته بود دوباره اجازه ارسال کد به کاربر بدهد
+  // ? بررسی وضعیت ارسال کد بر اساس شماره تلفن (از IndexedDB)
   useEffect(() => {
-    if (activePage !== 2) return;
-    if (OTPSent) {
-      const timedelta = Date.now() - Date.parse(OTPSent);
-      if (timedelta / 1000 > 120) {
-        dispatch(removeOTPSent());
-        setTimer(0);
-        setTimerSat(false);
-      } else {
-        if (timerSat) return;
-        setTimerSat(true);
-        setTimer(Math.floor(120 - timedelta / 1000));
-        const timeInterval = setInterval(() => {
-          setTimer((prevTime) => {
-            if (prevTime <= 1) {
-              setTimerSat(false);
-              clearInterval(timeInterval);
-              return 0;
-            }
-            return prevTime - 1;
-          });
-        }, 1000);
-      }
-    } else if (!phone) {
-      handleChangePage(1);
+    if (activePage !== 2) {
+      clearTimerInterval();
+      return;
     }
-  }, [activePage, forgot, handleResendOTP, phone, OTPSent, dispatch]);
+
+    if (!phone) {
+      handleChangePage(1);
+      return;
+    }
+
+    if (timerPhoneRef.current === phone && timerRef.current) return;
+
+    let cancelled = false;
+    getOTPSentTime(phone).then((sentTime) => {
+      if (cancelled) return;
+      if (sentTime) {
+        const remaining = Math.ceil(
+          (120_000 - (Date.now() - sentTime)) / 1000,
+        );
+        if (remaining > 0) {
+          startCountdown(remaining, phone);
+        } else {
+          clearTimerInterval();
+          setTimer(0);
+        }
+      } else {
+        clearTimerInterval();
+        setTimer(0);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activePage, phone, startCountdown, clearTimerInterval, handleChangePage]);
+
+  useEffect(() => {
+    return () => clearTimerInterval();
+  }, [clearTimerInterval]);
 
   // ? تغییر کد از اعداد انگلیسی به فارسی
   const handleChange = async (otp: string) => {

@@ -39,7 +39,7 @@ import {
   IconButton,
   TextField,
 } from "@mui/material";
-import { ArrowSwapHorizontal, DocumentText1, TruckFast } from "iconsax-reactjs";
+import { ArrowSwapHorizontal, CloseCircle, DocumentText1, TruckFast } from "iconsax-reactjs";
 import { useCallback, useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -127,6 +127,7 @@ export default function AddRequest({ isOpen, onClose, visitType = 2 }: { isOpen:
           </div>
         ),
         hasOnClose: true,
+        hideCloseButton: true,
         onClose: () => {
           setCustomDialoProps({ ...EmptyCustomDialoProps });
         },
@@ -415,6 +416,7 @@ export default function AddRequest({ isOpen, onClose, visitType = 2 }: { isOpen:
               </div>
             ),
             hasOnClose: true,
+            hideCloseButton: true,
             onClose: () => {
               setCustomDialoProps({ ...EmptyCustomDialoProps });
             },
@@ -460,6 +462,7 @@ export default function AddRequest({ isOpen, onClose, visitType = 2 }: { isOpen:
         </div>
       ),
       hasOnClose: true,
+      hideCloseButton: true,
       onClose: () => {
         setCustomDialoProps({ ...EmptyCustomDialoProps });
       },
@@ -592,6 +595,9 @@ export default function AddRequest({ isOpen, onClose, visitType = 2 }: { isOpen:
                 درخواست جدید بازدید فنی
               </h2>
             </div>
+            <IconButton onClick={handleClose}>
+              <CloseCircle size="24" className="text-red-500" />
+            </IconButton>
           </div>
         </DialogTitle>
         <DialogContent dividers={true} className="flex flex-col">

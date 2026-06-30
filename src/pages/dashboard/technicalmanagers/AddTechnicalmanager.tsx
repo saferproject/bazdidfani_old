@@ -383,6 +383,7 @@ if (!verifyOtpResult.isSuccess && !verifyOtpResult.isLoading) {
         show={showAddDialog}
         onClose={() => setShowAddDialog(false)}
         hasOnClose
+        hideCloseButton
       >
         <Box className="flex flex-col gap-4">
           <Box className="flex flex-row justify-between items-center">
@@ -411,6 +412,7 @@ if (!verifyOtpResult.isSuccess && !verifyOtpResult.isLoading) {
         show={showOTPDialog}
         onClose={() => setShowOTPDialog(false)}
         hasOnClose
+        hideCloseButton
         maxWidth="sm"
         fullWidth
       >

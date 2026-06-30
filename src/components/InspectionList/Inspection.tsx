@@ -1,3 +1,4 @@
+import { FaExclamationCircle } from "react-icons/fa";
 import { useGetSelfStatementChecklistQuery } from "../../api/Checklist/Checklist";
 import { useAddDriverCheckListMutation, useEndOfUploadInspectionImagesMutation, useUploadInspectionImageMutation } from "../../api/Driver/Driver";
 import { useAddTechnicalManagerChecklistMutation, useGetSelfStatementInspectionItemsQuery, useGetTechnicalManagerInspectionItemsQuery, useGetTechnicalManagerRejectedInspectionItemsMutation, useSubmitTechnicalVisitChecklistMutation } from "../../api/TechnicalManager/CheckList";
@@ -21,47 +22,12 @@ import formatInspectionItem from "./utilities/format-inspection-item";
 import formatOrganizationData from "./utilities/format-organization-data";
 import proccessInspectionPhotos from "./utilities/proccess-inspection-photos";
 import validateInspectionItems from "./utilities/validate-inspection-items";
-import { Backdrop, Button, CircularProgress } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Backdrop, Box, Button, CircularProgress } from "@mui/material";
 import { Play } from "iconsax-reactjs";
 import { motion } from "motion/react";
 import { FC, lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { FaArrowLeftLong, FaX } from "react-icons/fa6";
+import { FaArrowLeftLong, FaChevronDown, FaX } from "react-icons/fa6";
 import { useBlocker, useNavigate, useSearchParams } from "react-router-dom";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 const QRCode = lazy(() => import("react-qr-code"));
 
@@ -108,6 +74,7 @@ const Inspection: FC<InspectionProps> = ({ loaderTypeCode }) => {
     useGetTechnicalManagerInspectionItemsQuery(
       {
         TrailerTypeCode: String(loaderTypeCode),
+        with_last_rejected_checklist: "true"
       },
       {
         skip:
@@ -696,7 +663,7 @@ const Inspection: FC<InspectionProps> = ({ loaderTypeCode }) => {
 
       await persistInspectionItems(
         await buildInspectionTree(
-          technicalManagerInspectionItemsData.data.data,
+          technicalManagerInspectionItemsData.data.data?.checkList,
         ),
       );
     })();
@@ -816,6 +783,34 @@ const Inspection: FC<InspectionProps> = ({ loaderTypeCode }) => {
     ));
   }, [inspectionItems]);
 
+  const previousRejected = useMemo(() => {
+    if (!technicalManagerInspectionItemsData?.data?.data?.previousRejectedItems?.length) return null;
+
+    return technicalManagerInspectionItemsData?.data?.data?.previousRejectedItems?.map((item, index) => (
+      <motion.li
+        key={item.code}
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0, opacity: 0 }}
+        transition={{ duration: 0.2, delay: index * 0.05, ease: "easeOut" }}
+      >
+        {item.details?.length ? (
+          <GroupInspectionItem
+            item={item}
+            onToggleItem={handleToggleInspectionItem}
+            onEditItem={handleEditInspectionItem}
+          />
+        ) : (
+          <SingleInspectionItem
+            item={item}
+            onToggleItem={handleToggleInspectionItem}
+            onEditItem={handleEditInspectionItem}
+          />
+        )}
+      </motion.li>
+    ));
+  }, [technicalManagerInspectionItemsData?.data?.data?.previousRejectedItems]);
+
   if (!isPhone)
     return (
       <div className="mx-auto flex min-h-full max-w-225 w-full flex-col items-center justify-center gap-6 overflow-hidden">
@@ -884,6 +879,24 @@ const Inspection: FC<InspectionProps> = ({ loaderTypeCode }) => {
         </div>
       ) : (
         <>
+          {!!technicalManagerInspectionItemsData?.data?.data?.previousRejectedItems && technicalManagerInspectionItemsData?.data?.data?.previousRejectedItems?.length >= 0 && (
+            <Accordion className="mb-2 bg-rose-100!">
+              <AccordionSummary expandIcon={<FaChevronDown className="text-secondary" />} slotProps={{
+                content: {
+                  className: "flex flex-row justify-start gap-2"
+                }
+              }} className="w-full!">
+                <FaExclamationCircle className="text-2xl! text-rose-600" />
+                <Box>
+                  {Intl.NumberFormat("fa-IR").format(technicalManagerInspectionItemsData?.data?.data?.previousRejectedItems?.length)}{" "} 
+                  مورد قبلا دارای مشکل بوده!!
+                </Box>
+              </AccordionSummary>
+              <AccordionDetails>
+                {previousRejected}
+              </AccordionDetails>
+            </Accordion>
+          )}
           {!inspectionItems?.every((item) => item.checked) && (
             <Button
               endIcon={<Play className="rotate-180" size="32" />}

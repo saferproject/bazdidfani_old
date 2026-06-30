@@ -50,7 +50,7 @@ const SaferImageMagnifierDialog: FC<SaferImageMagnifierDialogProps> = ({
 							alt={title || "عکس"}
 						/>
 					</div>
-					{/* {!title && (
+					{!title && (
 						<IconButton
 							onClick={onClose}
 							className="absolute top-2 left-2 z-10 bg-gray-200/70"
@@ -60,7 +60,7 @@ const SaferImageMagnifierDialog: FC<SaferImageMagnifierDialogProps> = ({
 								className="text-red-500"
 							/>
 						</IconButton>
-					)} */}
+					)}
 				</main>
 			</section>
 		</Dialog>

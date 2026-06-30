@@ -30,6 +30,7 @@ import DatePickerComponent from "../../../../components/shared/DatePicker/DatePi
 import { useGetLoadingTypesByActivityTypeQuery } from "../../../../api/fleet/Fleet";
 import SweetAlertToast from "../../../../components/shared/Functions/SweetAlertToast";
 import PlateTextField from "../../../../components/shared/Inputs/PlateTextField";
+import { useAppSelector } from "../../../../Stores/hooks";
 
 const AdminFleetForm: FC<AdminFleetFormProps> = ({ formState, formData, onSubmitFleet, onCancelAddFleet, onCancelEditFleet }) => {
 	const [isLoaderSelectOpen, setIsloaderSelectOpen] = useState(false);
@@ -58,6 +59,10 @@ const AdminFleetForm: FC<AdminFleetFormProps> = ({ formState, formData, onSubmit
 		resolver: zodResolver(AdminFleetFormSchema),
 		mode: "onBlur",
 	});
+
+	useEffect(() => {
+
+	}, []);
 
 	const { usage, loaderSearch } = useWatch({ control });
 

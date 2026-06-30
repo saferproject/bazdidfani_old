@@ -281,8 +281,8 @@ const SaferCameraDialog: FC<SaferCameraDialogProps> = ({
 			fullWidth={fullWidth}
 			fullScreen={fullScreen}
 		>
-			<section className="aspect-9/16 flex flex-col">
-				{title && (
+			<section className="relative aspect-9/16 flex flex-col">
+				{title ? (
 					<header className="w-full grow">
 						<div className="w-full flex justify-between items-center mb-2">
 							<Badge
@@ -300,6 +300,10 @@ const SaferCameraDialog: FC<SaferCameraDialogProps> = ({
 						</div>
 						{description && <p className="text-gray-500">{description}</p>}
 					</header>
+				) : (
+					<IconButton onClick={onClose} className="!absolute top-2 left-2 z-10 !bg-white">
+						<CloseCircle size="24" className="text-red-500" />
+					</IconButton>
 				)}
 				<main className="aspect-9/16 grow">
 					{image ? (

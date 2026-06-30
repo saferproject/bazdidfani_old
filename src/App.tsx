@@ -9,6 +9,7 @@ import { store } from "./Stores/store";
 import RouterHandler from "./router";
 import { faIR as faIR_ } from "@mui/x-data-grid/locales";
 import { Toaster } from "sonner";
+import UpdateDialog from "./pwa/UpdateDialog";
 
 function App() {
   const theme = createTheme({
@@ -270,6 +271,7 @@ function App() {
         <ThemeProvider theme={theme}>
           <div className="App notranslate" dir="rtl" lang="fa" translate="no">
             <CssBaseline />
+            <UpdateDialog />
             <Toaster
               closeButton
               richColors

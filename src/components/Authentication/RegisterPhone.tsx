@@ -4,6 +4,7 @@ import PhoneHandIcon from "../../assets/images/phoneHand.png";
 import { removeOTPSent, setOTPSent } from "../../Stores/slices/user";
 import { RootState } from "../../Stores/store";
 import { PropsType } from "../../types/AuthType";
+import { getOTPSentTime, setOTPSentForPhone } from "../../utils/otpStore";
 import CustomeDialog, {
   CustomDialogProps,
   EmptyCustomDialoProps,
@@ -12,8 +13,8 @@ import { ToEnglishNumber } from "../shared/Functions/ChangeNumLang";
 import SweetAlertToast from "../shared/Functions/SweetAlertToast";
 import { Button, Checkbox, TextField } from "@mui/material";
 import React from "react";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { FaChevronLeft, FaLongArrowAltDown } from "react-icons/fa";
 import { FiUser } from "react-icons/fi";
 import { IoIosArrowRoundBack } from "react-icons/io";
@@ -76,6 +77,41 @@ export default function RegisterPhone(props: PropsType) {
   const [disableSendOTP, setDisableSendOTP] = useState(true);
   const [timer, setTimer] = useState(0);
 
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timerPhoneRef = useRef<string>("");
+
+  const clearTimerInterval = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    timerPhoneRef.current = "";
+  }, []);
+
+  const startCountdown = useCallback(
+    (seconds: number, phone: string) => {
+      clearTimerInterval();
+      timerPhoneRef.current = phone;
+      setTimer(seconds);
+      setDisableSendOTP(true);
+      let remaining = seconds;
+      timerRef.current = setInterval(() => {
+        remaining -= 1;
+        if (remaining <= 0) {
+          if (timerRef.current) clearInterval(timerRef.current);
+          timerRef.current = null;
+          timerPhoneRef.current = "";
+          setDisableSendOTP(false);
+          setTimer(0);
+          dispatch(removeOTPSent());
+        } else {
+          setTimer(remaining);
+        }
+      }, 1000);
+    },
+    [clearTimerInterval, dispatch],
+  );
+
   const {
     register,
     watch,
@@ -84,9 +120,12 @@ export default function RegisterPhone(props: PropsType) {
     clearErrors,
     formState: { errors },
     trigger,
+    control,
   } = useForm({
     mode: "onChange",
   });
+
+  const phoneValue = useWatch({ control, name: "phone" });
 
   const [mutationFn, mutationResult] =
     useSendOTPCodeOrSendEmailOrPhoneMutation();
@@ -95,7 +134,11 @@ export default function RegisterPhone(props: PropsType) {
   useEffect(() => {
     if (OTPSent) return;
     if (mutationResult.isSuccess) {
-      setDisableSendOTP(true);
+      const phone = watch("phone");
+      if (phone) {
+        setOTPSentForPhone(phone);
+        startCountdown(120, phone);
+      }
       dispatch(setOTPSent(new Date().toString()));
       SweetAlertToast.fire({
         icon: "success",
@@ -118,26 +161,6 @@ export default function RegisterPhone(props: PropsType) {
       }
     }
   }, [mutationResult, handleChangePage, clearErrors, setError, dispatch]);
-
-  //// برای جلوگیری از ارسال مجدد درخواست کد که پس از 120 ثانیه دوباره کاربر میتواند درخواست دهد
-  // ? برای کنترل نمایش عدد ثانیه شماره ارسال درخواست مجدد
-  useEffect(() => {
-    if (OTPSent && disableSendOTP) {
-      const timedelta = Date.now() - Date.parse(OTPSent);
-      if (timedelta / 1000 < 120) {
-        setTimer(Math.floor(120 - timedelta / 1000));
-        const timeInterval = setInterval(() => {
-          setTimer((prevTime) => {
-            if (prevTime <= 1) {
-              clearInterval(timeInterval);
-              return 0;
-            }
-            return prevTime - 1;
-          });
-        }, 1000);
-      }
-    }
-  }, [disableSendOTP, OTPSent]);
 
   // ? فقط اجازه می دهد عدد در شماره تلفن وارد شود
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -168,25 +191,52 @@ export default function RegisterPhone(props: PropsType) {
     }
   };
 
-  // ? برای جلوگیری از ارسال درخواست مجدد تا 120 ثانیه
+  // ? بررسی وضعیت ارسال کد بر اساس شماره تلفن (از IndexedDB)
   useEffect(() => {
-    const timeInterval = setInterval(() => {
-      if (activePage !== 1) return;
-      if (OTPSent) {
-        const timedelta = Date.now() - Date.parse(OTPSent);
-        if (timedelta / 1000 > 120) {
-          dispatch(removeOTPSent());
-          setDisableSendOTP(false);
+    if (activePage !== 1) {
+      clearTimerInterval();
+      return;
+    }
+
+    const phone = phoneValue || "";
+    if (!phone) {
+      clearTimerInterval();
+      setDisableSendOTP(false);
+      setTimer(0);
+      return;
+    }
+
+    if (timerPhoneRef.current === phone && timerRef.current) return;
+
+    let cancelled = false;
+    getOTPSentTime(phone).then((sentTime) => {
+      if (cancelled) return;
+      if (sentTime) {
+        const remaining = Math.ceil((120_000 - (Date.now() - sentTime)) / 1000);
+        if (remaining > 0) {
+          startCountdown(remaining, phone);
         } else {
-          setDisableSendOTP(true);
+          clearTimerInterval();
+          setDisableSendOTP(false);
+          setTimer(0);
+          dispatch(removeOTPSent());
         }
       } else {
+        clearTimerInterval();
         setDisableSendOTP(false);
+        setTimer(0);
+        dispatch(removeOTPSent());
       }
-    }, 100);
+    });
 
-    return () => clearInterval(timeInterval);
-  }, [activePage, OTPSent, dispatch]);
+    return () => {
+      cancelled = true;
+    };
+  }, [activePage, phoneValue, startCountdown, clearTimerInterval]);
+
+  useEffect(() => {
+    return () => clearTimerInterval();
+  }, [clearTimerInterval]);
 
   const [customDialogProps, setCustomDialogProps] = useState<CustomDialogProps>(
     { ...EmptyCustomDialoProps },

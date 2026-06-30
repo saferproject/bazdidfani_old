@@ -17,6 +17,7 @@ import SelectCustom from "../shared/Inputs/CustomeSelect";
 import PlateTextField from "../shared/Inputs/PlateTextField";
 import SkeletonCondition from "../shared/SkeletonCondition";
 import {
+  Box,
   Button,
   Divider,
   FormControl,
@@ -163,7 +164,6 @@ export default function NewFleet({
     defaultValues: {
       ...initialData,
       Insurance_validity: initialData.insurance_validity,
-      usage: companyUsage == 1 ? "freighter" : "passenger",
     },
   });
 
@@ -172,6 +172,17 @@ export default function NewFleet({
   });
 
   const navigate = useNavigate();
+
+  const company_usage = useAppSelector(state => state.user.companyUsage);
+
+  const companyUsageDefault =
+    owner === "company" && !!company_usage
+      ? (company_usage === 1 ? "freighter" : "passenger")
+      : undefined;
+
+  useEffect(() => {
+    if (companyUsageDefault) setValue("usage", companyUsageDefault);
+  }, [companyUsageDefault]);
 
   const getDataDriverTruck = useGetDriverFleetByIdQuery(id, {
     skip: !id || owner !== "me",
@@ -182,12 +193,21 @@ export default function NewFleet({
   });
 
   useEffect(() => {
-    if (smart_number === "") reset(EmptyFormData);
-  }, [smart_number]);
+    if (smart_number === "")
+      reset({
+        ...EmptyFormData,
+        ...(companyUsageDefault && { usage: companyUsageDefault }),
+      });
+  }, [smart_number, companyUsageDefault]);
 
   useEffect(() => {
-    if (initialData) reset({ type_ownership: 3, ...initialData });
-  }, [initialData]);
+    if (initialData)
+      reset({
+        type_ownership: 3,
+        ...initialData,
+        ...(companyUsageDefault && { usage: companyUsageDefault }),
+      });
+  }, [initialData, companyUsageDefault]);
 
   // برای تغییر نام ورودی های loader و capacity طبق کاربری
   useEffect(() => {
@@ -398,7 +418,7 @@ export default function NewFleet({
       if (validation) {
         smartNumberInquiryFn({
           smartNumber,
-          companyUsage,
+          companyUsage: companyUsage ?? (getValues("usage") === "freighter" ? 1 : 2),
           usage: getValues("usage"),
         });
       } else {
@@ -410,7 +430,7 @@ export default function NewFleet({
         });
       }
     },
-    [errors, trigger, smartNumberInquiryFn, smart_number],
+    [errors, trigger, smartNumberInquiryFn, smart_number, companyUsage, getValues],
   );
 
   const onSubmit = useCallback(
@@ -452,6 +472,8 @@ export default function NewFleet({
     [errors, trigger],
   );
 
+  console.log(company_usage, "test")
+
   return (
     <form
       autoComplete="off"
@@ -481,52 +503,79 @@ export default function NewFleet({
 
       <div className="w-full flex flex-col gap-4">
         {!isMobile && (
-          <SkeletonCondition
-            loading={
-              getDataDriverTruck.isLoading || getDataDriverTruck.isFetching
-            }
-            variant="rounded-sm"
-          >
-            <TextField
-              id="outlined-required"
-              error={!!errors.smart_number}
-              helperText={errors.smart_number?.message.toString() ?? ""}
-              {...register("smart_number", {
-                validate: (data: any) => {
-                  if (data?.length < 7)
-                    return (
-                      data?.length === 7 || "طول شماره هوشمند ماشین ۷ رقمی است"
-                    );
-                },
-              })}
-              value={watch("smart_number") ?? ""}
-              label="هوشمند ماشین"
-              type="text"
-              slotProps={{
-                htmlInput: { maxLength: "7", autoComplete: "off" },
-                input: {
-                  sx: {
-                    borderRadius: "8px",
+          <Box className="flex flex-row items-center gap-4">
+            <SkeletonCondition
+              loading={
+                getDataDriverTruck.isLoading || getDataDriverTruck.isFetching
+              }
+              variant="rounded-sm"
+            >
+              <TextField
+                id="outlined-required"
+                error={!!errors.smart_number}
+                helperText={errors.smart_number?.message.toString() ?? ""}
+                {...register("smart_number", {
+                  validate: (data: any) => {
+                    if (data?.length < 7)
+                      return (
+                        data?.length === 7 || "طول شماره هوشمند ماشین ۷ رقمی است"
+                      );
                   },
-                  endAdornment: (
-                    <IconButton
-                      disabled={smartNumberInquiryResult.isLoading}
-                      loading={smartNumberInquiryResult.isLoading}
-                      onClick={() => handleSmartNumberInquiry()}
-                      className="text-primary"
-                      title="استعلام"
-                    >
-                      <ArrowSwapHorizontal size="24" />
-                    </IconButton>
-                  ),
-                },
-              }}
-              className="w-48"
-              onKeyDown={(e: any) => {
-                if (e.key === "Enter") handleSmartNumberInquiry();
-              }}
-            />
-          </SkeletonCondition>
+                })}
+                value={watch("smart_number") ?? ""}
+                label="هوشمند ماشین"
+                type="text"
+                slotProps={{
+                  htmlInput: { maxLength: "7", autoComplete: "off" },
+                  input: {
+                    sx: {
+                      borderRadius: "8px",
+                    },
+                    endAdornment: (
+                      <IconButton
+                        disabled={smartNumberInquiryResult.isLoading}
+                        loading={smartNumberInquiryResult.isLoading}
+                        onClick={() => handleSmartNumberInquiry()}
+                        className="text-primary"
+                        title="استعلام"
+                      >
+                        <ArrowSwapHorizontal size="24" />
+                      </IconButton>
+                    ),
+                  },
+                }}
+                className="w-48"
+                onKeyDown={(e: any) => {
+                  if (e.key === "Enter") handleSmartNumberInquiry();
+                }}
+              />
+            </SkeletonCondition>
+            {
+              !companyUsage && (
+                <SkeletonCondition
+                  loading={
+                    getDataDriverTruck.isLoading || getDataDriverTruck.isFetching
+                  }
+                  variant="rounded-sm"
+                >
+                  <SelectCustom
+                    control={control}
+                    label="کاربری"
+                    name="usage"
+                    error={!!errors.usage}
+                    helperText={errors.usage?.message.toString() ?? ""}
+                    rules={{ required: "فیلد کاربری الزامی است" }}
+                    items={[
+                      { title: "مسافری", value: "passenger" },
+                      { title: "باری", value: "freighter" },
+                    ]}
+                    className="font-medium w-48!"
+                    disabled={mode === "EDIT" || (owner === "company" && !!company_usage)}
+                  />
+                </SkeletonCondition>
+              )
+            }
+            </Box>
         )}
 
         {owner === "company" && (
@@ -735,28 +784,32 @@ export default function NewFleet({
                 rules={{ required: "فیلد پلاک ماشین الزامی است" }}
               />
             </SkeletonCondition>
-            <SkeletonCondition
-              loading={
-                getDataDriverTruck.isLoading || getDataDriverTruck.isFetching
-              }
-              variant="rounded-sm"
-            >
-              <SelectCustom
-                control={control}
-                label="کاربری"
-                name="usage"
-                error={!!errors.usage}
-                helperText={errors.usage?.message.toString() ?? ""}
-                rules={{ required: "فیلد کاربری الزامی است" }}
-                fullWidth
-                items={[
-                  { title: "مسافری", value: "passenger" },
-                  { title: "باری", value: "freighter" },
-                ]}
-                className="font-medium"
-                disabled={mode === "EDIT"}
-              />
-            </SkeletonCondition>
+            {
+              companyUsage && (
+                <SkeletonCondition
+                  loading={
+                    getDataDriverTruck.isLoading || getDataDriverTruck.isFetching
+                  }
+                  variant="rounded-sm"
+                >
+                  <SelectCustom
+                    control={control}
+                    label="کاربری"
+                    name="usage"
+                    error={!!errors.usage}
+                    helperText={errors.usage?.message.toString() ?? ""}
+                    rules={{ required: "فیلد کاربری الزامی است" }}
+                    fullWidth
+                    items={[
+                      { title: "مسافری", value: "passenger" },
+                      { title: "باری", value: "freighter" },
+                    ]}
+                    className="font-medium"
+                    disabled={mode === "EDIT" || !!companyUsage}
+                  />
+                </SkeletonCondition>
+              )
+            }
             <SkeletonCondition
               loading={
                 getDataDriverTruck.isLoading || getDataDriverTruck.isFetching

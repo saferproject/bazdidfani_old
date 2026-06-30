@@ -1,5 +1,6 @@
 import InspectionItem from "../../components/InspectionList/interfaces/inspection-item.interface";
 import { ApiWithAuth } from "../../Stores/apis/api";
+import buildQueryParams from "../../utilities/build-query-params";
 
 export const {
 	useGetSelfStatementInspectionItemsQuery,
@@ -16,13 +17,16 @@ export const {
 			}),
 		}),
 
-		getTechnicalManagerInspectionItems: builder.query<{ data: InspectionItem[]; message: string; success: boolean }, { TrailerTypeCode: string }>({
-			query: ({ TrailerTypeCode }) => ({
-				url: `technical-manager/bazdidfani/check-list?TrailerTypeCode=${TrailerTypeCode}`,
+		getTechnicalManagerInspectionItems: builder.query<{ data: { checkList: InspectionItem[], previousRejectedItems: any[] }; message: string; success: boolean }, { TrailerTypeCode: string, with_last_rejected_checklist: string }>({
+			query: (data) => ({
+				url: `technical-manager/bazdidfani/check-list?${buildQueryParams(data)}`,
 				method: "GET",
 			}),
-			transformResponse: ({ data, message, success }: { data: InspectionItem[]; message: string; success: boolean }) => ({
-				data: data.map((item, index) => ({ ...item, count: index + 1 })),
+			transformResponse: ({ data, message, success }: { data: { checkList: InspectionItem[], previousRejectedItems: any[] }; message: string; success: boolean }) => ({
+				data: {
+					checkList: data.checkList.map((item, index) => ({ ...item, count: index + 1 })),
+					previousRejectedItems: data.previousRejectedItems
+				},
 				message,
 				success,
 			}),

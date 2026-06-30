@@ -11,7 +11,7 @@ import CustomeAutoComplete from "../shared/Inputs/CustomeAutoComplete";
 import { ConvertFileToUrl, createFormData } from "../../utilities/Helper";
 import { useDispatch } from "react-redux";
 import { setUserCompanyPersonal, setUserCompanyRoles } from "../../Stores/slices/user";
-import { User } from "iconsax-reactjs";
+import { CloseCircle, User } from "iconsax-reactjs";
 
 interface IProps {
 	open: boolean;
@@ -125,12 +125,17 @@ const UserItemsDialog: FC<IProps> = ({ defaultValues, onClose, open, onSuccess, 
 							}}
 						/>
 						<div>
-							<div className="flex gap-4 items-center mb-4">
-								<User
-									size="32"
-									className="text-primary"
-								/>
-								<h3 className="font-semibold text-xl">تکمیل اطلاعات کاربر</h3>
+							<div className="flex gap-4 items-center justify-between mb-4">
+								<div className="flex gap-4 items-center">
+									<User
+										size="32"
+										className="text-primary"
+									/>
+									<h3 className="font-semibold text-xl">تکمیل اطلاعات کاربر</h3>
+								</div>
+								<IconButton onClick={onClose}>
+									<CloseCircle size="24" className="text-red-500" />
+								</IconButton>
 							</div>
 							<div className="flex flex-col gap-4 lg:grid grid-cols-5">
 								<div className="row-span-3 flex items-center justify-center">

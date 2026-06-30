@@ -16,7 +16,7 @@ import NewFleet from "../../../components/Fleet/NewFleet";
 import TruckDataForm from "./interfaces/truckDataForm.interface";
 import { useAddSelfStatementMutation } from "../../../api/Driver/Driver";
 import { useAppDispatch, useAppSelector } from "../../../Stores/hooks";
-import { ArrowSwapHorizontal, DocumentText, InfoCircle, SearchNormal1, Truck } from "iconsax-reactjs";
+import { ArrowSwapHorizontal, CloseCircle, DocumentText, InfoCircle, SearchNormal1, Truck } from "iconsax-reactjs";
 import SelfStatementFormProps from "./interfaces/self-statement-form-props.interface";
 import { useGetAdminSettingsQuery } from "../admin/api/admin-settings.api";
 
@@ -281,6 +281,9 @@ const SelfStatementTruckData: FC<SelfStatementFormProps> = ({ isOpen, onClose })
 							/>
 							<h2 className="font-extrabold text-xl">درخواست جدید خوداظهاری</h2>
 						</div>
+						<IconButton onClick={onClose}>
+							<CloseCircle size="24" className="text-red-500" />
+						</IconButton>
 					</div>
 				</DialogTitle>
 				<DialogContent
