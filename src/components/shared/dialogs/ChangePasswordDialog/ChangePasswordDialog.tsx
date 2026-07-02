@@ -1,5 +1,10 @@
 import { FC, useEffect } from "react";
-import { Button, Dialog, DialogContent, DialogTitle, IconButton, TextField } from "@mui/material";
+import { Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  IconButton } from "@mui/material";
+import TextField from "../../Inputs/SaferTextField";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { CloseCircle, Key } from "iconsax-reactjs";

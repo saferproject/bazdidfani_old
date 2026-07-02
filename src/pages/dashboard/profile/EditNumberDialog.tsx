@@ -1,6 +1,11 @@
 // این کامپوننت چک نشده، حتما بررسی کنیدش قبل از ارائه
 // کامپوننت برای عوض کردن شماره داخل صفحه پروفایل
-import { Box, Button, Dialog, Stack, TextField, Typography } from "@mui/material";
+import { Box,
+  Button,
+  Dialog,
+  Stack,
+  Typography } from "@mui/material";
+import TextField from "../../../components/shared/Inputs/SaferTextField";
 import { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { IoClose } from "react-icons/io5";

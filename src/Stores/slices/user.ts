@@ -118,6 +118,8 @@ export const userSlice = createSlice({
 				state.token = state.prevToken;
 				localStorage.removeItem("prev-token");
 				state.prevToken = null;
+				state.companyUsage = null;
+				localStorage.setItem("companyUsage", null);
 			}
 		},
 		removeOtp: (state) => {

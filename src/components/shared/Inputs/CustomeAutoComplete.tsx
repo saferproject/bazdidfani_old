@@ -1,4 +1,8 @@
-import { Autocomplete, AutocompleteChangeDetails, AutocompleteChangeReason, FilterOptionsState, TextField } from "@mui/material";
+import { Autocomplete,
+  AutocompleteChangeDetails,
+  AutocompleteChangeReason,
+  FilterOptionsState } from "@mui/material";
+import TextField from "./SaferTextField";
 import { useEffect, useMemo } from "react";
 import { Controller, Control, UseFormSetValue } from "react-hook-form";
 

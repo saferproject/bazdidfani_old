@@ -3,7 +3,19 @@ import DatePickerComponent from "../DatePicker/DatePickerComponent";
 import PlateTextField from "../Inputs/PlateTextField";
 import SAFER_FILTERS_BASE_FORM_INITIAL from "./constants/safer-filters-base-form-initial";
 import SaferFiltersBaseForm from "./interfaces/safer-filters-base-form.interface";
-import { Autocomplete, Box, Button, CircularProgress, FormControl, IconButton, InputLabel, MenuItem, Paper, Select, Switch, TextField, Typography } from "@mui/material";
+import { Autocomplete,
+  Box,
+  Button,
+  CircularProgress,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  Switch,
+  Typography } from "@mui/material";
+import TextField from "../Inputs/SaferTextField";
 import { CloseCircle, Eraser, Filter, SearchNormal1, TableDocument } from "iconsax-reactjs";
 import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";

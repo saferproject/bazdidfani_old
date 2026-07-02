@@ -1,7 +1,10 @@
 import { FC, useEffect, useState } from "react";
 import { useEditAdminUsersMutation } from "../api/admin-users.api";
 import SweetAlertToast from "../../../../components/shared/Functions/SweetAlertToast";
-import { Autocomplete, Button, CircularProgress, TextField } from "@mui/material";
+import { Autocomplete,
+  Button,
+  CircularProgress } from "@mui/material";
+import TextField from "../../../../components/shared/Inputs/SaferTextField";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import AdminUsersFormProps from "../interfaces/admin-users-form-props.interface";
 import AdminUserFormSchema, { AdminUserFormType } from "../schemas/admin-user-form.schema";
@@ -28,7 +31,7 @@ const AdminUsersForm: FC<AdminUsersFormProps> = ({ formState, formData, onCancel
 
 	const { citySearch } = useWatch({ control });
 
-	const onSubmit = (data: AdminUserFormType) => editAdminUsersFn({ ...data, user_id: formData.id });
+	const onSubmit = (data: AdminUserFormType) => editAdminUsersFn({ ...data, user_id: formData.id, password: (data.password === "" || data.password === null ? undefined : data.password) });
 
 	const cities = useGetCitiesQuery({ query: citySearch ?? "" }, { skip: !isCitySelectOpen && formState !== "EDIT" });
 
@@ -294,11 +297,7 @@ const AdminUsersForm: FC<AdminUsersFormProps> = ({ formState, formData, onCancel
 				)}
 			/>
 			<TextField
-				{...register("password", { 
-					onChange: (event) => {
-						if (event.target.value === "" || event.target.value === null) event.target.value = undefined;
-					}
-				})}
+				{...register("password")}
 				label="پسوورد"
 				type="text"
 				autoComplete="off"

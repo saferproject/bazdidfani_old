@@ -6,7 +6,14 @@ import ImageComponent from "../../shared/Image/Image";
 import InspectionItem from "../interfaces/inspection-item.interface";
 import InspectionItemDialogProps from "./interfaces/inspection-item-dailog-props.interface";
 import InspectionItemDialogForm from "./interfaces/inspection-item-dialog-form.interface";
-import { Badge, Button, CircularProgress, Dialog, DialogContent, DialogTitle, IconButton, TextField } from "@mui/material";
+import { Badge,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  IconButton } from "@mui/material";
+import TextField from "../../shared/Inputs/SaferTextField";
 import { Camera, CloseCircle, Refresh, Trash } from "iconsax-reactjs";
 import { FC, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";

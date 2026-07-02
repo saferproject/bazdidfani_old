@@ -1,3 +1,4 @@
+import { Bus, TruckFast } from "iconsax-reactjs";
 import {
   CompanyDashboardResponse,
   useGetCompanyDashboardQuery,
@@ -5,11 +6,11 @@ import {
 import Plate from "../../../components/shared/DataGrid/Plate";
 import { UndefinedToEmptyString } from "../../../utilities/Helper";
 import InspectionsAreaChart from "./components/InspectionsAreaChart";
-import { DashboardHeader, ProgressRow, SectionCard } from "./components/Shared";
+import { DashboardHeader, SectionCard } from "./components/Shared";
 import StatCard from "./components/StatCard";
 import StatusDonut from "./components/StatusDonut";
 import { formatNumber, KpiCard, MonthlyPoint, StatusSlice } from "./data";
-import { CircularProgress } from "@mui/material";
+import { Button, CircularProgress, Divider } from "@mui/material";
 import { ReactNode } from "react";
 import {
   // TbArrowDownLeft,
@@ -23,6 +24,11 @@ import {
   TbUsers,
   // TbWallet,
 } from "react-icons/tb";
+import { useSelector } from "react-redux";
+import useHavePermission from "../../../components/shared/Functions/CostumeHooks/CheckPermissions";
+import { useNavigate } from "react-router-dom";
+import { RootState } from "../../../Stores/store";
+import CompanyUsage from "../admin/enums/company-usage.enum";
 
 // const walletTransactions: WalletTx[] = [
 //   { title: "شارژ کیف پول", amount: 5_000_000, type: "in", time: "۱۴۰۵/۰۳/۱۹" },
@@ -43,6 +49,11 @@ import {
 
 const CompanyDashboard = () => {
   const { data, isLoading, isError } = useGetCompanyDashboardQuery();
+
+  const companyUsage = useSelector((state: RootState) => state.user.companyUsage);
+  const isTechnicalManager = useHavePermission("technicalManager");
+
+  const navigate = useNavigate();
 
   if (isLoading)
     return (
@@ -75,6 +86,35 @@ const CompanyDashboard = () => {
           icon: t.icon,
         }))}
       />
+
+      <div className="flex items-center justify-center gap-2 w-full">
+          <Divider className="grow text-primary shadow shadow-primary border border-primary/50" />
+          {isTechnicalManager && companyUsage !== CompanyUsage.PASSENGER && (
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              startIcon={<TruckFast />}
+              onClick={() => navigate("/dashboard/do-technical-visit-freighter")}
+              className="whitespace-nowrap text-lg gap-4 p-4"
+            >
+              بازدید فنی باری
+            </Button>
+          )}
+          {isTechnicalManager && companyUsage !== CompanyUsage.FREIGHTER && (
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              startIcon={<Bus />}
+              onClick={() => navigate("/dashboard/do-technical-visit-passenger")}
+              className="whitespace-nowrap text-lg gap-4 p-4"
+            >
+              بازدید فنی مسافری
+            </Button>
+          )}
+          <Divider className="grow text-primary shadow shadow-primary border border-primary/50" />
+      </div>
 
       {/* کارت‌های KPI */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">

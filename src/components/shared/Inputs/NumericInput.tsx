@@ -1,5 +1,6 @@
 import { FC, useRef } from "react";
-import { IconButton, TextField } from "@mui/material";
+import { IconButton } from "@mui/material";
+import TextField from "./SaferTextField";
 import { Controller } from "react-hook-form";
 import { Add, Minus } from "iconsax-reactjs";
 

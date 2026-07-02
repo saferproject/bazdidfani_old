@@ -1,4 +1,5 @@
 const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
+const arabicIndicDigits = "٠١٢٣٤٥٦٧٨٩";
 const englishDigits = "0123456789";
 
 export function ToPersianNumber(num: string) {
@@ -6,5 +7,7 @@ export function ToPersianNumber(num: string) {
 }
 
 export function ToEnglishNumber(num: string) {
-	return num?.replace(/[۰-۹]/g, (digit: any) => englishDigits[persianDigits.indexOf(digit)]);
+	return num
+		?.replace(/[۰-۹]/g, (digit: any) => englishDigits[persianDigits.indexOf(digit)])
+		?.replace(/[٠-٩]/g, (digit: any) => englishDigits[arabicIndicDigits.indexOf(digit)]);
 }

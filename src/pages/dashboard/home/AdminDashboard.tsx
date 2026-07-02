@@ -1,3 +1,4 @@
+import { Bus, TruckFast } from "iconsax-reactjs";
 import { useGetAdminDashboardQuery } from "../../../api/Admin/Dashboard";
 import Plate from "../../../components/shared/DataGrid/Plate";
 import { UndefinedToEmptyString } from "../../../utilities/Helper";
@@ -12,7 +13,7 @@ import {
 import StatCard from "./components/StatCard";
 import StatusDonut from "./components/StatusDonut";
 import { formatNumber, mapDashboard } from "./data";
-import { CircularProgress } from "@mui/material";
+import { Button, CircularProgress, Divider } from "@mui/material";
 import { ReactNode } from "react";
 import {
   TbBuildingSkyscraper,
@@ -23,6 +24,11 @@ import {
   TbUsers,
   TbWallet,
 } from "react-icons/tb";
+import { useNavigate } from "react-router-dom";
+import CompanyUsage from "../../../pages/dashboard/admin/enums/company-usage.enum";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../Stores/store";
+import useHavePermission from "../../../components/shared/Functions/CostumeHooks/CheckPermissions";
 
 const kpiIcons: Record<string, ReactNode> = {
   month_visits: <TbClipboardCheck />,
@@ -41,6 +47,11 @@ const todayMeta: ReactNode[] = [
 /** داشبورد ادمین — داده‌ی واقعی از سرویس api/admin/dashboard. */
 const AdminDashboard = () => {
   const { data, isLoading, isError } = useGetAdminDashboardQuery();
+
+  const navigate = useNavigate();
+
+  const companyUsage = useSelector((state: RootState) => state.user.companyUsage);
+  const isTechnicalManager = useHavePermission("technicalManager");
 
   if (isLoading)
     return (
@@ -82,6 +93,35 @@ const AdminDashboard = () => {
           icon: todayMeta[i],
         }))}
       />
+
+      <div className="flex items-center justify-center gap-2 w-full">
+          <Divider className="grow text-primary shadow shadow-primary border border-primary/50" />
+          {isTechnicalManager && companyUsage !== CompanyUsage.PASSENGER && (
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              startIcon={<TruckFast />}
+              onClick={() => navigate("/dashboard/do-technical-visit-freighter")}
+              className="whitespace-nowrap text-lg gap-4 p-4"
+            >
+              بازدید فنی باری
+            </Button>
+          )}
+          {isTechnicalManager && companyUsage !== CompanyUsage.FREIGHTER && (
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              startIcon={<Bus />}
+              onClick={() => navigate("/dashboard/do-technical-visit-passenger")}
+              className="whitespace-nowrap text-lg gap-4 p-4"
+            >
+              بازدید فنی مسافری
+            </Button>
+          )}
+          <Divider className="grow text-primary shadow shadow-primary border border-primary/50" />
+      </div>
 
       {/* کارت‌های KPI */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">

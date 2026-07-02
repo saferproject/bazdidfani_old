@@ -472,6 +472,32 @@ input {
 	animation: exitIconButton 300ms;
 }
 
+@keyframes bus-scale {
+	from {
+		scale: 100%;
+	}
+	to {
+		scale: 130%;
+	}
+}
+
+.animation-bus-scale {
+	animation: bus-scale 700ms;
+}
+
+@keyframes truck-going {
+	from {
+		transform: translateX(-2rem);
+	}
+	to {
+		transform: translateX(2rem);
+	}
+}
+
+.animation-truck-going {
+	animation: truck-going 1s;
+}
+
 .inspection-status-bg-1 {
 	background-color: #87cefa88;
 }

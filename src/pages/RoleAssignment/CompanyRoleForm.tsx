@@ -3,7 +3,11 @@ import { useCompanyRoleDataQuery, useUpdateCompanyRoleDataMutation } from "./api
 import CompanyFormProps from "./interfaces/company-role-form-props.interface";
 import { useForm, useWatch } from "react-hook-form";
 import CompanyRoleForm from "./interfaces/company-role-form.interface";
-import { Button, Checkbox, FormControlLabel, InputAdornment, TextField } from "@mui/material";
+import { Button,
+  Checkbox,
+  FormControlLabel,
+  InputAdornment } from "@mui/material";
+import TextField from "../../components/shared/Inputs/SaferTextField";
 import { TbArrowsExchange } from "react-icons/tb";
 import { useInquiryOrgCodeMutation } from "../../api/Inquiry";
 import SweetAlertToast from "../../components/shared/Functions/SweetAlertToast";

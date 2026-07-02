@@ -1,4 +1,11 @@
-import { Dialog, DialogContent, Badge, IconButton, Avatar, TextField, useTheme, Button } from "@mui/material";
+import { Dialog,
+  DialogContent,
+  Badge,
+  IconButton,
+  Avatar,
+  useTheme,
+  Button } from "@mui/material";
+import TextField from "../shared/Inputs/SaferTextField";
 import { FC, useEffect, useRef, useCallback, useState } from "react";
 import { useForm, useWatch, FormProvider } from "react-hook-form";
 import { CgColorPicker } from "react-icons/cg";

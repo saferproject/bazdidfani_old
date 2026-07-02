@@ -2,6 +2,7 @@ import { FormHelperText, InputBase } from "@mui/material";
 import React, { RefObject, useEffect, useRef } from "react";
 import { Controller } from "react-hook-form";
 import { IMaskInput } from "react-imask";
+import { ToEnglishNumber } from "../Functions/ChangeNumLang";
 
 function SelectOnFocus(event: React.FocusEvent<HTMLInputElement>) {
   event.target.select();
@@ -275,6 +276,7 @@ const TextMaskCustom = React.forwardRef<HTMLElement, CustomProps>(
         {...other}
         mask={mask}
         overwrite={false}
+        prepare={(value: string) => ToEnglishNumber(value)}
         definitions={{
           "#": /^[\u0600-\u06FF\s]+$/,
         }}

@@ -11,7 +11,9 @@ import CustomeDialog, {
 } from "../shared/Dialog/CustomeDialog";
 import { ToEnglishNumber } from "../shared/Functions/ChangeNumLang";
 import SweetAlertToast from "../shared/Functions/SweetAlertToast";
-import { Button, Checkbox, TextField } from "@mui/material";
+import { Button,
+  Checkbox } from "@mui/material";
+import TextField from "../shared/Inputs/SaferTextField";
 import React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
@@ -34,32 +36,69 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 const Rules = [
   {
     id: 1,
-    title: "عنوان قانون 1",
-    description: "لورم لورم لورم لورم لورم لورم لورم لورم لورملورم",
+    title: "1- تعاریف",
+    description: `1-1. سامانه بازدید فنی دات آی آر
+سامانه «بازدید فنی دات آی آر» یک بستر نرم‌افزاری تحت وب و موبایل است که با هدف مدیریت، ثبت، کنترل و تبادل اطلاعات مربوط به بازدیدهای فنی ناوگان حمل‌ونقل جاده‌ای طراحی و ارائه شده است. این سامانه پس از ثبت‌نام و احراز هویت شرکت‌های حمل‌ونقل و مدیران فنی، امکان ثبت درخواست بازدید، انجام بازرسی فنی، ثبت نتایج و تبادل اطلاعات با سامانه‌های مرتبط را فراهم می‌نماید.`,
     type: "driver",
   },
   {
     id: 2,
-    title: "عنوان قانون 2",
-    description: "لورم لورم لورم لورم لورم لورم لورم لورم لورملورم",
+    title: "1-2. اپلیکیشن مدیر فنی",
+    description: `اپلیکیشن مدیر فنی، نرم‌افزار تلفن همراه سامانه بازدید فنی دات آی آر است که توسط مدیران فنی بر روی تلفن همراه یا تبلت نصب شده و برای انجام فرآیند بازدید فنی ناوگان مورد استفاده قرار می‌گیرد. مدیر فنی موظف است کلیه اطلاعات، تصاویر و نتایج بازدید را مطابق ضوابط و دستورالعمل‌های ابلاغی ثبت و ارسال نماید.`,
     type: "driver",
   },
   {
     id: 3,
-    title: "عنوان قانون 3",
-    description: "لورم لورم لورم لورم لورم لورم لورم لورم لورملورم",
+    title: "1-3. مدیر فنی",
+    description: `مدیر فنی شخصی است که دارای گواهینامه معتبر فعالیت بوده و مطابق مقررات سازمان راهداری و حمل‌ونقل جاده‌ای، مسئول انجام بازدید فنی ناوگان و ثبت صحیح اطلاعات در سامانه می‌باشد.`,
     type: "admin",
   },
   {
     id: 4,
-    title: "عنوان قانون 4",
-    description: "لورم لورم لورم لورم لورم لورم لورم لورم لورملورم",
+    title: "1-4. شرکت حمل‌ونقل",
+    description: `شرکت حمل‌ونقل، شخص حقوقی دارای مجوز معتبر فعالیت از مراجع ذی‌صلاح است که مسئول ثبت درخواست بازدید فنی، معرفی مدیران فنی و نظارت بر حسن اجرای فرآیندهای بازدید می‌باشد.`,
     type: "driver",
   },
   {
     id: 5,
-    title: "عنوان قانون 5",
-    description: "لورم لورم لورم لورم لورم لورم لورم لورم لورملورم",
+    title: "1-5. سامانه‌های حاکمیتی",
+    description: "هرگونه تبادل اطلاعات با سامانه‌های سازمان راهداری و حمل‌ونقل جاده‌ای کشور، تابع قوانین، آیین‌نامه‌ها، بخشنامه‌ها و دستورالعمل‌های ابلاغی آن سازمان بوده و کاربران موظف به رعایت کامل این مقررات هستند.",
+    type: "driver",
+  },
+  {
+    id: 6,
+    title: "2- شرایط عضویت و ایجاد حساب کاربری",
+    description: `ثبت‌نام در سامانه منوط به ارائه اطلاعات صحیح، کامل و قابل استناد است.هر شرکت حمل‌ونقل و هر مدیر فنی صرفاً مجاز به ایجاد یک حساب کاربری فعال می‌باشند.مسئولیت حفظ نام کاربری، رمز عبور و کلیه فعالیت‌های انجام‌شده از طریق حساب کاربری بر عهده صاحب حساب است.انتقال حساب کاربری یا واگذاری آن به اشخاص دیگر تحت هر عنوان ممنوع بوده و تخلف محسوب می‌شود.سامانه می‌تواند در صورت مشاهده اطلاعات نادرست، تخلف یا سوءاستفاده، نسبت به تعلیق یا غیرفعال‌سازی حساب کاربری اقدام نماید.`
+    ,type: "driver",
+  },
+  {
+    id: 7,
+    title: "3- تعهدات کاربران",
+    description: `مدیر فنی مکلف است بازدید فنی را به‌صورت واقعی، حضوری و مطابق ضوابط انجام دهد.ثبت اطلاعات خلاف واقع، تأیید ناوگان فاقد شرایط ایمنی یا هرگونه تبانی برای صدور تأییدیه غیرواقعی ممنوع بوده و مسئولیت حقوقی و کیفری آن بر عهده اشخاص متخلف است.شرکت حمل‌ونقل و مدیر فنی متعهد می‌شوند از سامانه صرفاً در چارچوب قوانین و برای مقاصد قانونی استفاده کنند.هرگونه اقدام برای اختلال در عملکرد سامانه، دسترسی غیرمجاز، مهندسی معکوس، استخراج اطلاعات یا سوءاستفاده از خدمات، ممنوع بوده و قابل پیگرد قانونی است.`,
+    type: "driver",
+  },
+  {
+    id: 8,
+    title: "4- محرمانگی اطلاعات",
+    description: `سامانه بازدید فنی دات آی آر متعهد است اطلاعات کاربران را با رعایت اصول محرمانگی نگهداری نماید و صرفاً در موارد مقرر قانونی یا بنا به دستور مراجع ذی‌صلاح، اطلاعات مورد نیاز را در اختیار آنان قرار دهد.`,
+    type: "driver",
+  },
+  {
+    id: 9,
+    title: "5- محدودیت مسئولیت",
+    description: `سامانه بازدید فنی دات آی آر صرفاً بستر نرم‌افزاری تبادل اطلاعات و مدیریت فرآیند بازدید فنی را فراهم می‌کند و مسئولیتی در قبال صحت بازدیدهای انجام‌شده، کیفیت فنی ناوگان، خسارات ناشی از ثبت اطلاعات نادرست یا تصمیمات مدیران فنی و شرکت‌های حمل‌ونقل نخواهد داشت.`,
+    type: "driver",
+  },
+  {
+    id: 10,
+    title: "6- مالکیت فکری",
+    description: `کلیه حقوق مادی و معنوی، مالکیت نرم‌افزار، نام تجاری، طراحی، محتوا و زیرساخت‌های سامانه بازدید فنی دات آی آر متعلق به مالک سامانه بوده و هرگونه کپی‌برداری، مهندسی معکوس یا بهره‌برداری بدون مجوز ممنوع است.`,
+    type: "driver",
+  },
+  {
+    id: 11,
+    title: "7- پذیرش مقررات",
+    description: `ثبت‌نام در سامانه، استفاده از خدمات یا تأیید الکترونیکی مقررات، به منزله مطالعه، درک و پذیرش کامل مفاد این قوانین و تعهد به رعایت آن‌ها خواهد بود.`,
     type: "driver",
   },
 ];
@@ -247,11 +286,11 @@ export default function RegisterPhone(props: PropsType) {
     setCustomDialogProps({
       children: (
         <div className={"flex flex-col gap-2 items-start px-4"}>
-          <h1 className={" font-bold text-[120%]"}>قوانین و مقررات</h1>
-          <h2 className={" font-extrabold text-primary-dark text-[90%]"}>
+          <h1 className={" font-bold text-[120%]"}>قوانین و مقررات استفاده از سامانه «بازدید فنی دات آی آر»</h1>
+          <h2 className={" font-extrabold text-primary-dark text-[120%]"}>
             ما برازنده برند و هویت شما هستیم
           </h2>
-          <p className={" font-medium text-[70%]"}>
+          <p className={" font-medium text-[100%]"}>
             سامانه بازدید فنی از اعتبارات عالی سازمان حمل و نقل است . در همین
             راستا پیروی از قوانین و مقررات بازدید فنی امری ضروریست
           </p>
@@ -329,14 +368,14 @@ export default function RegisterPhone(props: PropsType) {
                       >
                         <div
                           className={
-                            "tracking-wide  font-black text-[110%] " +
-                            "gradient-text-primary text-[120%] text-primary relative"
+                            "tracking-wide  font-black " +
+                            "gradient-text-primary text-[140%] text-white relative"
                           }
                         >
                           مرسی از حمایتتون
                           <div
                             className={
-                              "absolute bottom-1 left-0 right-0 h-[50%] w-full " +
+                              "absolute bottom-1 left-0 right-0 h-[40%] w-full " +
                               "bg-linear-to-b from-transparent to-60% to-[#30eca5] z-10"
                             }
                           ></div>
@@ -345,17 +384,6 @@ export default function RegisterPhone(props: PropsType) {
                           تا اینجای کار شما در تیم بازدید فنی هستید
                         </span>
                       </div>
-                      <Button
-                        className={
-                          "border border-dashed border-[#298d71] " +
-                          "rounded-xl text-font-color p-2 self-center flex me-44 flex-row items-center gap-2 justify-between"
-                        }
-                      >
-                        <span>مشاهده بیشتر قوانین</span>
-                        <FaLongArrowAltDown
-                          className={"w-4 h-4 fill-font-color"}
-                        />
-                      </Button>
                     </div>
                   )}
                 </React.Fragment>
@@ -373,7 +401,9 @@ export default function RegisterPhone(props: PropsType) {
       fullWidth: true,
       dialogActions: (
         <Button
-          onClick={() => setCustomDialogProps({ ...EmptyCustomDialoProps })}
+          onClick={() => {
+            setCustomDialogProps({ ...EmptyCustomDialoProps });
+          }}
           className={
             "mb-4 bg-white text-font-color border p-2 rounded-2xl " +
             "border-black  font-bold w-full min-h-full rounded-2xl"

@@ -37,8 +37,8 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
-  TextField,
 } from "@mui/material";
+import TextField from "../shared/Inputs/SaferTextField";
 import { ArrowSwapHorizontal, CloseCircle, DocumentText1, TruckFast } from "iconsax-reactjs";
 import { useCallback, useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";

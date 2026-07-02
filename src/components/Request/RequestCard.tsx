@@ -7,7 +7,10 @@ import { useGetInspectionStates } from "../../utilities/Inspection-Status/Inspec
 import Plate from "../shared/DataGrid/Plate";
 import SaferTextDialogProps from "../shared/dialogs/TextDialog/interfaces/text-dialog-props.interface";
 import SaferTextDialog from "../shared/dialogs/TextDialog/TextDialog";
-import { Autocomplete, Button, Divider, TextField } from "@mui/material";
+import { Autocomplete,
+  Button,
+  Divider } from "@mui/material";
+import TextField from "../shared/Inputs/SaferTextField";
 import { FC, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 

@@ -12,7 +12,9 @@ import { ProfileDataType } from "../../../types/ProfileType";
 import { compressImage } from "../../../utilities/compress-image";
 import imageToBase64 from "../../../utilities/imageToBase64";
 import EditNumber from "./EditNumberDialog";
-import { Button, Divider, TextField } from "@mui/material";
+import { Button,
+  Divider } from "@mui/material";
+import TextField from "../../../components/shared/Inputs/SaferTextField";
 import { AddCircle, Edit, ProfileCircle, Slash, TickSquare, Trash, User } from "iconsax-reactjs";
 import React, { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";

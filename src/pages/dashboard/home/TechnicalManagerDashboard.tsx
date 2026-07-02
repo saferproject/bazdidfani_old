@@ -8,7 +8,7 @@ import {
   TbUsersGroup,
   TbXboxX,
 } from "react-icons/tb";
-import { CircularProgress } from "@mui/material";
+import { Button, CircularProgress, Divider } from "@mui/material";
 import { useGetTechnicalManagerDashboardQuery } from "../../../api/TechnicalManager/Dashboard";
 import Plate from "../../../components/shared/DataGrid/Plate";
 import { UndefinedToEmptyString } from "../../../utilities/Helper";
@@ -22,6 +22,12 @@ import {
   SectionCard,
 } from "./components/Shared";
 import { formatNumber, mapTechnicalManagerDashboard } from "./data";
+import { useSelector } from "react-redux";
+import useHavePermission from "../../../components/shared/Functions/CostumeHooks/CheckPermissions";
+import { RootState } from "../../../Stores/store";
+import { useNavigate } from "react-router-dom";
+import CompanyUsage from "../admin/enums/company-usage.enum";
+import { Bus, TruckFast } from "iconsax-reactjs";
 
 const kpiIcons: Record<string, ReactNode> = {
   month_visits: <TbCalendarStats />,
@@ -40,6 +46,11 @@ const todayMeta: ReactNode[] = [
 const TechnicalManagerDashboard = () => {
   const { data, isLoading, isError } =
     useGetTechnicalManagerDashboardQuery();
+
+  const companyUsage = useSelector((state: RootState) => state.user.companyUsage);
+  const isTechnicalManager = useHavePermission("technicalManager");
+
+  const navigate = useNavigate();
 
   if (isLoading)
     return (
@@ -80,6 +91,35 @@ const TechnicalManagerDashboard = () => {
           icon: todayMeta[i],
         }))}
       />
+
+      <div className="flex items-center justify-center gap-2 w-full">
+          <Divider className="grow text-primary shadow shadow-primary border border-primary/50" />
+          {isTechnicalManager && companyUsage !== CompanyUsage.PASSENGER && (
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              startIcon={<TruckFast />}
+              onClick={() => navigate("/dashboard/do-technical-visit-freighter")}
+              className="whitespace-nowrap text-lg gap-4 p-4"
+            >
+              بازدید فنی باری
+            </Button>
+          )}
+          {isTechnicalManager && companyUsage !== CompanyUsage.FREIGHTER && (
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              startIcon={<Bus />}
+              onClick={() => navigate("/dashboard/do-technical-visit-passenger")}
+              className="whitespace-nowrap text-lg gap-4 p-4"
+            >
+              بازدید فنی مسافری
+            </Button>
+          )}
+          <Divider className="grow text-primary shadow shadow-primary border border-primary/50" />
+      </div>
 
       {/* کارت‌های KPI */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

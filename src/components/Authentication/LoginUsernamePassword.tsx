@@ -5,7 +5,8 @@ import { clear, removeOtp, removeOTPSent, removePhone, removeStep, removeToken }
 import { LoginDataOrChangePasswordType, PropsType } from "../../types/AuthType";
 import { ToEnglishNumber } from "../shared/Functions/ChangeNumLang";
 import SweetAlertToast from "../shared/Functions/SweetAlertToast";
-import { Button, TextField } from "@mui/material";
+import { Button } from "@mui/material";
+import TextField from "../shared/Inputs/SaferTextField";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaChevronLeft } from "react-icons/fa";

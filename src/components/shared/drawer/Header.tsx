@@ -9,12 +9,12 @@ import useHavePermission from "../Functions/CostumeHooks/CheckPermissions";
 import SweetAlertToast from "../Functions/SweetAlertToast";
 import {
   Avatar,
-  Button,
   IconButton,
   ListItemIcon,
   ListItemText,
   Menu,
   MenuItem,
+  Tooltip,
 } from "@mui/material";
 import {
   Bus,
@@ -40,14 +40,18 @@ export default function Header() {
     (state: RootState) => state.user.profileImage,
   );
   const prevToken = useSelector((state: RootState) => state.user.prevToken);
-  const companyUsage = useSelector((state: RootState) => state.user.companyUsage);
-  const isTechnicalManager = useHavePermission("technicalManager");
 
   const settingsButtonRef = useRef(null);
+
+  const technicalRef = useRef(null);
+  const passengarRef = useRef(null);
 
   const [open, setOpen] = useState(false);
 
   const [logOutFn, logOutResult] = useLogoutMutation();
+
+  const companyUsage = useSelector((state: RootState) => state.user.companyUsage);
+  const isTechnicalManager = useHavePermission("technicalManager");
 
   const handleClose = () => {
     setOpen(false);
@@ -119,38 +123,49 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Center: technical visit buttons */}
-      <div className="flex items-center gap-2">
-        {isTechnicalManager && companyUsage !== CompanyUsage.PASSENGER && (
-          <Button
-            variant="contained"
-            color="primary"
-            size="small"
-            startIcon={<TruckFast size="18" />}
-            onClick={() => navigate("/dashboard/do-technical-visit-freighter")}
-            className="whitespace-nowrap"
-          >
-            بازدید فنی باری
-          </Button>
-        )}
-        {isTechnicalManager && companyUsage !== CompanyUsage.FREIGHTER && (
-          <Button
-            variant="contained"
-            color="primary"
-            size="small"
-            startIcon={<Bus size="18" />}
-            onClick={() => navigate("/dashboard/do-technical-visit-passenger")}
-            className="whitespace-nowrap"
-          >
-            بازدید فنی مسافری
-          </Button>
-        )}
-      </div>
-
       {/* Right: notification, settings, logout */}
       <div className="flex items-center gap-x-2">
-        <IconButton
-          title="اعلان ها"
+        {isTechnicalManager && companyUsage !== CompanyUsage.PASSENGER && (
+          <Tooltip title="بازدید فنی باری">
+            <IconButton
+              onMouseEnter={() => {
+                if (!!technicalRef)
+                  (technicalRef.current).classList.add("animation-truck-going");
+              }}
+              onMouseLeave={() => {
+                if (!!technicalRef)
+                  (technicalRef.current).classList.remove(
+                  "animation-truck-going",
+                );
+              }}
+              onClick={() => navigate("/dashboard/do-technical-visit-freighter")}
+              className="overflow-hidden"
+            >
+              <TruckFast ref={technicalRef} size="24" color="#000" />
+            </IconButton>
+          </Tooltip>
+        )}
+        {isTechnicalManager && companyUsage !== CompanyUsage.FREIGHTER && (
+          <Tooltip title="بازدید فنی مسافری">
+            <IconButton
+            onMouseEnter={() => {
+              if (!!passengarRef)
+                (passengarRef.current).classList.add("animation-bus-scale");
+            }}
+            onMouseLeave={() => {
+              if (!!passengarRef)
+                (passengarRef.current).classList.remove(
+                "animation-bus-scale",
+              );
+            }}
+            onClick={() => navigate("/dashboard/do-technical-visit-passenger")}
+          >
+            <Bus ref={passengarRef} size="24" color="#000" />
+          </IconButton>
+          </Tooltip>
+        )}
+        <Tooltip title="اعلان ها">
+          <IconButton
           onMouseEnter={(event) => {
             (event.target as HTMLButtonElement).classList.add("animation-bell");
           }}
@@ -162,14 +177,16 @@ export default function Header() {
         >
           <Notification size="24" color="#000" />
         </IconButton>
-        <IconButton
-          title="تنظیمات"
+        </Tooltip>
+        <Tooltip title="تنظیمات">
+          <IconButton
           className="hover:rotate-180 transition-transform"
           ref={settingsButtonRef}
           onClick={() => setOpen(true)}
         >
           <Setting2 size="24" color="#000" />
         </IconButton>
+        </Tooltip>
         <Menu
           id="basic-menu"
           anchorEl={settingsButtonRef.current}
@@ -192,8 +209,8 @@ export default function Header() {
             ),
           )}
         </Menu>
-        <IconButton
-          title="خروج"
+        <Tooltip title="خروج">
+          <IconButton
           onClick={() => logOutFn()}
           className="rotate-180 text-black hover:text-red-500! transition-all"
           onMouseEnter={(event) => {
@@ -207,6 +224,7 @@ export default function Header() {
         >
           <Logout size="24" />
         </IconButton>
+        </Tooltip>
       </div>
     </div>
   );

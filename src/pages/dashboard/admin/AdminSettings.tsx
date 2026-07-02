@@ -1,4 +1,6 @@
-import { Button, Switch, TextField } from "@mui/material";
+import { Button,
+  Switch } from "@mui/material";
+import TextField from "../../../components/shared/Inputs/SaferTextField";
 import { FC, useEffect } from "react";
 import { useChangeAdminSettingMutation, useGetAdminSettingsQuery } from "./api/admin-settings.api";
 import Setting from "./interfaces/setting.interface";
