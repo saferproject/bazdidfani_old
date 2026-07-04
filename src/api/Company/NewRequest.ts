@@ -2,7 +2,7 @@ import { ApiWithAuth } from "../../Stores/apis/api";
 import { NewRequestType } from "../../types/Requests";
 import buildQueryParams from "../../utilities/build-query-params";
 
-export const { useAddNewRequestMutation, useAddSelfStatementByCompanyMutation, useRedirectInspectionMutation, useGetCompaniesQuery } =
+export const { useAddNewRequestMutation, useAddSelfStatementByCompanyMutation, useRedirectInspectionMutation, useGetCompaniesQuery, useGetSwitchableCompaniesQuery, useSwitchCompaniesMutation } =
 	ApiWithAuth.injectEndpoints({
 		endpoints: (builder) => ({
 			// Endpoint برای ارسال درخواست جدید بازدید فنی
@@ -41,6 +41,22 @@ export const { useAddNewRequestMutation, useAddSelfStatementByCompanyMutation, u
 					data,
 				}),
 				invalidatesTags: ["RequestsList"],
+			}),
+
+			getSwitchableCompanies: builder.query<any, void>({
+				query: () => ({
+					url: "company/switchable-companies",
+					method: "GET",
+				}),
+				providesTags: ['SwitchableCompanies']
+			}),
+
+			switchCompanies: builder.mutation<any, { company_id: number }>({
+				query: (data) => ({
+					url: "company/switch-company",
+					method: "POST",
+					data
+				})
 			}),
 		}),
 	});

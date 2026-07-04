@@ -124,13 +124,6 @@ export default defineConfig({
       strategies: "injectManifest",
       srcDir: "src/pwa",
       filename: "sw.ts",
-      workbox: {
-        disableDevLogs: true,
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,jpeg,jpg,webp,woff,woff2,ttf,eot}"],
-        cleanupOutdatedCaches: true,
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-        navigateFallback: "/index.html",
-      },
       manifest: {
         name: "بازدید فنی",
         short_name: "بازدید فنی",
@@ -157,7 +150,8 @@ export default defineConfig({
       injectManifest: {
         swSrc: 'src/pwa/sw.ts',
         swDest: 'dist/sw.js',
-        injectionPoint: undefined
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,jpeg,jpg,webp,woff,woff2,ttf,eot}"],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       }
     }),
     react(),

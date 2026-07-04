@@ -27,6 +27,7 @@ import SweetAlertToast from "../../../../components/shared/Functions/SweetAlertT
 import { useGetCitiesQuery } from "../../../../api/Categories/Location";
 import City from "../interfaces/city.interface";
 import DEFAULT_LOCATION from "../../../../shared/constants/default-location";
+import { useGetCompaniesQuery } from "../../../../api/Company/NewRequest";
 
 const AdminCompanyForm: FC<AdminCompanyFormProps> = ({ formState, formData, onSubmitCompany, onCancelAddCompany, onCancelEditCompany }) => {
 	const [location, setLocation] = useState<LatLngExpression | null>(
@@ -68,6 +69,9 @@ const AdminCompanyForm: FC<AdminCompanyFormProps> = ({ formState, formData, onSu
 	const GetCityLocation = useGetCityLocationQuery({ city: city?.name ?? "", state: state?.name ?? "" });
 	const getAddress = useGetDetailsByLocationQuery(location, {
 		skip: !location,
+	});
+	const activeCompanies = useGetCompaniesQuery({
+		status: 3
 	});
 
 	const handleGetCompanyInfo = async () => {
@@ -139,6 +143,47 @@ const AdminCompanyForm: FC<AdminCompanyFormProps> = ({ formState, formData, onSu
 			onSubmit={handleSubmit(onSubmit)}
 			className="w-full flex flex-col gap-4 lg:grid lg:grid-cols-6"
 		>
+			<Controller
+				name="parent"
+				control={control}
+				render={({ field }) => (
+					<Autocomplete
+						{...field}
+						options={activeCompanies.data?.data ?? []}
+						getOptionKey={(option) => option.id}
+						getOptionLabel={(option) => option.name}
+						loading={activeCompanies.isLoading || activeCompanies.isFetching}
+						loadingText="در حال دریافت شرکت ها"
+						onChange={(_event, newValue: City) => {
+							setValue("parent", newValue);
+							setValue("parent_id", newValue.id);
+						}}
+						renderInput={(params) => (
+							<TextField
+								{...params}
+								label="شرکت"
+								placeholder="در صورت دارا بودن شرکت والد آن را انتخاب کنید."
+								slotProps={{
+									input: {
+										...params.InputProps,
+										endAdornment: (
+											<>
+												{activeCompanies.isLoading || activeCompanies.isFetching ? (
+													<CircularProgress
+														color="inherit"
+														size={20}
+													/>
+												) : null}
+												{params.InputProps.endAdornment}
+											</>
+										),
+									},
+								}}
+							/>
+						)}
+					/>
+				)}
+			/>
 			<TextField
 				label="کد سازمانی شرکت"
 				type="tel"

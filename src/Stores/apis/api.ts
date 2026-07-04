@@ -51,6 +51,7 @@ export const ApiWithAuth = createApi({
 		"InspectionCheck",
 		"RoleStates",
 		"Logs",
+		"SwitchableCompanies"
 	],
 	endpoints: () => ({}),
 });

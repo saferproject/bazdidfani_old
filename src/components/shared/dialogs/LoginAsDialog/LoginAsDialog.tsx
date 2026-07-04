@@ -7,7 +7,7 @@ import { useAppDispatch, useAppSelector } from "../../../../Stores/hooks";
 import { loginAs, setCompanyUsage } from "../../../../Stores/slices/user";
 import SweetAlertToast from "../../Functions/SweetAlertToast";
 
-const LoginAsDialog: FC<LoginAsDialogProps> = ({ isOpen, userId, fullName, onClose, tmWorkType }) => {
+const LoginAsDialog: FC<LoginAsDialogProps> = ({ isOpen, userId, fullName, onClose, tmWorkType, customTrigger }) => {
 	const dispatch = useAppDispatch();
 	const currentToken = useAppSelector((state) => state.user.token);
 
@@ -15,6 +15,11 @@ const LoginAsDialog: FC<LoginAsDialogProps> = ({ isOpen, userId, fullName, onClo
 
 	const handleConfirm = async () => {
 		if (!userId || !currentToken) return;
+
+		if (!!customTrigger) {
+			await customTrigger({ userId });
+			return;
+		}
 
 		try {
 			const result = await loginAsFn({ userId }).unwrap();

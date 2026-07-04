@@ -7,4 +7,5 @@ export default interface LoginAsDialogProps {
 	onClose: () => void;
 	/** نوع فعالیت کارشناس فنی: ۱=باری، ۲=مسافری، ۳=هر دو — در صورت ارائه، قبل از ریدایرکت در Redux ذخیره می‌شود */
 	tmWorkType?: 1 | 2 | 3;
+	customTrigger?: (data: any) => any;
 }

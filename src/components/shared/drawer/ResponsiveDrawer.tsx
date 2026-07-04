@@ -5,15 +5,17 @@ import { useAppDispatch, useAppSelector } from "../../../Stores/hooks";
 import { openChangePasswordDialog } from "../../../Stores/slices/change-passwrod-dialog.slice";
 import {
   clear,
+  loginAs,
   restorePrevToken,
   setActiveMenuId,
+  setCompanyUsage,
 } from "../../../Stores/slices/user";
 import { GetShamsiDate } from "../../../utilities/DateTime";
 import useHavePermission from "../Functions/CostumeHooks/CheckPermissions";
 import SweetAlertToast from "../Functions/SweetAlertToast";
 import PlateTextField from "../Inputs/PlateTextField";
 import Header from "./Header";
-import { Button, CircularProgress, Divider, Menu, MenuItem, Typography } from "@mui/material";
+import { Button, CircularProgress, Dialog, Divider, Menu, MenuItem, Typography } from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
@@ -56,9 +58,12 @@ import React, {
   useState,
 } from "react";
 import { useForm } from "react-hook-form";
-import { FaBus } from "react-icons/fa";
+import { FaBus, FaChevronCircleDown } from "react-icons/fa";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useGetSwitchableCompaniesQuery, useSwitchCompaniesMutation } from "../../../api/Company/NewRequest";
+import CustomDialog from "../Dialog/CustomeDialog";
+import LoginAsDialog from "../dialogs/LoginAsDialog/LoginAsDialog";
 
 const drawerWidth = 240;
 const MOBILE_BREAKPOINT = 768; // md breakpoint in pixels
@@ -236,6 +241,8 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
   );
 
   const [logOutFn, logOutResult] = useLogoutMutation();
+  const branchCompanies = useGetSwitchableCompaniesQuery();
+  const [switchCompany, setSwitchCompany] = useSwitchCompaniesMutation();
 
   useEffect(() => {
     if (logOutResult.isSuccess || logOutResult.isError) {
@@ -501,8 +508,28 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
     [menuItems2, location.pathname, handleMenuClick],
   );
 
+  const [branchAnchorEl, setBranchAnchorEl] = useState<HTMLElement | null>(null);
+  const [showConfirmSwitchBranch, setShowConfirmSwitchBranch] = useState(false);
+  const [selectedBranch, setSelectedBranch] = useState(null);
+
+  const handleBranchClick = (event: React.MouseEvent<HTMLElement>) => {
+      setBranchAnchorEl(event.currentTarget);
+  };
+
+  const handleBranchClose = () => {
+      setBranchAnchorEl(null);
+  };
+
+  const handleBranchItemClick = (data) => {
+    setBranchAnchorEl(null);
+    setSelectedBranch(data);
+    setShowConfirmSwitchBranch(true);
+  }
+
+  const currentToken = useAppSelector((state) => state.user.token);
+
   const company = useAppSelector(state => state.user.company);
-  const user = useAppSelector(state => state.user.personal)
+  const user = useAppSelector(state => state.user.personal);
 
   const drawer = (
     <div className="sticky overflow-x-hidden drawer-container">
@@ -510,9 +537,43 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
         <img className="max-h-32" alt="logo" src={TechnicalVisitLogo} />
       </Toolbar>
       <Divider className="w-full! bg-primary!" />
-      <Typography className="text-center bg-primary/25 p-1 font-black! text-xl">
-        {company?.name ?? user?.full_name}
-      </Typography>
+      <Box className={"bg-primary/25 p-1 flex flex-row items-center " + (branchCompanies.data?.data?.length > 0 ? "justify-between" : "justify-center")}>
+        <Typography className="text-center font-black! text-xl">
+          {company?.name ?? user?.full_name}
+        </Typography>
+        {
+          branchCompanies.data?.data?.length > 0 && (
+            <Box className="relative">
+              <IconButton onClick={handleBranchClick}>
+                  <FaChevronCircleDown className="text-black" />
+              </IconButton>
+
+              <Menu
+                  anchorEl={branchAnchorEl}
+                  open={Boolean(branchAnchorEl)}
+                  onClose={handleBranchClose}
+                  slotProps={{
+                      paper: {
+                          sx: {
+                              zIndex: 1500,
+                          },
+                      },
+                  }}
+              >
+                  {branchCompanies.data?.data?.map(
+                      item =>
+                            <MenuItem
+                                key={item.id}
+                                onClick={() => handleBranchItemClick(item)}
+                            >
+                                {item.name}
+                            </MenuItem>
+                  )}
+              </Menu>
+            </Box>
+          )
+        }
+      </Box>
       <Divider className="w-full! bg-primary!" />
       <MenuItem2
         id="dashboard"
@@ -553,6 +614,30 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
   // ! نمایش اطلاعات کاربر
   return (
     <div>
+      <LoginAsDialog 
+        isOpen={!!selectedBranch} 
+        onClose={() => setSelectedBranch(null)} 
+        userId={selectedBranch?.id} 
+        customTrigger={async ({ userId: company_id }) => {
+            const result = await switchCompany({ company_id }).unwrap();
+            const newToken = result?.data?.token;
+
+            if (!newToken) {
+              SweetAlertToast.fire({
+                icon: "error",
+                title: "توکن کاربر دریافت نشد.",
+              });
+              return;
+            }
+
+            dispatch(loginAs({ prevToken: currentToken, token: newToken }));
+
+            localStorage.removeItem("companyUsage");
+
+            window.location.href = "/dashboard";
+        }}  
+        fullName={selectedBranch?.name}
+      />
       <Box sx={{ display: "flex", width: "100%" }}>
         <AppBar
           position="fixed"

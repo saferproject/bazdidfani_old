@@ -1,6 +1,7 @@
 import CompanyUsage from "../enums/company-usage.enum";
 
 export default interface AdminCompanyForm {
+	parent_id?: number;
 	organization_code: string;
 	branch_code: number;
 	company_national_code: string;
