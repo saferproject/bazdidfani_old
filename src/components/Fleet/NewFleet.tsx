@@ -472,8 +472,6 @@ export default function NewFleet({
     [errors, trigger],
   );
 
-  console.log(company_usage, "test")
-
   return (
     <form
       autoComplete="off"
@@ -805,7 +803,7 @@ export default function NewFleet({
                       { title: "باری", value: "freighter" },
                     ]}
                     className="font-medium"
-                    disabled={mode === "EDIT" || !!companyUsage}
+                    disabled={mode === "EDIT" || (owner === "company" && !!companyUsage)}
                   />
                 </SkeletonCondition>
               )
