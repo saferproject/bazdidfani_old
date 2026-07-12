@@ -419,7 +419,7 @@ export default function NewFleet({
         smartNumberInquiryFn({
           smartNumber,
           companyUsage: companyUsage ?? (getValues("usage") === "freighter" ? 1 : 2),
-          usage: getValues("usage"),
+          usage: (getValues("usage") === "freighter" ? 1 : 2),
         });
       } else {
         SweetAlertToast.fire({
