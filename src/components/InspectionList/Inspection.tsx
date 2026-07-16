@@ -23,7 +23,7 @@ import formatOrganizationData from "./utilities/format-organization-data";
 import proccessInspectionPhotos from "./utilities/proccess-inspection-photos";
 import validateInspectionItems from "./utilities/validate-inspection-items";
 import { Accordion, AccordionDetails, AccordionSummary, Backdrop, Box, Button, CircularProgress } from "@mui/material";
-import { Play } from "iconsax-reactjs";
+import { Check, Play } from "iconsax-reactjs";
 import { motion } from "motion/react";
 import { FC, lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { FaArrowLeftLong, FaChevronDown, FaX } from "react-icons/fa6";
@@ -604,6 +604,52 @@ const Inspection: FC<InspectionProps> = ({ loaderTypeCode }) => {
     );
   };
 
+  const handleCheckRemainingItems = async () => {
+    if (!inspectionId) return;
+
+    const items = await InspectionModel.getAllItems(inspectionId);
+
+    const updatePromises: Promise<any>[] = [];
+
+    const updateItem = async (item: InspectionItem) => {
+      if (item.checked) return;
+      if (item.requiredImage) return;
+
+      const stored = await InspectionModel.getItem(item.code, inspectionId);
+      if (!stored) return;
+
+      stored.checked = true;
+      stored.reviewed = true;
+
+      updatePromises.push(
+        InspectionModel.updateItem(item.code, inspectionId, stored)
+      );
+    };
+
+    for (const item of items) {
+      if (item.details?.length) {
+        for (const detail of item.details) {
+          await updateItem(detail);
+        }
+
+        const parent = await InspectionModel.getItem(item.code, inspectionId);
+        if (parent) {
+          parent.checked = parent.details.every((d) => d.checked);
+          parent.reviewed = parent.details.every((d) => d.reviewed);
+
+          updatePromises.push(
+            InspectionModel.updateItem(item.code, inspectionId, parent)
+          );
+        }
+      } else {
+        await updateItem(item);
+      }
+    }
+
+    await Promise.all(updatePromises);
+    await refreshInspectionState();
+  };
+
   useEffect(() => {
     const eventFn = (event: BeforeUnloadEvent) => {
       event.preventDefault();
@@ -811,6 +857,14 @@ const Inspection: FC<InspectionProps> = ({ loaderTypeCode }) => {
     ));
   }, [technicalManagerInspectionItemsData?.data?.data?.previousRejectedItems]);
 
+  const allRequiredImagesDone = useMemo(() => {
+    const flat = flattenInspectionItems(inspectionItems);
+
+    return flat.every(item =>
+      item.requiredImage ? item.checked : true
+    );
+  }, [inspectionItems]);
+
   if (!isPhone)
     return (
       <div className="mx-auto flex min-h-full max-w-225 w-full flex-col items-center justify-center gap-6 overflow-hidden">
@@ -909,6 +963,20 @@ const Inspection: FC<InspectionProps> = ({ loaderTypeCode }) => {
               شروع بازدید
             </Button>
           )}
+          {
+            allRequiredImagesDone && (
+              <Button
+                endIcon={<Check className="" size="32" />}
+                variant="contained"
+                color="primary"
+                onClick={handleCheckRemainingItems}
+                className="mb-4 grow flex-row justify-between text-lg text-black shadow-xl"
+                fullWidth
+              >
+                تیک زدن تمامی آیتم های باقی مانده
+              </Button>
+            )
+          }
           <ul className="flex flex-col gap-4">{inspectionList}</ul>
           <div className="mt-4 flex flex-row gap-2">
             {inspectionType === "SELF_STATEMENT" ? (

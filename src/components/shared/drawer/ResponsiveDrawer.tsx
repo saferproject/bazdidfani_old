@@ -60,7 +60,7 @@ import React, {
 import { useForm } from "react-hook-form";
 import { FaBus, FaChevronCircleDown } from "react-icons/fa";
 import { IoIosArrowRoundBack } from "react-icons/io";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useGetSwitchableCompaniesQuery, useSwitchCompaniesMutation } from "../../../api/Company/NewRequest";
 import CustomDialog from "../Dialog/CustomeDialog";
 import LoginAsDialog from "../dialogs/LoginAsDialog/LoginAsDialog";
@@ -142,6 +142,8 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
 
   const inspectionData = useAppSelector((state) => state.inspectionData);
   const selfStatementData = useAppSelector((state) => state.selfStatementData);
+
+  const [searchParams] = useSearchParams();
 
   const handleClose = () => {
     setOpen(false);
@@ -241,7 +243,9 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
   );
 
   const [logOutFn, logOutResult] = useLogoutMutation();
-  const branchCompanies = useGetSwitchableCompaniesQuery();
+  const branchCompanies = useGetSwitchableCompaniesQuery(null, {
+    skip: searchParams.get("register") !== null
+  });
   const [switchCompany, setSwitchCompany] = useSwitchCompaniesMutation();
 
   useEffect(() => {

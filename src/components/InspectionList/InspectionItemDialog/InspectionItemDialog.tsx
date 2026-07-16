@@ -19,42 +19,6 @@ import { FC, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import Webcam from "react-webcam";
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const InspectionItemDialog: FC<InspectionItemDialogProps> = ({
   isOpen,
   currentInspectionItem,
@@ -78,6 +42,19 @@ const InspectionItemDialog: FC<InspectionItemDialogProps> = ({
   );
   const [isCameraVisible, setIsCameraVisible] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [canCheckRemaining, setCanCheckRemaining] = useState(false);
+
+  const refreshCheckRemainingState = async () => {
+    const items = await InspectionModel.getAllItems(inspectionId);
+
+    const flat = items.flatMap(item =>
+      item.details?.length ? item.details : [item]
+    );
+
+    setCanCheckRemaining(
+      flat.every(item => item.requiredImage ? item.checked : true)
+    );
+  };
 
   const {
     register,
@@ -113,6 +90,53 @@ const InspectionItemDialog: FC<InspectionItemDialogProps> = ({
 
   const syncCurrentItem = async (code = currentInspectionItem?.code) => {
     await onItemUpdated(code);
+  };
+
+  const checkRemainingItems = async () => {
+    const items = await InspectionModel.getAllItems(inspectionId);
+
+    for (const item of items) {
+      if (item.details?.length) {
+        let parentChanged = false;
+
+        for (const detail of item.details) {
+          if (!detail.requiredImage && !detail.checked) {
+            detail.checked = true;
+            detail.reviewed = true;
+
+            await InspectionModel.updateItem(
+              detail.code,
+              inspectionId,
+              detail,
+            );
+
+            parentChanged = true;
+          }
+        }
+
+        if (parentChanged) {
+          item.checked = item.details.every((d) => d.checked);
+          item.reviewed = item.details.every((d) => d.reviewed);
+
+          await InspectionModel.updateItem(
+            item.code,
+            inspectionId,
+            item,
+          );
+        }
+      } else if (!item.requiredImage && !item.checked) {
+        item.checked = true;
+        item.reviewed = true;
+
+        await InspectionModel.updateItem(
+          item.code,
+          inspectionId,
+          item,
+        );
+      }
+    }
+
+    await onItemUpdated();
   };
 
   const onSubmitForm = async ({ description }: InspectionItemDialogForm) => {
@@ -277,6 +301,12 @@ const InspectionItemDialog: FC<InspectionItemDialogProps> = ({
           : (currentInspectionItem.inspectorDescription ?? ""),
     });
   }, [currentInspectionItem, inspectionType, reset]);
+
+  useEffect(() => {
+    if (!currentInspectionItem) return;
+
+    refreshCheckRemainingState();
+  }, [currentInspectionItem]);
 
   if (!currentInspectionItem) return null;
 
@@ -456,6 +486,25 @@ const InspectionItemDialog: FC<InspectionItemDialogProps> = ({
             />
           </DialogContent>
           <div className="flex items-center gap-2">
+            {canCheckRemaining && (
+              <Button
+                variant="contained"
+                color="success"
+                fullWidth
+                onClick={async () => {
+                  await checkRemainingItems();
+                  await syncCurrentItem();
+                  handleCloseDialog();
+                  SweetAlertToast.fire({
+                    icon: "success",
+                    text: "همه گزینه های باقی مانده با موفقیت تایید شدند."
+                  })
+                }}
+                className="text-lg font-semibold"
+              >
+                تایید همه
+              </Button>
+            )}
             <Button
               variant="contained"
               color="error"
