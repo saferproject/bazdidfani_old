@@ -2,16 +2,17 @@ import { FC } from "react";
 import { Button, Dialog, DialogContent, DialogTitle, IconButton } from "@mui/material";
 import { CloseCircle, LoginCurve } from "iconsax-reactjs";
 import LoginAsDialogProps from "./interfaces/login-as-dialog-props.interface";
-import { useLoginAsMutation } from "../../../../api/Auth/LoginAs";
+import { useLoginAsMutation, useLoginAsUserMutation } from "../../../../api/Auth/LoginAs";
 import { useAppDispatch, useAppSelector } from "../../../../Stores/hooks";
 import { loginAs, setCompanyUsage } from "../../../../Stores/slices/user";
 import SweetAlertToast from "../../Functions/SweetAlertToast";
 
-const LoginAsDialog: FC<LoginAsDialogProps> = ({ isOpen, userId, fullName, onClose, tmWorkType, customTrigger }) => {
+const LoginAsDialog: FC<LoginAsDialogProps> = ({ isOpen, userId, fullName, onClose, tmWorkType, customTrigger, isLoginFromUser = false }) => {
 	const dispatch = useAppDispatch();
 	const currentToken = useAppSelector((state) => state.user.token);
 
 	const [loginAsFn, { isLoading }] = useLoginAsMutation();
+	const [loginAsUserFn, { isLoading: userIsLoading }] = useLoginAsUserMutation();
 
 	const handleConfirm = async () => {
 		if (!userId || !currentToken) return;
@@ -22,7 +23,7 @@ const LoginAsDialog: FC<LoginAsDialogProps> = ({ isOpen, userId, fullName, onClo
 		}
 
 		try {
-			const result = await loginAsFn({ userId }).unwrap();
+			const result = await (isLoginFromUser ? loginAsUserFn : loginAsFn)({ userId }).unwrap();
 			const newToken = result?.data?.token;
 
 			if (!newToken) {
@@ -81,7 +82,7 @@ const LoginAsDialog: FC<LoginAsDialogProps> = ({ isOpen, userId, fullName, onClo
 						variant="outlined"
 						color="error"
 						onClick={onClose}
-						disabled={isLoading}
+						disabled={isLoading || userIsLoading}
 					>
 						لغو
 					</Button>
@@ -89,7 +90,7 @@ const LoginAsDialog: FC<LoginAsDialogProps> = ({ isOpen, userId, fullName, onClo
 						className="grow"
 						variant="contained"
 						color="primary"
-						loading={isLoading}
+						loading={isLoading || userIsLoading}
 						onClick={handleConfirm}
 					>
 						تایید و ورود

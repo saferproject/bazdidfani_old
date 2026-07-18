@@ -9,7 +9,6 @@ import LoginAsDialog from "../../../components/shared/dialogs/LoginAsDialog/Logi
 import { RoleType } from "../../../types/RoleType";
 import useIsPhone from "../../../utilities/custom-hooks/use-is-phone";
 import { GetShamsiDate } from "../../../utilities/DateTime";
-import { useGetAdminInfiniteTechnicalManagersInfiniteQuery } from "../admin/api/admin-technical-manager.api";
 import EditTechnicalManagerDataDialog from "./dialogs/EditTechnicalManagerDataDialog";
 import EditTechnicalManagerDataDialogProps from "./interfaces/edit-technical-manager-data-dialog-props.interface";
 import { useAppSelector } from "../../../Stores/hooks";
@@ -21,29 +20,6 @@ import { GridColDef } from "@mui/x-data-grid";
 import { Add, Edit, Login, UserOctagon } from "iconsax-reactjs";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export default function TechnicalManager() {
   const isPhone = useIsPhone();
@@ -381,6 +357,7 @@ export default function TechnicalManager() {
         fullName={loginAsTarget?.fullName}
         tmWorkType={loginAsTarget?.tmWorkType}
         onClose={() => setLoginAsTarget(null)}
+        isLoginFromUser
       />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -425,7 +402,7 @@ export default function TechnicalManager() {
                 .map((page) => page.data.data)
                 .reduce((a, b) => [...a, ...b]) ?? [])
             : (technicalManagers.data?.data.data.map(
-                (inspector) => inspector.personal,
+                (inspector) => ({ ...inspector.personal, id: inspector.user?.id }),
               ) ?? [])
         }
         loading={

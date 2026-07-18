@@ -40,6 +40,7 @@ export const {
               ...item.personal,
               count: data.per_page * (data.current_page - 1) + (index + 1),
             },
+            ...item
           })),
         },
         message,

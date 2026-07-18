@@ -26,4 +26,8 @@ interface Personal {
 
 export default interface Inspector {
 	personal: Personal;
+	user: {
+		id: number,
+		[key: string]: any
+	}
 }
