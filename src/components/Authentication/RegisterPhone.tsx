@@ -1,6 +1,7 @@
 import { useSendOTPCodeOrSendEmailOrPhoneMutation } from "../../api/Auth/OTP";
 import KeyIcon from "../../assets/images/key.png";
 import PhoneHandIcon from "../../assets/images/phoneHand.png";
+import RulesBackground from "../../assets/images/RulesBackground.png";
 import { removeOTPSent, setOTPSent } from "../../Stores/slices/user";
 import { RootState } from "../../Stores/store";
 import { PropsType } from "../../types/AuthType";
@@ -355,8 +356,8 @@ export default function RegisterPhone(props: PropsType) {
                   </div>
                   {item.id === 2 && (
                     <div
+                      style={{ backgroundImage: `url(${RulesBackground})` }}
                       className={
-                        "bg-[url('../assets/images/RulesBackground.png')] " +
                         "self-stretch bg-contain h-[180px] bg-no-repeat " +
                         "tablet:flex flex-row justify-between hidden"
                       }

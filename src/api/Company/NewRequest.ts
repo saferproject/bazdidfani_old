@@ -1,12 +1,11 @@
 import { ApiWithAuth } from "../../Stores/apis/api";
-import { NewRequestType } from "../../types/Requests";
 import buildQueryParams from "../../utilities/build-query-params";
 
 export const { useAddNewRequestMutation, useAddSelfStatementByCompanyMutation, useRedirectInspectionMutation, useGetCompaniesQuery, useGetSwitchableCompaniesQuery, useSwitchCompaniesMutation } =
 	ApiWithAuth.injectEndpoints({
 		endpoints: (builder) => ({
 			// Endpoint برای ارسال درخواست جدید بازدید فنی
-			addNewRequest: builder.mutation<any, NewRequestType>({
+			addNewRequest: builder.mutation<any, unknown>({
 				query: (data) => ({
 					url: "company/bazdidfani/store",
 					method: "POST",
