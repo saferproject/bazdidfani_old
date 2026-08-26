@@ -279,7 +279,7 @@ export default function Users() {
             variant="contained"
             onClick={async () => {
               const isValid = await trigger("phone_number");
-              isValid && sendOTPWithoutCheckFn({ phone: phone_number! });
+              isValid && sendOTPWithoutCheckFn({ phone: phone_number!, create_user: true });
             }}
             disabled={!watch("phone_number")}
             loading={sendOTPWithoutCheckResult.isLoading}
