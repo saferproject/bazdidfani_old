@@ -81,11 +81,11 @@ const UserItemsDialog: FC<IProps> = ({ defaultValues, onClose, open, onSuccess, 
 	const onSubmit = useCallback(
 		(data: ProfileDataType) => {
 			if (!isExist) {
-				const { cities, ...otehr } = data;
+				const { cities, ...other } = data;
 				const _Data: any = {
-					...otehr,
+					...other,
 				};
-				_Data.city_id = cities?.uuid;
+				_Data.city_code = cities?.code;
 				const formData = createFormData(_Data);
 				if (data.image) {
 					formData.delete("image[0]");
@@ -247,8 +247,8 @@ const UserItemsDialog: FC<IProps> = ({ defaultValues, onClose, open, onSuccess, 
 									setValue={setValue}
 									searchName="citySearch"
 									label="شهر"
-									error={!!errors.city_id}
-									helperText={errors.city_id?.message.toString() ?? ""}
+									error={!!errors.city_code}
+									helperText={errors.city_code?.message.toString() ?? ""}
 									placeholder="شهر محل سکونت را انتخاب کنید"
 									loading={cities.isLoading || cities.isFetching}
 									readOnly={isExist}

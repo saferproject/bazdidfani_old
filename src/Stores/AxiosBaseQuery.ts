@@ -1,6 +1,7 @@
 import SweetAlertToast from "../components/shared/Functions/SweetAlertToast";
 import { API_URL } from "./api-urls";
-import { RootState } from "./store";
+import { clear } from "./slices/user";
+import type { RootState } from "./store";
 import { BaseQueryFn } from "@reduxjs/toolkit/query/react";
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
 
@@ -8,7 +9,7 @@ const axiosInstance = axios.create({
   baseURL: API_URL + "/api/", // آدرس API را تنظیم کنید
 });
 
-const handleError = (error: AxiosError) => {
+const handleError = (error: AxiosError, suppressForbiddenRedirect = false) => {
   if (axios.isAxiosError(error)) {
     if (error.response?.status === 401) {
       SweetAlertToast.fire({
@@ -50,9 +51,10 @@ const handleError = (error: AxiosError) => {
           "شما اجازه دسترسی به این بخش را ندارید.",
         icon: "error",
       });
-      setTimeout(() => {
-        window.location.href = "/dashboard";
-      }, 3000);
+      if (!suppressForbiddenRedirect)
+        setTimeout(() => {
+          window.location.href = "/dashboard";
+        }, 3000);
     } else
       SweetAlertToast.fire({
         text: `خطایی رخ داده است: ${(error.response?.data as any)?.message || error.message}`,
@@ -80,11 +82,22 @@ const AxiosBaseQuery =
       data?: AxiosRequestConfig["data"];
       params?: AxiosRequestConfig["params"];
       headers?: AxiosRequestConfig["headers"];
+      suppressForbiddenRedirect?: boolean;
     },
     unknown,
     unknown
   > =>
-  async ({ url, method = "GET", data, params, headers }, { getState }) => {
+  async (
+    {
+      url,
+      method = "GET",
+      data,
+      params,
+      headers,
+      suppressForbiddenRedirect = false,
+    },
+    { dispatch, getState },
+  ) => {
     try {
       // دریافت مقدار توکن از Store
       const state = getState() as RootState;
@@ -104,7 +117,8 @@ const AxiosBaseQuery =
       return { data: result.data };
     } catch (axiosError) {
       const err = axiosError as AxiosError;
-      handleError(err);
+      if (err.response?.status === 401) dispatch(clear());
+      handleError(err, suppressForbiddenRedirect);
       return {
         error: {
           status: err.response?.status,

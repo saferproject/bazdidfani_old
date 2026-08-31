@@ -1,21 +1,34 @@
 import { useLogoutMutation } from "../../../api/Auth/Logout";
+import { useChangeCompanyContextMutation } from "../../../api/Company/NewRequest";
 import TechnicalVisitLogo from "../../../assets/icons/PNG-24 (1).png";
 import TruckImage from "../../../assets/images/Truck.png";
+import { ApiWithAuth } from "../../../Stores/apis/api";
 import { useAppDispatch, useAppSelector } from "../../../Stores/hooks";
 import { openChangePasswordDialog } from "../../../Stores/slices/change-passwrod-dialog.slice";
 import {
   clear,
-  loginAs,
   restorePrevToken,
   setActiveMenuId,
-  setCompanyUsage,
+  setCompany,
 } from "../../../Stores/slices/user";
+import { AccessibleCompany } from "../../../types/CompanyContext";
 import { GetShamsiDate } from "../../../utilities/DateTime";
 import useHavePermission from "../Functions/CostumeHooks/CheckPermissions";
 import SweetAlertToast from "../Functions/SweetAlertToast";
 import PlateTextField from "../Inputs/PlateTextField";
 import Header from "./Header";
-import { Button, CircularProgress, Dialog, Divider, Menu, MenuItem, Typography } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Menu,
+  MenuItem,
+  Typography,
+} from "@mui/material";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
@@ -60,10 +73,11 @@ import React, {
 import { useForm } from "react-hook-form";
 import { FaBus, FaChevronCircleDown } from "react-icons/fa";
 import { IoIosArrowRoundBack } from "react-icons/io";
-import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { useGetSwitchableCompaniesQuery, useSwitchCompaniesMutation } from "../../../api/Company/NewRequest";
-import CustomDialog from "../Dialog/CustomeDialog";
-import LoginAsDialog from "../dialogs/LoginAsDialog/LoginAsDialog";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 
 const drawerWidth = 240;
 const MOBILE_BREAKPOINT = 768; // md breakpoint in pixels
@@ -126,9 +140,17 @@ const MenuItem2: FC<MenuItemProps> = ({
 
 interface ResponsiveDrawerProps {
   children: ReactNode;
+  accessibleCompanies: AccessibleCompany[];
+  isCompanyContextFetching: boolean;
+  refetchCompanyContext: () => Promise<unknown>;
 }
 
-function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
+function ResponsiveDrawer({
+  children,
+  accessibleCompanies,
+  isCompanyContextFetching,
+  refetchCompanyContext,
+}: Readonly<ResponsiveDrawerProps>) {
   const dispatch = useAppDispatch();
   const prevToken = useAppSelector((state) => state.user.prevToken);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -142,8 +164,6 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
 
   const inspectionData = useAppSelector((state) => state.inspectionData);
   const selfStatementData = useAppSelector((state) => state.selfStatementData);
-
-  const [searchParams] = useSearchParams();
 
   const handleClose = () => {
     setOpen(false);
@@ -243,10 +263,8 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
   );
 
   const [logOutFn, logOutResult] = useLogoutMutation();
-  const branchCompanies = useGetSwitchableCompaniesQuery(null, {
-    skip: searchParams.get("register") !== null
-  });
-  const [switchCompany, setSwitchCompany] = useSwitchCompaniesMutation();
+  const [changeCompanyContext, changeCompanyContextResult] =
+    useChangeCompanyContextMutation();
 
   useEffect(() => {
     if (logOutResult.isSuccess || logOutResult.isError) {
@@ -357,18 +375,6 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
         title: "کاربران",
         permission: isCompany,
       },
-      // {
-      // 	id: "profile",
-      // 	href: "/dashboard/profile",
-      // 	image: (
-      // 		<ProfileCircle
-      // 			size="24"
-      // 			color="#000"
-      // 		/>
-      // 	),
-      // 	title: "پروفایل",
-      // 	permission: true,
-      // },
       {
         id: "wallet",
         href: "/dashboard/wallet",
@@ -376,18 +382,6 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
         title: "کیف پول",
         permission: isDriver || isCompany,
       },
-      // {
-      // 	id: "reports",
-      // 	href: "/dashboard/reports",
-      // 	image: (
-      // 		<DocumentText
-      // 			size="24"
-      // 			color="#000"
-      // 		/>
-      // 	),
-      // 	title: "گزارشات",
-      // 	permission: isCompany,
-      // },
       {
         id: "register",
         href: "/dashboard/register",
@@ -512,28 +506,57 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
     [menuItems2, location.pathname, handleMenuClick],
   );
 
-  const [branchAnchorEl, setBranchAnchorEl] = useState<HTMLElement | null>(null);
-  const [showConfirmSwitchBranch, setShowConfirmSwitchBranch] = useState(false);
-  const [selectedBranch, setSelectedBranch] = useState(null);
+  const [branchAnchorEl, setBranchAnchorEl] = useState<HTMLElement | null>(
+    null,
+  );
+  const [selectedBranch, setSelectedBranch] =
+    useState<AccessibleCompany | null>(null);
 
   const handleBranchClick = (event: React.MouseEvent<HTMLElement>) => {
-      setBranchAnchorEl(event.currentTarget);
+    setBranchAnchorEl(event.currentTarget);
   };
 
   const handleBranchClose = () => {
-      setBranchAnchorEl(null);
+    setBranchAnchorEl(null);
   };
 
-  const handleBranchItemClick = (data) => {
+  const handleBranchItemClick = (data: AccessibleCompany) => {
     setBranchAnchorEl(null);
     setSelectedBranch(data);
-    setShowConfirmSwitchBranch(true);
-  }
+  };
 
-  const currentToken = useAppSelector((state) => state.user.token);
+  const company = useAppSelector((state) => state.user.company);
+  const user = useAppSelector((state) => state.user.personal);
+  const showCompanySelector =
+    accessibleCompanies.filter((item) => item.can_switch).length > 1;
 
-  const company = useAppSelector(state => state.user.company);
-  const user = useAppSelector(state => state.user.personal);
+  const handleSwitchCompany = async () => {
+    if (!selectedBranch?.can_switch) return;
+
+    try {
+      const result = await changeCompanyContext({
+        company_id: selectedBranch.id,
+      }).unwrap();
+
+      dispatch(setCompany(result.data.company));
+      setSelectedBranch(null);
+
+      SweetAlertToast.fire({
+        icon: "success",
+        title: result.message,
+      });
+
+      // Every authenticated query may be scoped by the active company encoded
+      // in the bearer token. Clearing the cache makes mounted pages refetch it.
+      dispatch(ApiWithAuth.util.resetApiState());
+    } catch (error) {
+      const status = (error as { status?: number })?.status;
+
+      // Access can be revoked while the selector is open, and a stale token
+      // context can produce 409. In both cases, refresh the available choices.
+      if (status === 403 || status === 409) await refetchCompanyContext();
+    }
+  };
 
   const drawer = (
     <div className="sticky overflow-x-hidden drawer-container">
@@ -541,42 +564,56 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
         <img className="max-h-32" alt="logo" src={TechnicalVisitLogo} />
       </Toolbar>
       <Divider className="w-full! bg-primary!" />
-      <Box className={"bg-primary/25 p-1 flex flex-row items-center " + (branchCompanies.data?.data?.length > 0 ? "justify-between" : "justify-center")}>
+      <Box
+        className={
+          "bg-primary/25 p-1 flex flex-row items-center " +
+          (showCompanySelector || isCompanyContextFetching
+            ? "justify-between"
+            : "justify-center")
+        }
+      >
         <Typography className="text-center font-black! text-xl">
           {company?.name ?? user?.full_name}
         </Typography>
-        {
-          branchCompanies.data?.data?.length > 0 && (
+        {isCompanyContextFetching ? (
+          <CircularProgress size={20} />
+        ) : (
+          showCompanySelector && (
             <Box className="relative">
-              <IconButton onClick={handleBranchClick}>
-                  <FaChevronCircleDown className="text-black" />
+              <IconButton
+                aria-label="تغییر شرکت فعال"
+                disabled={changeCompanyContextResult.isLoading}
+                onClick={handleBranchClick}
+              >
+                <FaChevronCircleDown className="text-black" />
               </IconButton>
 
               <Menu
-                  anchorEl={branchAnchorEl}
-                  open={Boolean(branchAnchorEl)}
-                  onClose={handleBranchClose}
-                  slotProps={{
-                      paper: {
-                          sx: {
-                              zIndex: 1500,
-                          },
-                      },
-                  }}
+                anchorEl={branchAnchorEl}
+                open={Boolean(branchAnchorEl)}
+                onClose={handleBranchClose}
+                slotProps={{
+                  paper: {
+                    sx: {
+                      zIndex: 1500,
+                    },
+                  },
+                }}
               >
-                  {branchCompanies.data?.data?.map(
-                      item =>
-                            <MenuItem
-                                key={item.id}
-                                onClick={() => handleBranchItemClick(item)}
-                            >
-                                {item.name}
-                            </MenuItem>
-                  )}
+                {accessibleCompanies.map((item) => (
+                  <MenuItem
+                    key={item.id}
+                    disabled={!item.can_switch || item.id === company?.id}
+                    onClick={() => handleBranchItemClick(item)}
+                  >
+                    {item.name ?? "شرکت بدون نام"}
+                    {!item.can_switch && " (غیرفعال)"}
+                  </MenuItem>
+                ))}
               </Menu>
             </Box>
           )
-        }
+        )}
       </Box>
       <Divider className="w-full! bg-primary!" />
       <MenuItem2
@@ -618,30 +655,38 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
   // ! نمایش اطلاعات کاربر
   return (
     <div>
-      <LoginAsDialog 
-        isOpen={!!selectedBranch} 
-        onClose={() => setSelectedBranch(null)} 
-        userId={selectedBranch?.id} 
-        customTrigger={async ({ userId: company_id }) => {
-            const result = await switchCompany({ company_id }).unwrap();
-            const newToken = result?.data?.token;
-
-            if (!newToken) {
-              SweetAlertToast.fire({
-                icon: "error",
-                title: "توکن کاربر دریافت نشد.",
-              });
-              return;
-            }
-
-            dispatch(loginAs({ prevToken: currentToken, token: newToken }));
-
-            localStorage.removeItem("companyUsage");
-
-            window.location.href = "/dashboard";
-        }}  
-        fullName={selectedBranch?.name}
-      />
+      <Dialog
+        open={Boolean(selectedBranch)}
+        onClose={() => {
+          if (!changeCompanyContextResult.isLoading) setSelectedBranch(null);
+        }}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>تغییر شرکت فعال</DialogTitle>
+        <DialogContent>
+          <Typography>
+            آیا می‌خواهید شرکت فعال به «
+            {selectedBranch?.name ?? "شرکت بدون نام"}» تغییر کند؟
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            color="error"
+            disabled={changeCompanyContextResult.isLoading}
+            onClick={() => setSelectedBranch(null)}
+          >
+            لغو
+          </Button>
+          <Button
+            variant="contained"
+            loading={changeCompanyContextResult.isLoading}
+            onClick={handleSwitchCompany}
+          >
+            تغییر شرکت
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Box sx={{ display: "flex", width: "100%" }}>
         <AppBar
           position="fixed"
@@ -679,8 +724,15 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
                   color="primary"
                   size="small"
                   startIcon={<TruckFast size="16" />}
-                  onClick={() => navigate("/dashboard/do-technical-visit-freighter")}
-                  sx={{ fontSize: "0.7rem", py: 0.5, px: 1, whiteSpace: "nowrap" }}
+                  onClick={() =>
+                    navigate("/dashboard/do-technical-visit-freighter")
+                  }
+                  sx={{
+                    fontSize: "0.7rem",
+                    py: 0.5,
+                    px: 1,
+                    whiteSpace: "nowrap",
+                  }}
                 >
                   بازدید فنی باری
                 </Button>
@@ -691,8 +743,15 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
                   color="primary"
                   size="small"
                   startIcon={<Bus size="16" />}
-                  onClick={() => navigate("/dashboard/do-technical-visit-passenger")}
-                  sx={{ fontSize: "0.7rem", py: 0.5, px: 1, whiteSpace: "nowrap" }}
+                  onClick={() =>
+                    navigate("/dashboard/do-technical-visit-passenger")
+                  }
+                  sx={{
+                    fontSize: "0.7rem",
+                    py: 0.5,
+                    px: 1,
+                    whiteSpace: "nowrap",
+                  }}
                 >
                   بازدید فنی مسافری
                 </Button>
@@ -747,56 +806,6 @@ function ResponsiveDrawer({ children }: Readonly<ResponsiveDrawerProps>) {
               </IconButton>
             </div>
           </div>
-          {/* {location.pathname === "/dashboard/wallet" && (
-						<Box className="flex flex-col items-center justify-center gap-2 p-4">
-							<Box className="w-[80vw] h-[18vh] relative rounded-3xl">
-								<Box className="backdrop-blur-[10px] border-4 border-[#75f4c5] z-10 w-full h-full rounded-3xl"></Box>
-								<Box className="bg-white absolute top-0 right-0 border-4 border-[#75f4c5] -z-20 w-full h-full rounded-3xl"></Box>
-								<Box className="w-20 h-20 bg-primary-dark rounded-full absolute -top-4 -right-4 -z-10"></Box>
-								<Box className="w-12 h-12 bg-primary-dark rounded-full absolute bottom-5 -left-4 -z-10"></Box>
-								<Box className="flex flex-col w-full h-full absolute top-0 right-0 z-30 gap-4 items-start p-6">
-									<Box className="flex flex-row items-center">
-										<Typography className="font-semibold tracking-tight">موجودی کیف پول</Typography>
-										<Box className="rounded-3xl w-16 h-5 bg-[linear-gradient(50deg,#00eb93_30%,transparent_70%)]"></Box>
-									</Box>
-									<Box className="flex flex-row items-center gap-2 self-center">
-										<Typography className="text-3xl font-bold">{makePriceHumanReadable(ToPersianNumber("36459205"))}</Typography>
-										<Typography className="font-semibold">تومان</Typography>
-									</Box>
-									<Box className="flex flex-row gap-2 items-center self-end">
-										<Typography className="font-['Yekan Bakh FaNum'] font-bold text-[0.75rem]">درخواست تسویه حساب</Typography>
-										<FaArrowLeftLong />
-									</Box>
-								</Box>
-								<svg
-									width="100"
-									height="100"
-									viewBox="0 0 100 100"
-									xmlns="http://www.w3.org/2000/svg"
-									className="absolute right-1 bottom-1 rotate-30"
-								>
-									<path
-										d="M -11 103 Q 15 97 15 81 Q 21 41 108 45"
-										fill="none"
-										stroke="#e0e0e0"
-										stroke-width="1"
-									/>
-									<path
-										d="M 11 102 Q 26 91 27 85 Q 32 54 105 57"
-										fill="none"
-										stroke="#e0e0e0"
-										stroke-width="1"
-									/>
-									<path
-										d="M 30 100 Q 44 60 106 70"
-										fill="none"
-										stroke="#e0e0e0"
-										stroke-width="1"
-									/>
-								</svg>
-							</Box>
-						</Box>
-					)} */}
           {(location.pathname.startsWith(
             "/dashboard/do-technical-visit/checklist/",
           ) ||

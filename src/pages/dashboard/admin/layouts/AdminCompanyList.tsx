@@ -3,23 +3,42 @@ import SaferGrid from "../../../../components/shared/DataGrid/SaferGrid";
 import LoginAsDialog from "../../../../components/shared/dialogs/LoginAsDialog/LoginAsDialog";
 import SaferFilters from "../../../../components/shared/Filters/SaferFilters";
 import SweetAlertToast from "../../../../components/shared/Functions/SweetAlertToast";
-import { useAppSelector } from "../../../../Stores/hooks";
 import { API_URL } from "../../../../Stores/api-urls";
+import { useAppSelector } from "../../../../Stores/hooks";
 import { RoleType } from "../../../../types/RoleType";
-import useIsPhone from "../../../../utilities/custom-hooks/use-is-phone";
 import buildQueryParams from "../../../../utilities/build-query-params";
+import useIsPhone from "../../../../utilities/custom-hooks/use-is-phone";
 import { GetShamsiDateTime } from "../../../../utilities/DateTime";
 import downloadExcelFile from "../../../../utilities/download-excel";
-import {
-  useChangeCompanyStatusMutation,
-  useGetAllCompaniesQuery,
-  useGetInfiniteAllCompaniesInfiniteQuery,
-} from "../api/admin-company.api";
+import { useChangeCompanyStatusMutation, useGetAllCompaniesQuery, useGetInfiniteAllCompaniesInfiniteQuery } from "../api/admin-company.api";
 import CompanyListProps from "../interfaces/company-list-props.interface";
-import { Button, CircularProgress, IconButton, Switch } from "@mui/material";
+import { Button, CircularProgress, Fab, IconButton, Switch } from "@mui/material";
 import { GridColDef } from "@mui/x-data-grid";
 import { Add, Buildings, Edit, Login } from "iconsax-reactjs";
 import { FC, useCallback, useEffect, useState } from "react";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const AdminCompanyList: FC<CompanyListProps> = ({
   onAddCompany,
@@ -292,6 +311,9 @@ const AdminCompanyList: FC<CompanyListProps> = ({
         >
           افزودن شرکت
         </Button>
+        <Fab className="lg:hidden fixed bottom-8 right-8 bg-green-500" onClick={onAddCompany}>
+          <Add size="32" className="text-white" />
+        </Fab>
       </div>
       <SaferFilters
         mode="SEARCH_PARAMS"
@@ -332,7 +354,9 @@ const AdminCompanyList: FC<CompanyListProps> = ({
           <ACompaniesCard
             data={data}
             isDialog={false}
-            onLoginAs={(userId, fullName) => setLoginAsTarget({ userId, fullName })}
+            onLoginAs={(userId, fullName) =>
+              setLoginAsTarget({ userId, fullName })
+            }
           />
         )}
         filterSetInUrl

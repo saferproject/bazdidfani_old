@@ -9,7 +9,7 @@ export interface ProfileDataType {
   old_password: string;
   password: string;
   password_confirmation: string;
-  city_id: any;
+  city_code: any;
   birthdate: Date | null;
   telephone: string;
   citySearch: string;
@@ -29,7 +29,7 @@ export const EmptyProfileData: ProfileDataType = {
   old_password: "",
   password: "",
   password_confirmation: "",
-  city_id: "",
+  city_code: "",
   birthdate: null,
   telephone: "",
   citySearch: "",
