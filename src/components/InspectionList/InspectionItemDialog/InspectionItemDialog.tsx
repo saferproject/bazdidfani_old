@@ -2,6 +2,7 @@ import { InspectionModel } from "../../../database/models/inspection.model";
 import { useAppDispatch, useAppSelector } from "../../../Stores/hooks";
 import { deactivateExpressInspection } from "../../../Stores/slices/express-inspection.slice";
 import SweetAlertToast from "../../shared/Functions/SweetAlertToast";
+import { CameraOverlay } from "../../shared/Camera/Camera";
 import ImageComponent from "../../shared/Image/Image";
 import InspectionItem from "../interfaces/inspection-item.interface";
 import InspectionItemDialogProps from "./interfaces/inspection-item-dailog-props.interface";
@@ -197,6 +198,7 @@ const InspectionItemDialog: FC<InspectionItemDialogProps> = ({
       return;
     }
 
+    // react-webcam captures only its video, excluding the sibling overlay.
     const capturedImage = webcamRef.current?.getScreenshot();
 
     if (!capturedImage) {
@@ -353,7 +355,11 @@ const InspectionItemDialog: FC<InspectionItemDialogProps> = ({
                           text: "دسترسی به دوربین برقرار نشد. لطفا مجوز دوربین را بررسی کنید.",
                         })
                       }
-                      className="max-h-80 w-full object-cover"
+                      className="block max-h-80 w-full object-cover"
+                    />
+                    <CameraOverlay
+                      inspectionItemCode={currentInspectionItem.code}
+                      inspectionItemName={currentInspectionItem.name}
                     />
                     <IconButton
                       type="button"

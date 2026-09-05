@@ -143,7 +143,7 @@ const AdminCompanyForm: FC<AdminCompanyFormProps> = ({ formState, formData, onSu
 			onSubmit={handleSubmit(onSubmit)}
 			className="w-full flex flex-col gap-4 lg:grid lg:grid-cols-6"
 		>
-			<Controller
+			{/* <Controller
 				name="parent"
 				control={control}
 				render={({ field }) => (
@@ -183,7 +183,7 @@ const AdminCompanyForm: FC<AdminCompanyFormProps> = ({ formState, formData, onSu
 						)}
 					/>
 				)}
-			/>
+			/> */}
 			<TextField
 				label="کد سازمانی شرکت"
 				type="tel"

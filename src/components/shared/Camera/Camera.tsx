@@ -7,11 +7,64 @@ import SweetAlertToast from "../Functions/SweetAlertToast";
 interface iprops {
   showWebcamDialog: boolean;
   setShowWebcamDialog: (state: boolean) => void;
+  inspectionItemCode?: number;
+  inspectionItemName?: string;
 }
+
+interface CameraOverlayProps {
+  inspectionItemCode?: number;
+  inspectionItemName?: string;
+}
+
+export const CameraOverlay: FC<CameraOverlayProps> = ({
+  inspectionItemCode,
+  inspectionItemName,
+}) => {
+  const isTire = inspectionItemCode === 111 || inspectionItemCode === 112;
+  const subject = isTire ? "لاستیک‌ها" : inspectionItemName;
+
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]">
+      <div className="absolute inset-x-0 top-[24%] bottom-[18%] flex justify-center">
+        <div
+          className={`relative h-full bg-white/10 ${
+            isTire
+              ? "max-w-[70%] rounded-[50%] border border-white/50"
+              : "w-4/5 rounded-2xl"
+          }`}
+          style={{
+            aspectRatio: isTire ? "0.56" : undefined,
+            boxShadow: "0 0 0 100vmax rgb(0 0 0 / 30%)",
+          }}
+          aria-hidden="true"
+        >
+          {!isTire && (
+            <>
+              <span className="absolute top-0 left-0 h-8 w-8 rounded-tl-2xl border-t-4 border-l-4 border-white" />
+              <span className="absolute top-0 right-0 h-8 w-8 rounded-tr-2xl border-t-4 border-r-4 border-white" />
+              <span className="absolute bottom-0 left-0 h-8 w-8 rounded-bl-2xl border-b-4 border-l-4 border-white" />
+              <span className="absolute right-0 bottom-0 h-8 w-8 rounded-br-2xl border-r-4 border-b-4 border-white" />
+            </>
+          )}
+        </div>
+      </div>
+      <p
+        dir="rtl"
+        className="absolute inset-x-4 top-[6%] text-center text-xs leading-relaxed font-bold text-white drop-shadow-md sm:text-sm"
+      >
+        {subject
+          ? `لطفا ${subject} را در محل مشخص شده بگیرید`
+          : "لطفا عکس را در محل مشخص شده بگیرید"}
+      </p>
+    </div>
+  );
+};
 
 const WebcamCapture: FC<iprops> = ({
   setShowWebcamDialog,
   showWebcamDialog,
+  inspectionItemCode,
+  inspectionItemName,
 }) => {
   const [imgSrc, setImgSrc] = useState<string | null>(null);
   const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
@@ -59,6 +112,7 @@ const WebcamCapture: FC<iprops> = ({
       if (context) {
         canvasRef.current.width = videoRef.current.videoWidth;
         canvasRef.current.height = videoRef.current.videoHeight;
+        // Capture only the video; the guide is a separate DOM overlay.
         context.drawImage(videoRef.current, 0, 0);
         const imageSrc = canvasRef.current.toDataURL("image/jpeg");
         setImgSrc(imageSrc);
@@ -90,12 +144,18 @@ const WebcamCapture: FC<iprops> = ({
       }}
     >
       <div className="flex flex-col items-center space-y-4">
-        <video
-          ref={videoRef}
-          autoPlay
-          playsInline
-          className="w-full max-w-md rounded-lg shadow-lg"
-        />
+        <div className="relative w-full max-w-md overflow-hidden rounded-lg shadow-lg">
+          <video
+            ref={videoRef}
+            className="block w-full"
+            autoPlay
+            playsInline
+          />
+          <CameraOverlay
+            inspectionItemCode={inspectionItemCode}
+            inspectionItemName={inspectionItemName}
+          />
+        </div>
         <canvas ref={canvasRef} className="hidden" />
         <div className="flex items-center justify-between w-full">
           <button
