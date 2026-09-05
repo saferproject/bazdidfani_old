@@ -29,11 +29,13 @@ export const CameraOverlay: FC<CameraOverlayProps> = ({
         <div
           className={`relative h-full bg-white/10 ${
             isTire
-              ? "max-w-[70%] rounded-[50%] border border-white/50"
+              ? "max-w-[70%] border border-white/50"
               : "w-4/5 rounded-2xl"
           }`}
           style={{
             aspectRatio: isTire ? "0.56" : undefined,
+            // Wider shoulders give the tire guide broad, flatter ends.
+            borderRadius: isTire ? "35% / 50%" : undefined,
             boxShadow: "0 0 0 100vmax rgb(0 0 0 / 30%)",
           }}
           aria-hidden="true"
