@@ -119,7 +119,7 @@ export default defineConfig({
   },
   plugins: [
     VitePWA({
-      registerType: "prompt",
+      registerType: "autoUpdate",
       injectRegister: "auto",
       strategies: "injectManifest",
       srcDir: "src/pwa",

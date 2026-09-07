@@ -452,6 +452,13 @@ function ResponsiveDrawer({
         title: "لوگ های سیستم",
         permission: isAdmin,
       },
+      {
+        id: "admin-webservice-clients",
+        href: "/dashboard/admin/webservice-clients",
+        image: <Key size="24" color="#000" />,
+        title: "دسترسی‌های وب‌سرویس",
+        permission: isAdmin,
+      },
     ],
     [isCompany, isTechnicalManager, isDriver, isAdmin, tmWorkType],
   );

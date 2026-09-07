@@ -7,12 +7,9 @@ cleanupOutdatedCaches();
 
 precacheAndRoute(self.__WB_MANIFEST);
 
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-});
+// Activate a newly installed build without waiting for every open tab to close.
+self.skipWaiting();
 
 self.addEventListener("activate", (event) => {
-    event.waitUntil(self.clients.claim());
+  event.waitUntil(self.clients.claim());
 });

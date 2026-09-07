@@ -12,6 +12,7 @@ const AdminLogs = lazy(() => import("../pages/dashboard/admin/AdminLogs"));
 const AdminSettings = lazy(() => import("../pages/dashboard/admin/AdminSettings"));
 const AdminTechnicalManagers = lazy(() => import("../pages/dashboard/admin/AdminTechnicalManagers"));
 const AdminUsers = lazy(() => import("../pages/dashboard/admin/AdminUsers"));
+const AdminWebserviceClients = lazy(() => import("../pages/dashboard/admin/AdminWebserviceClients"));
 const AddEditCompanyFleet = lazy(() => import("../pages/dashboard/companyFleet/AddEditCompanyFleet"));
 const CompanyFleetList = lazy(() => import("../pages/dashboard/companyFleet/CompanyFleetList"));
 const DashboardHomePage = lazy(() => import("../pages/dashboard/DashboardHomePage"));
@@ -63,6 +64,7 @@ export const routes = createRoutesFromElements(
         <Route path="admin/inspections" element={<AdminInspections />} />
         <Route path="admin/settings" element={<AdminSettings />} />
         <Route path="admin/logs" element={<AdminLogs />} />
+        <Route path="admin/webservice-clients" element={<AdminWebserviceClients />} />
         <Route
           path="do-technical-visit-freighter"
           element={<DoTechnicalVisit type={1} />}
