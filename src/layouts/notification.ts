@@ -1,12 +1,20 @@
 import { useEffect } from "react";
+import type Pusher from "pusher-js";
+import type { Channel } from "pusher-js";
+
+const CHANNEL = "users.all";
+const EVENT = "notification.sent";
 
 const useNotification = () => {
 	useEffect(() => {
-		let pusher: any;
-		let channel: any;
+		let pusher: Pusher | undefined;
+		let channel: Channel | undefined;
 		let isMounted = true;
+		const onNotification = (data: unknown) => {
+			if (isMounted) console.info("socket data: ", data);
+		};
 
-		import("pusher-js").then(({ default: Pusher }) => {
+		void import("pusher-js").then(({ default: Pusher }) => {
 			if (!isMounted) return;
 
 			pusher = new Pusher("unnbu56wlbgizfubrdeg", {
@@ -19,16 +27,18 @@ const useNotification = () => {
 				cluster: "mt1",
 			});
 
-			channel = pusher.subscribe("users.all");
-			channel.bind("notification.sent", function (data: any) {
-				console.info("socket data: ", data);
-			});
+			channel = pusher.subscribe(CHANNEL);
+			channel.bind(EVENT, onNotification);
+		}).catch((error: unknown) => {
+			pusher?.disconnect();
+			if (isMounted) console.error("Could not initialize notifications", error);
 		});
 
 		return () => {
 			isMounted = false;
-			channel?.unbind("notification.sent");
-			pusher?.unsubscribe("users.all");
+			channel?.unbind(EVENT, onNotification);
+			pusher?.unsubscribe(CHANNEL);
+			pusher?.disconnect();
 		};
 	}, []);
 

@@ -1,5 +1,4 @@
 import InspectionItem from "../../components/InspectionList/interfaces/inspection-item.interface";
-import { InspectionModel } from "../../database/models/inspection.model";
 import SelfStatementData from "../../pages/dashboard/do-technical-visit/interfaces/self-statement-data.interface";
 import { ApiWithAuth } from "../../Stores/apis/api";
 import buildQueryParams from "../../utilities/build-query-params";
@@ -153,10 +152,6 @@ export const {
         data,
       }),
       invalidatesTags: ["SelfStatement"],
-      onQueryStarted: async (_data, { queryFulfilled }) => {
-        const response = await queryFulfilled;
-        if (response) await InspectionModel.removeAllInspections();
-      },
     }),
 
     // ? استعلام راننده برای خود اظهاری

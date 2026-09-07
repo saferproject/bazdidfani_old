@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect, useCallback, FC } from "react";
+import { useState, useEffect, FC } from "react";
 import CustomDialog from "../Dialog/CustomeDialog";
 import { FaCamera } from "react-icons/fa";
 import { MdOutlineFlipCameraAndroid } from "react-icons/md";
 import SweetAlertToast from "../Functions/SweetAlertToast";
+import useCamera from "../../../utilities/custom-hooks/use-camera";
 
 interface iprops {
   showWebcamDialog: boolean;
@@ -70,69 +71,25 @@ const WebcamCapture: FC<iprops> = ({
 }) => {
   const [imgSrc, setImgSrc] = useState<string | null>(null);
   const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-
-  const startCamera = useCallback(async () => {
-    try {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
-      }
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: facingMode },
-      });
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-    } catch (error) {
-      console.error("Error accessing camera:", error);
-      SweetAlertToast.fire({
-        title: "خطا در دسترسی به دوربین",
-        icon: "error",
-        text: "لطفاً مطمئن شوید که مرورگر به دوربین دسترسی دارد.",
-      });
-    }
-  }, [facingMode]);
+  const { videoRef, capture: capturePhoto, error, isReady, stopCamera } = useCamera({
+    active: showWebcamDialog,
+    facingMode,
+  });
 
   useEffect(() => {
-    if (showWebcamDialog) {
-      startCamera();
-    }
-    return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop());
-      }
-    };
-  }, [showWebcamDialog, startCamera]);
+    if (error) SweetAlertToast.fire({ title: "خطا در دسترسی به دوربین", icon: "error", text: error });
+  }, [error]);
 
   const capture = () => {
-    if (videoRef.current && canvasRef.current) {
-      const context = canvasRef.current.getContext("2d");
-      
-      if (context) {
-        canvasRef.current.width = videoRef.current.videoWidth;
-        canvasRef.current.height = videoRef.current.videoHeight;
-        // Capture only the video; the guide is a separate DOM overlay.
-        context.drawImage(videoRef.current, 0, 0);
-        const imageSrc = canvasRef.current.toDataURL("image/jpeg");
-        setImgSrc(imageSrc);
-        SweetAlertToast.fire({
-          title: "عکس با موفقیت گرفته شد",
-          icon: "success",
-        });
-      }
+    const imageSrc = capturePhoto();
+    if (imageSrc) {
+      setImgSrc(imageSrc);
+      SweetAlertToast.fire({ title: "عکس با موفقیت گرفته شد", icon: "success" });
     }
   };
 
   const switchCamera = () => {
-    setFacingMode((prevMode) => {
-      const newMode = prevMode === "user" ? "environment" : "user";
-      // فراخوانی startCamera بعد از تغییر state
-      setTimeout(() => startCamera(), 0);
-      return newMode;
-    });
+    setFacingMode((prevMode) => prevMode === "user" ? "environment" : "user");
   };
 
   return (
@@ -142,6 +99,8 @@ const WebcamCapture: FC<iprops> = ({
       title="گرفتن تصویر"
       hasOnClose
       onClose={() => {
+        stopCamera();
+        setImgSrc(null);
         setShowWebcamDialog(false);
       }}
     >
@@ -151,6 +110,7 @@ const WebcamCapture: FC<iprops> = ({
             ref={videoRef}
             className="block w-full"
             autoPlay
+            muted
             playsInline
           />
           <CameraOverlay
@@ -158,9 +118,10 @@ const WebcamCapture: FC<iprops> = ({
             inspectionItemName={inspectionItemName}
           />
         </div>
-        <canvas ref={canvasRef} className="hidden" />
         <div className="flex items-center justify-between w-full">
           <button
+            type="button"
+            disabled={!isReady}
             onClick={capture}
             className="bg-blue-500 justify-between gap-x-1 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full transition duration-300 ease-in-out flex items-center"
           >
@@ -168,6 +129,7 @@ const WebcamCapture: FC<iprops> = ({
             <p className="text-[2vw] md:text-[1vw]">گرفتن عکس</p>
           </button>
           <button
+            type="button"
             onClick={switchCamera}
             className="bg-green-500 justify-between gap-x-1 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full transition duration-300 ease-in-out flex items-center"
           >

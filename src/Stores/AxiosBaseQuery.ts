@@ -1,7 +1,8 @@
 import SweetAlertToast from "../components/shared/Functions/SweetAlertToast";
 import { API_URL } from "./api-urls";
 import { clear } from "./slices/user";
-import type { RootState } from "./store";
+import { beginCriticalActivity } from "../utilities/critical-activity";
+import { createUnauthorizedSessionHandler } from "./utilities/unauthorized-session";
 import { BaseQueryFn } from "@reduxjs/toolkit/query/react";
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
 
@@ -9,18 +10,13 @@ const axiosInstance = axios.create({
   baseURL: API_URL + "/api/", // آدرس API را تنظیم کنید
 });
 
-const handleError = (error: AxiosError, suppressForbiddenRedirect = false) => {
+const handleUnauthorizedSession = createUnauthorizedSessionHandler();
+
+type SessionState = { user: { token: string | null } };
+
+const handleError = (error: unknown, suppressForbiddenRedirect = false) => {
   if (axios.isAxiosError(error)) {
-    if (error.response?.status === 401) {
-      SweetAlertToast.fire({
-        title: "خطا در احراز هویت",
-        text: "لطفاً دوباره وارد حساب کاربری خود شوید.",
-        icon: "error",
-      });
-      setTimeout(() => {
-        window.location.href = "/auth";
-      }, 3000);
-    } else if (error.response?.status === 500)
+    if (error.response?.status === 500)
       SweetAlertToast.fire({
         title: "خطا در سامانه",
         text: "در سرور مشکلی ایجاد شده است ، لطفا به پشتیبانی اطلاع دهید.",
@@ -96,11 +92,16 @@ const AxiosBaseQuery =
       headers,
       suppressForbiddenRedirect = false,
     },
-    { dispatch, getState },
+    { dispatch, getState, signal },
   ) => {
+    const requestToken = (getState() as SessionState).user.token;
+    const releaseActivity = ["POST", "PUT", "PATCH", "DELETE"].includes(method.toUpperCase())
+      ? beginCriticalActivity()
+      : undefined;
+
     try {
       // دریافت مقدار توکن از Store
-      const state = getState() as RootState;
+      const state = getState() as SessionState;
       const token = state.user.token; // مسیر ذخیره توکن در Store
 
       // اضافه کردن توکن به هدر در صورت وجود
@@ -111,20 +112,45 @@ const AxiosBaseQuery =
         method,
         data,
         params,
+        signal,
         headers: hasAuth ? { ...authHeaders, ...headers } : headers, // ترکیب هدرها
       });
 
       return { data: result.data };
-    } catch (axiosError) {
-      const err = axiosError as AxiosError;
-      if (err.response?.status === 401) dispatch(clear());
-      handleError(err, suppressForbiddenRedirect);
+    } catch (error) {
+      const err = error as AxiosError;
+      const cancelled = signal.aborted || axios.isCancel(error) ||
+        (axios.isAxiosError(error) && error.code === "ERR_CANCELED");
+
+      if (!cancelled) {
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          handleUnauthorizedSession({
+            store: getState,
+            requestToken,
+            getToken: () => (getState() as SessionState).user.token,
+            clearSession: () => { dispatch(clear()); },
+            notify: () => { SweetAlertToast.fire({
+        title: "خطا در احراز هویت",
+        text: "لطفاً دوباره وارد حساب کاربری خود شوید.",
+        icon: "error",
+      }); },
+            redirect: () => {
+              window.location.href = url === "verify_token"
+                ? `/auth?next=${window.location.pathname}`
+                : "/auth";
+            },
+          });
+        } else handleError(error, suppressForbiddenRedirect);
+      }
+
       return {
         error: {
-          status: err.response?.status,
-          data: err.response?.data || err.message,
+          status: err?.response?.status,
+          data: err?.response?.data || (error instanceof Error ? error.message : String(error)),
         },
       };
+    } finally {
+      releaseActivity?.();
     }
   };
 

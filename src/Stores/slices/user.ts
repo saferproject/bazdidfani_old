@@ -1,6 +1,12 @@
 import CompanyUsage from "../../pages/dashboard/admin/enums/company-usage.enum";
 import { ActiveCompany } from "../../types/CompanyContext";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {
+  readLocalStorage,
+  readLocalStorageJson,
+  removeLocalStorage,
+  writeLocalStorage,
+} from "../utilities/local-storage";
 
 export interface IRole {
   name: string;
@@ -58,63 +64,71 @@ interface UserState {
 }
 
 // مقدار اولیه
-const initialState: UserState = {
-  personal: localStorage.getItem("personal")
-    ? JSON.parse(localStorage.getItem("personal")!)
-    : null,
-  profileImage: localStorage.getItem("profileImage"),
-  roles: localStorage.getItem("roles")
-    ? JSON.parse(localStorage.getItem("roles")!)
-    : [],
-  token: localStorage.getItem("token"),
-  prevToken: localStorage.getItem("prev-token"),
-  otp: localStorage.getItem("otp"),
-  step: localStorage.getItem("step")
-    ? (+localStorage.getItem("step")! as IStep)
-    : null,
-  OTPSent: localStorage.getItem("OTPSent"),
-  phone: localStorage.getItem("phone"),
-  userID: localStorage.getItem("userID"),
-  activeMenuId: localStorage.getItem("activeMenuId"),
-  userCompanyPersonal: localStorage.getItem("userCompanyPersonal")
-    ? JSON.parse(localStorage.getItem("userCompanyPersonal"))
-    : null,
-  userCompanyRoles: localStorage.getItem("userCompanyRoles")
-    ? JSON.parse(localStorage.getItem("userCompanyRoles"))
-    : [],
-  companyUsage: localStorage.getItem("companyUsage")
-    ? (Number(localStorage.getItem("companyUsage")) as CompanyUsage)
-    : null,
-  twoAuthentication: localStorage.getItem("twoAuthentication") === "true",
+const SESSION_STORAGE_KEYS = [
+  "personal", "profileImage", "roles", "token", "prev-token", "otp", "step",
+  "OTPSent", "phone", "userID", "activeMenuId", "userCompanyPersonal",
+  "userCompanyRoles", "companyUsage", "twoAuthentication",
+] as const;
+
+const isRecord = (value: unknown): boolean =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const readStep = (): IStep | null => {
+  const step = readLocalStorage("step");
+  return step === "0" || step === "1" || step === "2" ? Number(step) as IStep : null;
+};
+
+const readCompanyUsage = (): CompanyUsage | null => {
+  const value = readLocalStorage("companyUsage");
+  return value === "1" || value === "2" || value === "3" ? Number(value) as CompanyUsage : null;
+};
+
+// Lazy hydration avoids browser access during imports and tolerates damaged data.
+const createInitialState = (): UserState => ({
+  personal: readLocalStorageJson<IPersonal | null>("personal", null, isRecord),
+  profileImage: readLocalStorage("profileImage"),
+  roles: readLocalStorageJson<IRole[]>("roles", [], Array.isArray),
+  token: readLocalStorage("token"),
+  prevToken: readLocalStorage("prev-token"),
+  otp: readLocalStorage("otp"),
+  step: readStep(),
+  OTPSent: readLocalStorage("OTPSent"),
+  phone: readLocalStorage("phone"),
+  userID: readLocalStorage("userID"),
+  activeMenuId: readLocalStorage("activeMenuId"),
+  userCompanyPersonal: readLocalStorageJson<IPersonal | null>("userCompanyPersonal", null, isRecord),
+  userCompanyRoles: readLocalStorageJson<IRole[]>("userCompanyRoles", [], Array.isArray),
+  companyUsage: readCompanyUsage(),
+  twoAuthentication: readLocalStorage("twoAuthentication") === "true",
   newTechnicalManagerData: {},
   company: null,
-};
+});
 
 export const userSlice = createSlice({
   name: "user",
-  initialState,
+  initialState: createInitialState,
   reducers: {
     setPersonalData: (state, action: PayloadAction<IPersonal>) => {
-      localStorage.setItem("personal", JSON.stringify(action.payload));
+      writeLocalStorage("personal", JSON.stringify(action.payload));
       state.personal = action.payload;
     },
     setProfileImage: (state, action: PayloadAction<string>) => {
       state.profileImage = action.payload;
     },
     setRoles: (state, action: PayloadAction<IRole[]>) => {
-      localStorage.setItem("roles", JSON.stringify(action.payload));
+      writeLocalStorage("roles", JSON.stringify(action.payload));
       state.roles = action.payload;
     },
     setToken: (state, action: PayloadAction<string>) => {
-      localStorage.setItem("token", action.payload);
+      writeLocalStorage("token", action.payload);
       state.token = action.payload;
     },
     setOTP: (state, action: PayloadAction<string>) => {
-      localStorage.setItem("otp", action.payload);
+      writeLocalStorage("otp", action.payload);
       state.otp = action.payload;
     },
     removeToken: (state) => {
-      localStorage.removeItem("token");
+      removeLocalStorage("token");
       state.token = null;
     },
     // ? ورود به‌جای کاربر دیگر: توکن مدیر فعلی در prev-token نگه داشته می‌شود و توکن کاربر هدف جایگزین token می‌گردد
@@ -122,88 +136,88 @@ export const userSlice = createSlice({
       state,
       action: PayloadAction<{ prevToken: string; token: string }>,
     ) => {
-      localStorage.setItem("prev-token", action.payload.prevToken);
+      writeLocalStorage("prev-token", action.payload.prevToken);
       state.prevToken = action.payload.prevToken;
-      localStorage.setItem("token", action.payload.token);
+      writeLocalStorage("token", action.payload.token);
       state.token = action.payload.token;
       state.company = null;
     },
     // ? بازگشت به حساب مدیر در صورت وجود prev-token (هنگام خروج از حساب کاربری جعل‌شده)
     restorePrevToken: (state) => {
       if (state.prevToken) {
-        localStorage.setItem("token", state.prevToken);
+        writeLocalStorage("token", state.prevToken);
         state.token = state.prevToken;
-        localStorage.removeItem("prev-token");
+        removeLocalStorage("prev-token");
         state.prevToken = null;
         state.companyUsage = null;
         state.company = null;
-        localStorage.setItem("companyUsage", null);
+        removeLocalStorage("companyUsage");
       }
     },
     removeOtp: (state) => {
-      localStorage.removeItem("otp");
+      removeLocalStorage("otp");
       state.otp = null;
     },
     setStep: (state, action: PayloadAction<IStep>) => {
-      localStorage.setItem("step", String(action.payload));
+      writeLocalStorage("step", String(action.payload));
       state.step = action.payload;
     },
     removeStep: (state) => {
-      localStorage.removeItem("step");
+      removeLocalStorage("step");
       state.step = null;
     },
     setOTPSent: (state, action: PayloadAction<string>) => {
-      localStorage.setItem("OTPSent", action.payload?.toString());
+      writeLocalStorage("OTPSent", action.payload?.toString());
       state.OTPSent = action.payload;
     },
     setTwoAuthentication: (state, action: PayloadAction<boolean>) => {
-      localStorage.setItem("twoAuthentication", action.payload?.toString());
+      writeLocalStorage("twoAuthentication", action.payload?.toString());
       state.twoAuthentication = action.payload;
     },
     removeOTPSent: (state) => {
-      localStorage.removeItem("OTPSent");
+      removeLocalStorage("OTPSent");
       state.OTPSent = null;
     },
     setPhone: (state, action: PayloadAction<string>) => {
-      localStorage.setItem("phone", action.payload);
+      writeLocalStorage("phone", action.payload);
       state.phone = action.payload;
     },
     removePhone: (state) => {
-      localStorage.removeItem("phone");
+      removeLocalStorage("phone");
       state.phone = null;
     },
     setUserID: (state, action: PayloadAction<string>) => {
-      localStorage.setItem("userID", action.payload);
+      writeLocalStorage("userID", action.payload);
       state.userID = action.payload;
     },
     setActiveMenuId: (state, action: PayloadAction<string>) => {
-      localStorage.setItem("activeMenuId", action.payload);
+      writeLocalStorage("activeMenuId", action.payload);
       state.activeMenuId = action.payload;
     },
     setUserCompanyPersonal: (state, action: PayloadAction<IPersonal>) => {
       state.userCompanyPersonal = action.payload;
-      localStorage.setItem(
+      writeLocalStorage(
         "userCompanyPersonal",
         JSON.stringify(action.payload),
       );
     },
     removeUserCompanyPersonal: (state) => {
       ((state.userCompanyPersonal = null),
-        localStorage.removeItem("userCompanyPersonal"));
+        removeLocalStorage("userCompanyPersonal"));
     },
     setUserCompanyRoles: (state, action: PayloadAction<IRole[]>) => {
       state.userCompanyRoles = action.payload;
-      localStorage.setItem("userCompanyRoles", JSON.stringify(action.payload));
+      writeLocalStorage("userCompanyRoles", JSON.stringify(action.payload));
     },
     removeUserCompanyRoles: (state) => {
       ((state.userCompanyRoles = []),
-        localStorage.removeItem("userCompanyRoles"));
+        removeLocalStorage("userCompanyRoles"));
     },
     setCompanyUsage: (state, action: PayloadAction<CompanyUsage>) => {
       state.companyUsage = action.payload;
       if (action.payload != null)
-        localStorage.setItem("companyUsage", String(action.payload));
-      else localStorage.removeItem("companyUsage");
+        writeLocalStorage("companyUsage", String(action.payload));
+      else removeLocalStorage("companyUsage");
     },
     setNewTechnicalManagetData: (state, action) => {
       state.newTechnicalManagerData = action.payload;
@@ -212,7 +226,7 @@ export const userSlice = createSlice({
       state.company = action.payload;
     },
     clear: (state) => {
-      localStorage.clear(); // also removes companyUsage
+      SESSION_STORAGE_KEYS.forEach(removeLocalStorage);
       state.companyUsage = null;
       state.personal = null;
       state.profileImage = null;

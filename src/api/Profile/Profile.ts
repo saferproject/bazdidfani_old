@@ -1,4 +1,6 @@
 import { ApiWithAuth } from "../../Stores/apis/api";
+import type { RootState } from "../../Stores/store";
+import { completeOtpSession } from "../Auth/otp-session";
 import { OTPValidatePhoneType } from "../../types/OTPType";
 import { ProfileDataType } from "../../types/ProfileType";
 
@@ -28,14 +30,7 @@ export const {
         method: "POST",
         data,
       }),
-      onQueryStarted: async (_, { queryFulfilled }) => {
-        try {
-          await queryFulfilled;
-          // dispatch(clear())
-        } catch (err) {
-          throw err;
-        }
-      },
+
     }),
 
     // Endpoint برای ویرایش پروفایل
@@ -123,16 +118,10 @@ export const {
             const state = getState();
             const phone = (state as RootState)?.user?.phone;
             const res = await queryFulfilled;
-            if (forgot) {
-              const verifiedOtp = String(token);
-              localStorage.setItem("otp", verifiedOtp);
-              localStorage.setItem("token", verifiedOtp);
-              dispatch(setOTP(verifiedOtp));
-              dispatch(setToken(verifiedOtp));
-            } else {
-              dispatch(setUserID(res.data?.data?.userResponse?.id));
-              dispatch(setPhone(phone!));
-            }
+            completeOtpSession(dispatch, {
+              forgot, token, phone,
+              userId: res.data?.data?.userResponse?.id,
+            });
           } catch (err) {
             throw err;
           }

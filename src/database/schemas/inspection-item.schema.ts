@@ -1,4 +1,5 @@
 import InspectionItem from "../../components/InspectionList/interfaces/inspection-item.interface";
+import type { InspectionSubmissionCheckpoint } from "../../components/InspectionList/interfaces/inspection-submission.interface";
 
 export default interface InspectionSchema {
   inspectionId: number;
@@ -8,4 +9,5 @@ export default interface InspectionSchema {
   driverNationalCode: string | null;
   dateStarted: Date;
   items: InspectionItem[];
+  submission?: InspectionSubmissionCheckpoint;
 }

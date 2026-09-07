@@ -1,7 +1,8 @@
 import { ApiWithoutAuth } from "../../Stores/apis/api";
-import { setOTP, setPhone, setToken, setUserID } from "../../Stores/slices/user";
+import { setPhone } from "../../Stores/slices/user";
+import { completeOtpSession } from "./otp-session";
 import { OTPSendCodeRequestDataType, OTPValidatePhoneType } from "../../types/OTPType";
-import { RootState } from "../../Stores/store";
+import type { RootState } from "../../Stores/store";
 
 export const { useCheckOTPMutation, useSendOTPCodeOrSendEmailOrPhoneMutation } = ApiWithoutAuth.injectEndpoints({
 	endpoints: (builder) => ({
@@ -44,16 +45,10 @@ export const { useCheckOTPMutation, useSendOTPCodeOrSendEmailOrPhoneMutation } =
 					const state = getState();
 					const phone = (state as RootState)?.user?.phone;
 					const res = await queryFulfilled;
-					if (forgot) {
-						const verifiedOtp = String(token);
-						localStorage.setItem("otp", verifiedOtp);
-						localStorage.setItem("token", verifiedOtp);
-						dispatch(setOTP(verifiedOtp));
-						dispatch(setToken(verifiedOtp));
-					} else {
-						dispatch(setUserID(res.data?.data?.userResponse?.id));
-						dispatch(setPhone(phone!));
-					}
+                    completeOtpSession(dispatch, {
+                      forgot, token, phone,
+                      userId: res.data?.data?.userResponse?.id,
+                    });
 				} catch (err) {
 					throw err;
 				}

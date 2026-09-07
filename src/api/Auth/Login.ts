@@ -17,6 +17,8 @@ import {
   NewPasswordDataType,
 } from "../../types/AuthType";
 import getActiveCompany from "../../utilities/get-active-company";
+import type { RootState } from "../../Stores/store";
+import { getSessionProfile } from "./session-profile";
 
 type props = LoginDataOrChangePasswordType &
   NewPasswordDataType & { forgot: boolean };
@@ -70,19 +72,8 @@ export const { useLoginOrSendNewPasswordDataMutation } =
                   phone: res?.data?.data?.user?.username,
                 }),
               );
-              const profileImage = res?.data?.data?.user?.images.find(
-                (ele: any) => ele.image_type === "profile",
-              )?.url;
-              dispatch(
-                setProfileImage(
-                  profileImage ? `${STORAGE_URL}${profileImage}` : "",
-                ),
-              );
-              const rawRoles = res?.data?.data?.user?.roles;
-              const roles = rawRoles.map((item: any) => ({
-                name: item?.role?.name,
-                description: item?.role?.description,
-              }));
+              const { profileImage, roles } = getSessionProfile(res.data?.data?.user, STORAGE_URL);
+              dispatch(setProfileImage(profileImage));
               dispatch(setRoles(roles));
               dispatch(setCompanyUsage(res.data.data.company_usage));
             } else if (!forgot) {
@@ -97,24 +88,13 @@ export const { useLoginOrSendNewPasswordDataMutation } =
                   phone: res?.data?.data?.user?.username,
                 }),
               );
-              const profileImage = res?.data?.data?.user?.images.find(
-                (ele: any) => ele.image_type === "profile",
-              )?.url;
-              dispatch(
-                setProfileImage(
-                  profileImage ? `${STORAGE_URL}${profileImage}` : "",
-                ),
-              );
-              const rawRoles = res?.data?.data?.user?.roles;
-              const roles = rawRoles.map((item: any) => ({
-                name: item?.role?.name,
-                description: item?.role?.description,
-              }));
+              const { profileImage, roles } = getSessionProfile(res.data?.data?.user, STORAGE_URL);
+              dispatch(setProfileImage(profileImage));
               dispatch(setRoles(roles));
               dispatch(setCompanyUsage(res.data.data.company_usage));
             } else dispatch(clear());
-          } catch (err) {
-            throw err;
+          } catch {
+            // Request failures remain available on the mutation result.
           }
         },
       }),
@@ -128,9 +108,13 @@ export const { useVerifyTokenQuery } = ApiWithAuth.injectEndpoints({
         url: "verify_token",
         method: "GET",
       }),
-      onQueryStarted: async (_, { dispatch, queryFulfilled }) => {
+      onQueryStarted: async (_, { dispatch, queryFulfilled, getState }) => {
+        const requestToken = (getState() as RootState).user.token;
         try {
           const res = await queryFulfilled;
+          // A verification started before login-as must not hydrate the new user.
+          if ((getState() as RootState).user.token !== requestToken) return;
+          if (!res.data?.user) return;
           dispatch(setCompany(getActiveCompany(res.data)));
           // dispatch(setToken(res?.data?.token));
           dispatch(
@@ -138,32 +122,19 @@ export const { useVerifyTokenQuery } = ApiWithAuth.injectEndpoints({
               ...res?.data?.user.personal,
             }),
           );
-          const profileImage = res?.data?.user?.images.find(
-            (ele: any) => ele.image_type === "profile",
-          )?.url;
-          dispatch(
-            setProfileImage(
-              profileImage ? `${STORAGE_URL}${profileImage}` : "",
-            ),
-          );
-          const rawRoles = res?.data?.user?.roles;
-          const roles = rawRoles.map((item: any) => ({
-            name: item?.role?.name,
-            description: item?.role?.description,
-          }));
+          const { profileImage, roles } = getSessionProfile(res.data.user, STORAGE_URL);
+          dispatch(setProfileImage(profileImage));
           dispatch(setRoles(roles));
           // Only update companyUsage when the server provides a concrete value.
           // TMs typically have no user_company entry, so this would be undefined —
           // leaving the value that was correctly set at login time intact.
           const freshCompanyUsage =
-            res?.data?.user?.user_company[0]?.company.company_usage;
+            res?.data?.user?.user_company?.[0]?.company?.company_usage;
           if (freshCompanyUsage !== undefined)
             dispatch(setCompanyUsage(freshCompanyUsage));
-        } catch (err) {
-          dispatch(clear());
-          const currentPath = window.location.pathname;
-          window.location.href = `/auth?next=${currentPath}`;
-          throw err;
+        } catch {
+          // The transport owns 401 expiry. Offline/5xx failures keep the session
+          // so retrying verification does not require another login.
         }
       },
     }),

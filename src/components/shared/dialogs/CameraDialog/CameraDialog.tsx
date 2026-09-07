@@ -1,282 +1,93 @@
 import { useState, useRef, useEffect, FC } from "react";
 import { ArrowRotateLeft, Camera, CloseCircle, DocumentDownload, Repeat, TickCircle } from "iconsax-reactjs";
-
-import SweetAlertToast from "../../Functions/SweetAlertToast";
-
-import SaferCameraDialogProps from "./interfaces/camera-dialog-props.interface";
-
-import CameraButton from "../../buttons/CameraButton";
 import { Badge, Dialog, DialogTitle, IconButton } from "@mui/material";
+import SweetAlertToast from "../../Functions/SweetAlertToast";
+import SaferCameraDialogProps from "./interfaces/camera-dialog-props.interface";
+import CameraButton from "../../buttons/CameraButton";
+import useCamera from "../../../../utilities/custom-hooks/use-camera";
 
 const SaferCameraDialog: FC<SaferCameraDialogProps> = ({
-	isOpen,
-	title,
-	description,
-	required,
-	fullScreen,
-	fullWidth,
-	maxWidth,
-	data,
-	onClose,
-	onCapture,
+  isOpen, title, description, required, fullScreen, fullWidth, maxWidth,
+  data, onClose, onCapture,
 }) => {
-	//#region Functions
+  const [image, setImage] = useState<string | null>(null);
+  const [deviceId, setDeviceId] = useState<string>();
+  const [switchError, setSwitchError] = useState<string | null>(null);
+  const switchGeneration = useRef(0);
+  const { videoRef, stream, error, capture, stopCamera } = useCamera({
+    active: isOpen && !image,
+    deviceId,
+  });
 
-	const checkPermissions = async () => {
-		try {
-			const result = await navigator.permissions.query({ name: "camera" as PermissionName });
+  useEffect(() => {
+    if (!isOpen) {
+      setImage(null);
+      setDeviceId(undefined);
+    }
+    return () => { switchGeneration.current += 1; };
+  }, [isOpen]);
 
-			if (result.state === "denied") {
-				setCameraError("دسترسی دوربین در مرورگر را فعال کنید.");
-				return false;
-			}
+  useEffect(() => {
+    const message = error ?? switchError;
+    if (message) SweetAlertToast.fire({ icon: "error", toast: true, text: message, timer: 3000, timerProgressBar: true });
+  }, [error, switchError]);
 
-			setPermissionState(result.state);
+  const handleClose = () => {
+    switchGeneration.current += 1;
+    stopCamera();
+    setImage(null);
+    onClose();
+  };
 
-			result.addEventListener("change", () => setPermissionState(result.state));
-			return true;
-		} catch (_error) {
-			setCameraError("دسترسی دوربین به نرم افزار داده نشده است");
-			return false;
-		}
-	};
+  const handleCapture = () => {
+    const captured = capture();
+    if (captured) {
+      switchGeneration.current += 1;
+      setImage(captured);
+    } else setSwitchError("دریافت تصویر از دوربین با خطا مواجه شد.");
+  };
 
-	const checkCameraSupport = (): Promise<boolean> => {
-		try {
-			if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-				setCameraError("این مرورگر قابلیت استفاده از دوربین دستگاه را ندارد.");
-				return Promise.resolve(true);
-			}
+  const handleRetakeImage = () => setImage(null);
 
-			return Promise.resolve(true);
-		} catch (error) {
-			setCameraError("بررسی قابلیت استفاده از دوربین با خطا مواجه شد.");
-			return Promise.reject(false);
-		}
-	};
+  const handleSwitchCameraMode = async () => {
+    if (!stream) return;
+    const request = ++switchGeneration.current;
+    setSwitchError(null);
+    try {
+      const devices = (await navigator.mediaDevices.enumerateDevices()).filter(device => device.kind === "videoinput");
+      if (request !== switchGeneration.current) return;
+      if (devices.length <= 1) {
+        setSwitchError("فقط یک دوربین موجود است.");
+        return;
+      }
+      const currentDevice = stream.getVideoTracks()[0]?.getSettings().deviceId;
+      const currentIndex = devices.findIndex(device => device.deviceId === currentDevice);
+      setDeviceId(devices[(currentIndex + 1) % devices.length].deviceId);
+    } catch {
+      if (request === switchGeneration.current) setSwitchError("تغییر دوربین با خطا مواجه شد.");
+    }
+  };
 
-	const getMediaStream = async (): Promise<boolean> => {
-		let stream: MediaStream;
+  const handleConfirm = () => {
+    if (!image) return;
+    if (!data) onCapture(image);
+    else onCapture(image, data);
+    handleClose();
+  };
 
-		try {
-			if (mediaStream) mediaStream.getVideoTracks().forEach((track) => track.stop());
-
-			stream = await navigator.mediaDevices.getUserMedia({ video: true });
-
-			if (stream) {
-				setMediaStream(stream);
-				const track = stream.getVideoTracks()[0];
-				const settings = track.getSettings();
-				setEnumeratedDevices((currentValue) => [...currentValue, settings.deviceId]); // Store current device ID
-				return true;
-			} else throw new Error();
-		} catch (error) {
-			setCameraError("مرورگر نمیتواند تصویر را از دوربین دریافت کند.");
-			return false;
-		}
-	};
-
-	const showCameraStream = () => {
-		try {
-			if (videoRef.current && mediaStream) videoRef.current.srcObject = mediaStream;
-			else throw new Error("تصویری از دوربین دریافت نمی شود.");
-		} catch (error) {
-			setCameraError(error);
-		}
-	};
-
-	const checkCameraAvailability = async (): Promise<void> => {
-		try {
-			// ? ترتیب مهم است
-			if (!(await checkCameraSupport())) return;
-			if (!(await checkPermissions())) return;
-			if (!(await getMediaStream())) return;
-		} catch (error) {
-			setCameraError("راه اندازی دوربین با خطا مواجه شد.");
-		}
-	};
-
-	const stopCamera = (): void => {
-		if (mediaStream) {
-			mediaStream.getTracks().forEach((track) => track.stop());
-
-			if (videoRef.current) videoRef.current.srcObject = null;
-
-			setMediaStream(null);
-			setCameraError(null);
-		}
-	};
-
-	const saveImage = (): void => {
-		if (image) {
-			const link = document.createElement("a");
-			link.href = image;
-			link.download = `photo-${Date.now()}.jpg`;
-			link.click();
-
-			SweetAlertToast.fire({
-				icon: "success",
-				toast: true,
-				text: "عکس با موفقیت ذخیره شد",
-				timer: 3000,
-				timerProgressBar: true,
-			});
-		}
-	};
-
-	const removeImage = (): void => {
-		setImage(null);
-	};
-
-	//#endregion
-
-	//#region Hooks
-
-	//#region Refrences
-
-	const videoRef = useRef<HTMLVideoElement>(null);
-	const canvasRef = useRef<HTMLCanvasElement>(null);
-
-	//#endregion
-
-	//#region States
-
-	const [image, setImage] = useState<string | null>(null);
-	const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
-	const [cameraError, setCameraError] = useState<string | null>(null);
-	const [permissionState, setPermissionState] = useState<PermissionState>("prompt");
-	const [enumeratedDevices, setEnumeratedDevices] = useState<Array<string>>([]);
-
-	//#endregion
-
-	//#region Effects
-
-	useEffect(() => {
-		(async () => await checkCameraAvailability())();
-	}, []);
-
-	useEffect(() => {
-		if (cameraError) {
-			SweetAlertToast.fire({
-				icon: "error",
-				toast: true,
-				text: cameraError,
-				timer: 3000,
-				timerProgressBar: true,
-			});
-
-			setTimeout(() => setCameraError(null), 3000);
-		}
-	}, [cameraError]);
-
-	useEffect(() => {
-		if (permissionState === "denied") {
-			SweetAlertToast.fire({
-				icon: "error",
-				toast: true,
-				text: "دسترسی دوربین در مرورگر را فعال کنید.",
-				timer: 5000,
-				timerProgressBar: true,
-			});
-		}
-	}, [permissionState]);
-
-	useEffect(() => {
-		if (permissionState === "granted" && cameraError === null && mediaStream && videoRef.current && canvasRef.current && !image)
-			showCameraStream();
-	}, [permissionState, cameraError, mediaStream, videoRef.current, canvasRef.current, image]);
-
-	// useEffect(() => {
-	// 	(async () => {
-	// 		await getMediaStream();
-	// 	})();
-	// }, [cameraMode]);
-
-	//#endregion
-
-	//#endregion
-
-	//#region Event Handlers
-
-	const handleRetakeImage = (): void => {
-		removeImage();
-	};
-
-	const handleCapture = (): void => {
-		if (videoRef.current && canvasRef.current) {
-			const video = videoRef.current;
-			const canvas = canvasRef.current;
-			const context = canvas.getContext("2d");
-
-			if (context) {
-				canvas.width = video.videoWidth;
-				canvas.height = video.videoHeight;
-
-				context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-				const imageData = canvas.toDataURL("image/jpeg");
-				setImage(imageData);
-			} else setCameraError("ثبت عکس با خطا مواجه شد.");
-		} else setCameraError("دریافت تصویر از دوربین با خطا مواجه شد.");
-	};
-
-	const handleSwitchCameraMode = async (): Promise<void> => {
-		try {
-			if (!mediaStream) {
-				setCameraError("ابتدا دوربین را راه‌اندازی کنید.");
-				return;
-			}
-
-			const devices = await navigator.mediaDevices.enumerateDevices();
-			const videoDevices = devices.filter((device) => device.kind === "videoinput");
-
-			if (videoDevices.length <= 1) {
-				setCameraError("فقط یک دوربین موجود است.");
-				setTimeout(() => setCameraError(null), 3000);
-				return;
-			}
-
-			// Find the target device by label (excluding current device)
-			let targetDevice = videoDevices.find((device) => !enumeratedDevices.includes(device.deviceId));
-
-			if (!targetDevice) {
-				targetDevice = videoDevices[0];
-				setEnumeratedDevices([targetDevice.deviceId]);
-			} else setEnumeratedDevices((currentValue) => [...currentValue, targetDevice.deviceId]); // Update current device ID
-
-			// Stop current stream
-			mediaStream.getVideoTracks().forEach((track) => track.stop());
-
-			// Get new stream using deviceId
-			const newStream = await navigator.mediaDevices.getUserMedia({
-				video: { deviceId: { exact: targetDevice.deviceId } },
-			});
-
-			setMediaStream(newStream);
-		} catch (error) {
-			setCameraError("تغییر دوربین با خطا مواجه شد.");
-		}
-	};
-
-	const handleConfirm = (): void => {
-		if (!data) onCapture(image);
-		else onCapture(image, data);
-
-		stopCamera();
-		setImage(null);
-		onClose();
-	};
-
-	const handleSaveImage = (): void => {
-		saveImage();
-	};
-
-	//#endregion
+  const handleSaveImage = () => {
+    if (!image) return;
+    const link = document.createElement("a");
+    link.href = image;
+    link.download = `photo-${Date.now()}.jpg`;
+    link.click();
+    SweetAlertToast.fire({ icon: "success", toast: true, text: "عکس با موفقیت ذخیره شد", timer: 3000, timerProgressBar: true });
+  };
 
 	return (
 		<Dialog
 			open={isOpen}
-			onClose={onClose}
+			onClose={handleClose}
 			maxWidth={maxWidth}
 			fullWidth={fullWidth}
 			fullScreen={fullScreen}
@@ -291,7 +102,7 @@ const SaferCameraDialog: FC<SaferCameraDialogProps> = ({
 							>
 								<DialogTitle className="shrink text-xl font-semibold font-Yekan-Bakh">{title}</DialogTitle>
 							</Badge>
-							<IconButton onClick={onClose}>
+							<IconButton onClick={handleClose}>
 								<CloseCircle
 									size="24"
 									className="text-red-500"
@@ -301,7 +112,7 @@ const SaferCameraDialog: FC<SaferCameraDialogProps> = ({
 						{description && <p className="text-gray-500">{description}</p>}
 					</header>
 				) : (
-					<IconButton onClick={onClose} className="!absolute top-2 left-2 z-10 !bg-white">
+					<IconButton onClick={handleClose} className="!absolute top-2 left-2 z-10 !bg-white">
 						<CloseCircle size="24" className="text-red-500" />
 					</IconButton>
 				)}
@@ -338,11 +149,9 @@ const SaferCameraDialog: FC<SaferCameraDialogProps> = ({
 								ref={videoRef}
 								className="aspect-9/16 rounded-lg"
 								autoPlay
+                muted
+                playsInline
 							/>
-							<canvas
-								ref={canvasRef}
-								className="hidden"
-							></canvas>
 							<CameraButton
 								onClick={handleCapture}
 								classes="w-14 h-14 bottom-2 -translate-x-1/2"
