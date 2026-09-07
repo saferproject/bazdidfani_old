@@ -1,14 +1,24 @@
+import {
+  setOTP,
+  setPhone,
+  setToken,
+  setUserID,
+} from "../../Stores/slices/user";
 import type { UnknownAction } from "@reduxjs/toolkit";
-import { setOTP, setPhone, setToken, setUserID } from "../../Stores/slices/user";
 
 /** Keep registration and company-user verification on the same storage path. */
 export function completeOtpSession(
   dispatch: (action: UnknownAction) => unknown,
-  { forgot, token, phone, userId }: {
+  {
+    forgot,
+    token,
+    phone,
+    userId,
+  }: {
     forgot: boolean;
     token: string;
     phone: string | null;
-    userId: string;
+    userId?: string | number;
   },
 ): void {
   if (forgot) {
@@ -17,7 +27,7 @@ export function completeOtpSession(
     dispatch(setOTP(verifiedOtp));
     dispatch(setToken(verifiedOtp));
   } else {
-    dispatch(setUserID(userId));
-    dispatch(setPhone(phone));
+    if (userId != null) dispatch(setUserID(String(userId)));
+    if (phone) dispatch(setPhone(phone));
   }
 }

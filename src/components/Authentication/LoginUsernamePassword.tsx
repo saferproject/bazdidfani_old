@@ -1,56 +1,29 @@
 import { useLoginOrSendNewPasswordDataMutation } from "../../api/Auth/Login";
+import {
+  COMPLETE_PROFILE_PATH,
+  isProfileIncompleteResponse,
+} from "../../api/Auth/profile-completion";
 import LockIcon from "../../assets/images/LockIcon.png";
 import { useAppDispatch, useAppSelector } from "../../Stores/hooks";
-import { clear, removeOtp, removeOTPSent, removePhone, removeStep, removeToken } from "../../Stores/slices/user";
+import {
+  clear,
+  removeOtp,
+  removeOTPSent,
+  removePhone,
+  removeStep,
+  removeToken,
+} from "../../Stores/slices/user";
 import { LoginDataOrChangePasswordType, PropsType } from "../../types/AuthType";
 import { ToEnglishNumber } from "../shared/Functions/ChangeNumLang";
 import SweetAlertToast from "../shared/Functions/SweetAlertToast";
-import { Button } from "@mui/material";
 import TextField from "../shared/Inputs/SaferTextField";
+import { Button } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FaChevronLeft } from "react-icons/fa";
 import { FiUser } from "react-icons/fi";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 const hasTwoAuthentication = (value: unknown) =>
   value === true || value === 1 || value === "1" || value === "true";
@@ -99,6 +72,10 @@ export default function LoginUsernamePassword(props: PropsType) {
         dispatch(removeStep());
         dispatch(removeToken());
         window.location.href = "/auth";
+      } else if (
+        isProfileIncompleteResponse(loginOrSendNewPasswordDataResult.data)
+      ) {
+        navigate(COMPLETE_PROFILE_PATH);
       } else if (searchParams.get("next") && searchParams.get("next") !== "")
         navigate(searchParams.get("next"));
       else navigate("/dashboard");
@@ -243,9 +220,9 @@ export default function LoginUsernamePassword(props: PropsType) {
                     if (!forgot) {
                       if (!+ToEnglishNumber(value as string))
                         return "فرمت شماره ورودی اشتباه است";
-                      if (value?.length !== 11)
+                      if ((value?.length ?? 0) !== 11)
                         return "تعداد ارقام شماره ورودی اشتباه است";
-                    } else if (value?.length! < 4)
+                    } else if ((value?.length ?? 0) < 4)
                       return "رمز عبور حداقل باید ۴ کارکتر باشد.";
                   },
                 })}
@@ -282,7 +259,7 @@ export default function LoginUsernamePassword(props: PropsType) {
                     ? "فیلد تکرار رمز عبور الزامی است"
                     : "فیلد رمز عبور الزامی است",
                   validate: (value) => {
-                    if (value?.length! < 4) {
+                    if ((value?.length ?? 0) < 4) {
                       return "رمز عبور حداقل ۴ کارکتر باید باشد";
                     }
                     if (forgot && watch("password") !== value) {

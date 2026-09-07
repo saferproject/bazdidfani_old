@@ -3,12 +3,24 @@ import AdminTechnicalManagersList from "./layouts/AdminTechnicalManagersList";
 import AdminFormState from "./types/admin-form-states.type";
 import AdminPageStates from "./types/admin-page-states.type";
 import { FC, useState } from "react";
-
+import { useSearchParams } from "react-router-dom";
 
 const AdminTechnicalManagers: FC = () => {
-  const [pageState, setPageState] = useState<AdminPageStates>("LIST");
-  const [formState, setFormState] = useState<AdminFormState | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const openCreateForm = searchParams.get("create") === "true";
+  const [pageState, setPageState] = useState<AdminPageStates>(
+    openCreateForm ? "FORM" : "LIST",
+  );
+  const [formState, setFormState] = useState<AdminFormState | null>(
+    openCreateForm ? "ADD" : null,
+  );
   const [formData, setFormData] = useState(null);
+
+  const clearCreateParam = () => {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("create");
+    setSearchParams(nextParams, { replace: true });
+  };
 
   const changePageState = (state: AdminPageStates) => {
     setPageState(state);
@@ -24,6 +36,7 @@ const AdminTechnicalManagers: FC = () => {
   };
 
   const handleCancelAddTechnicalManager = () => {
+    clearCreateParam();
     changePageState("LIST");
     changeFormState(null);
   };
@@ -40,6 +53,7 @@ const AdminTechnicalManagers: FC = () => {
   };
 
   const handleSubmitTechnicalManager = () => {
+    clearCreateParam();
     changePageState("LIST");
     changeFormState(null);
   };

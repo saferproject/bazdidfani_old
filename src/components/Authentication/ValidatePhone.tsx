@@ -2,6 +2,10 @@ import {
   useCheckOTPMutation,
   useSendOTPCodeOrSendEmailOrPhoneMutation,
 } from "../../api/Auth/OTP";
+import {
+  COMPLETE_PROFILE_PATH,
+  isProfileIncompleteResponse,
+} from "../../api/Auth/profile-completion";
 import ClockIcon from "../../assets/images/Clock.png";
 import LockIcon from "../../assets/images/LockIcon.png";
 import { useAppSelector } from "../../Stores/hooks";
@@ -36,7 +40,6 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 export default function ValidatePhone(props: ValidatePhonePropsType) {
   const { activePage, handleChangePage } = props;
   const dispatch = useDispatch();
-  const OTPSent = useAppSelector((state: RootState) => state.user.OTPSent);
   const twoAuthentication = useAppSelector(
     (state: RootState) => state.user.twoAuthentication,
   );
@@ -112,7 +115,11 @@ export default function ValidatePhone(props: ValidatePhonePropsType) {
         dispatch(removeOTPSent());
         dispatch(removeStep());
         dispatch(setTwoAuthentication(false));
-        navigate("/dashboard");
+        navigate(
+          isProfileIncompleteResponse(checkOtpresult.data)
+            ? COMPLETE_PROFILE_PATH
+            : "/dashboard",
+        );
       } else if (!forgot) {
         if (checkOtpresult.data?.data?.token)
           dispatch(setToken(checkOtpresult.data.data.token));
@@ -122,7 +129,11 @@ export default function ValidatePhone(props: ValidatePhonePropsType) {
           icon: "success",
           title: checkOtpresult.data?.message,
         });
-        navigate("/dashboard/profile?register=true");
+        navigate(
+          isProfileIncompleteResponse(checkOtpresult.data)
+            ? COMPLETE_PROFILE_PATH
+            : "/dashboard",
+        );
       } else {
         const verifiedOtp = ToEnglishNumber(watch("token") || "");
         if (verifiedOtp) {
@@ -181,9 +192,7 @@ export default function ValidatePhone(props: ValidatePhonePropsType) {
     getOTPSentTime(phone).then((sentTime) => {
       if (cancelled) return;
       if (sentTime) {
-        const remaining = Math.ceil(
-          (120_000 - (Date.now() - sentTime)) / 1000,
-        );
+        const remaining = Math.ceil((120_000 - (Date.now() - sentTime)) / 1000);
         if (remaining > 0) {
           startCountdown(remaining, phone);
         } else {

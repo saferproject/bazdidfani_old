@@ -1,7 +1,12 @@
+import {
+  COMPLETE_PROFILE_PATH,
+  isInactiveAccountResponse,
+  isProfileIncompleteResponse,
+} from "../api/Auth/profile-completion";
 import SweetAlertToast from "../components/shared/Functions/SweetAlertToast";
-import { API_URL } from "./api-urls";
-import { clear } from "./slices/user";
 import { beginCriticalActivity } from "../utilities/critical-activity";
+import { API_URL } from "./api-urls";
+import { clear, restorePrevToken } from "./slices/user";
 import { createUnauthorizedSessionHandler } from "./utilities/unauthorized-session";
 import { BaseQueryFn } from "@reduxjs/toolkit/query/react";
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
@@ -12,7 +17,9 @@ const axiosInstance = axios.create({
 
 const handleUnauthorizedSession = createUnauthorizedSessionHandler();
 
-type SessionState = { user: { token: string | null } };
+type SessionState = {
+  user: { token: string | null; prevToken: string | null };
+};
 
 const handleError = (error: unknown, suppressForbiddenRedirect = false) => {
   if (axios.isAxiosError(error)) {
@@ -95,7 +102,9 @@ const AxiosBaseQuery =
     { dispatch, getState, signal },
   ) => {
     const requestToken = (getState() as SessionState).user.token;
-    const releaseActivity = ["POST", "PUT", "PATCH", "DELETE"].includes(method.toUpperCase())
+    const releaseActivity = ["POST", "PUT", "PATCH", "DELETE"].includes(
+      method.toUpperCase(),
+    )
       ? beginCriticalActivity()
       : undefined;
 
@@ -119,25 +128,69 @@ const AxiosBaseQuery =
       return { data: result.data };
     } catch (error) {
       const err = error as AxiosError;
-      const cancelled = signal.aborted || axios.isCancel(error) ||
+      const cancelled =
+        signal.aborted ||
+        axios.isCancel(error) ||
         (axios.isAxiosError(error) && error.code === "ERR_CANCELED");
 
       if (!cancelled) {
-        if (axios.isAxiosError(error) && error.response?.status === 401) {
+        const responseStatus = axios.isAxiosError(error)
+          ? error.response?.status
+          : undefined;
+        const responseData = axios.isAxiosError(error)
+          ? error.response?.data
+          : undefined;
+
+        if (hasAuth && isProfileIncompleteResponse(responseData)) {
+          if (
+            window.location.pathname !== "/dashboard/profile" ||
+            window.location.search !== "?register=true"
+          )
+            window.location.href = COMPLETE_PROFILE_PATH;
+        } else if (
+          hasAuth &&
+          isInactiveAccountResponse(responseStatus, responseData)
+        ) {
+          if ((getState() as SessionState).user.token === requestToken) {
+            const hasPreviousSession = Boolean(
+              (getState() as SessionState).user.prevToken,
+            );
+            SweetAlertToast.fire({
+              icon: "error",
+              text:
+                (responseData as { message?: string })?.message ||
+                "حساب کاربری شما غیرفعال است.",
+            });
+            dispatch(hasPreviousSession ? restorePrevToken() : clear());
+            setTimeout(() => {
+              window.location.href = hasPreviousSession
+                ? "/dashboard"
+                : "/auth";
+            }, 2500);
+          }
+        } else if (
+          axios.isAxiosError(error) &&
+          error.response?.status === 401
+        ) {
           handleUnauthorizedSession({
             store: getState,
             requestToken,
             getToken: () => (getState() as SessionState).user.token,
-            clearSession: () => { dispatch(clear()); },
-            notify: () => { SweetAlertToast.fire({
-        title: "خطا در احراز هویت",
-        text: "لطفاً دوباره وارد حساب کاربری خود شوید.",
-        icon: "error",
-      }); },
+            clearSession: () => {
+              dispatch(clear());
+            },
+            notify: () => {
+              SweetAlertToast.fire({
+                title: "خطا در احراز هویت",
+                text: "لطفاً دوباره وارد حساب کاربری خود شوید.",
+                icon: "error",
+              });
+            },
             redirect: () => {
-              window.location.href = url === "verify_token"
-                ? `/auth?next=${window.location.pathname}`
-                : "/auth";
+              window.location.href =
+                url === "verify_token"
+                  ? `/auth?next=${window.location.pathname}`
+                  : "/auth";
             },
           });
         } else handleError(error, suppressForbiddenRedirect);
@@ -146,7 +199,9 @@ const AxiosBaseQuery =
       return {
         error: {
           status: err?.response?.status,
-          data: err?.response?.data || (error instanceof Error ? error.message : String(error)),
+          data:
+            err?.response?.data ||
+            (error instanceof Error ? error.message : String(error)),
         },
       };
     } finally {

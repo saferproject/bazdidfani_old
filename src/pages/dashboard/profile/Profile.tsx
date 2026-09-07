@@ -1,78 +1,45 @@
 import { useGetCitiesQuery } from "../../../api/Categories/Location";
-import { useChangePasswordMutation, useEditProfileMutation, useGetProfileQuery, useProfileApiMutation } from "../../../api/Profile/Profile";
+import {
+  useChangePasswordMutation,
+  useEditProfileMutation,
+  useGetProfileQuery,
+  useProfileApiMutation,
+} from "../../../api/Profile/Profile";
 import DatePickerComponent from "../../../components/shared/DatePicker/DatePickerComponent";
 import SweetAlertToast from "../../../components/shared/Functions/SweetAlertToast";
 import ImageComponent from "../../../components/shared/Image/Image";
 import CustomeAutoComplete from "../../../components/shared/Inputs/CustomeAutoComplete";
+import TextField from "../../../components/shared/Inputs/SaferTextField";
 import SkeletonCondition from "../../../components/shared/SkeletonCondition";
 import { STORAGE_URL } from "../../../Stores/api-urls";
 import { useAppDispatch, useAppSelector } from "../../../Stores/hooks";
-import { clear, setPersonalData, setProfileImage, setRoles, setToken } from "../../../Stores/slices/user";
+import {
+  clear,
+  loginAs,
+  setPersonalData,
+  setProfileImage,
+  setRoles,
+  setToken,
+} from "../../../Stores/slices/user";
 import { ProfileDataType } from "../../../types/ProfileType";
 import { compressImage } from "../../../utilities/compress-image";
 import imageToBase64 from "../../../utilities/imageToBase64";
 import EditNumber from "./EditNumberDialog";
-import { Button,
-  Divider } from "@mui/material";
-import TextField from "../../../components/shared/Inputs/SaferTextField";
-import { AddCircle, Edit, ProfileCircle, Slash, TickSquare, Trash, User } from "iconsax-reactjs";
+import { Button, Divider } from "@mui/material";
+import {
+  AddCircle,
+  Edit,
+  ProfileCircle,
+  Slash,
+  TickSquare,
+  Trash,
+  User,
+} from "iconsax-reactjs";
 import React, { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { FaArrowLeftLong } from "react-icons/fa6";
 import { RiUploadCloudFill } from "react-icons/ri";
 import { useNavigate, useSearchParams } from "react-router-dom";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 const Profile: FC<{ isNewUser?: boolean }> = ({ isNewUser }) => {
   const [searchParams] = useSearchParams();
@@ -82,6 +49,7 @@ const Profile: FC<{ isNewUser?: boolean }> = ({ isNewUser }) => {
   const roles = useAppSelector((state) => state.user.roles);
   const userID = useAppSelector((state) => state.user.userID);
   const profileImage = useAppSelector((state) => state.user.profileImage);
+  const prevToken = useAppSelector((state) => state.user.prevToken);
 
   const [changeProfileInfo, setChangeProfileInfo] = useState(false);
   const [user] = useState<any>(undefined);
@@ -151,7 +119,9 @@ const Profile: FC<{ isNewUser?: boolean }> = ({ isNewUser }) => {
         title: `${profileResult.data.message}`,
       });
       dispatch(clear());
-      dispatch(setToken(profileResult.data.data.token));
+      if (prevToken)
+        dispatch(loginAs({ prevToken, token: profileResult.data.data.token }));
+      else dispatch(setToken(profileResult.data.data.token));
       const roles = [];
       roles.push(profileResult.data.data.roles[0].role);
       dispatch(setRoles(roles));
@@ -159,7 +129,7 @@ const Profile: FC<{ isNewUser?: boolean }> = ({ isNewUser }) => {
       searchParams.delete("register");
       navigate("/dashboard");
     }
-  }, [profileResult, getProfileDataApi, searchParams]);
+  }, [profileResult, getProfileDataApi, searchParams, prevToken]);
 
   const [changePasswordFn, changePasswordResult] = useChangePasswordMutation();
 
@@ -262,10 +232,7 @@ const Profile: FC<{ isNewUser?: boolean }> = ({ isNewUser }) => {
             continue;
           formData.append(key, watch()[key]);
         }
-        if (touchedFields?.image) {
-        } else if (!touchedFields?.image) {
-          formData.delete("image");
-        }
+        if (!touchedFields?.image) formData.delete("image");
         if (profileImageInput.current?.files?.length)
           formData.append(
             "image",

@@ -1,8 +1,8 @@
 import { ApiWithAuth } from "../../Stores/apis/api";
 import type { RootState } from "../../Stores/store";
-import { completeOtpSession } from "../Auth/otp-session";
 import { OTPValidatePhoneType } from "../../types/OTPType";
 import { ProfileDataType } from "../../types/ProfileType";
+import { completeOtpSession } from "../Auth/otp-session";
 
 export const {
   useGetProfileQuery,
@@ -13,7 +13,7 @@ export const {
   useAllPermissionsQuery,
   useProfileApiMutation,
   useEditPhoneNumberMutation,
-  useCheckOTPForCompanyUserMutation
+  useCheckOTPForCompanyUserMutation,
 } = ApiWithAuth.injectEndpoints({
   endpoints: (builder) => ({
     // Endpoint برای دریافت پروفایل
@@ -30,7 +30,6 @@ export const {
         method: "POST",
         data,
       }),
-
     }),
 
     // Endpoint برای ویرایش پروفایل
@@ -103,30 +102,34 @@ export const {
       providesTags: ["Permissions"], // کش کردن داده‌ها
     }),
 
-    checkOTPForCompanyUser: builder.mutation<any, OTPValidatePhoneType & { forgot: boolean }>(
-      {
-        query: ({ forgot, ...data }) => ({
-          url: "auth/otp-check-add-user",
-          method: "POST",
-          data,
-        }),
-        onQueryStarted: async (
-          { forgot, token },
-          { queryFulfilled, dispatch, getState },
-        ) => {
-          try {
-            const state = getState();
-            const phone = (state as RootState)?.user?.phone;
-            const res = await queryFulfilled;
-            completeOtpSession(dispatch, {
-              forgot, token, phone,
-              userId: res.data?.data?.userResponse?.id,
-            });
-          } catch (err) {
-            throw err;
-          }
-        },
+    checkOTPForCompanyUser: builder.mutation<
+      any,
+      OTPValidatePhoneType & { forgot: boolean }
+    >({
+      query: ({ forgot, ...data }) => ({
+        url: "auth/otp-check-add-user",
+        method: "POST",
+        data,
+      }),
+      onQueryStarted: async (
+        { forgot, token },
+        { queryFulfilled, dispatch, getState },
+      ) => {
+        try {
+          const state = getState();
+          const phone = (state as RootState)?.user?.phone;
+          const res = await queryFulfilled;
+          completeOtpSession(dispatch, {
+            forgot,
+            token,
+            phone,
+            userId:
+              res.data?.data?.userResponse?.id ?? res.data?.data?.user?.id,
+          });
+        } catch (err) {
+          throw err;
+        }
       },
-    ),
+    }),
   }),
 });

@@ -11,13 +11,14 @@ import {
   setRoles,
   setToken,
   setTwoAuthentication,
+  setUserID,
 } from "../../Stores/slices/user";
+import type { RootState } from "../../Stores/store";
 import {
   LoginDataOrChangePasswordType,
   NewPasswordDataType,
 } from "../../types/AuthType";
 import getActiveCompany from "../../utilities/get-active-company";
-import type { RootState } from "../../Stores/store";
 import { getSessionProfile } from "./session-profile";
 
 type props = LoginDataOrChangePasswordType &
@@ -64,6 +65,7 @@ export const { useLoginOrSendNewPasswordDataMutation } =
               dispatch(setCompany(getActiveCompany(res.data)));
               dispatch(setOTPSent(new Date().toString()));
               dispatch(setPhone(res.data.data.user.username));
+              dispatch(setUserID(String(res.data.data.user.id)));
               dispatch(setTwoAuthentication(true));
               dispatch(
                 setPersonalData({
@@ -72,7 +74,10 @@ export const { useLoginOrSendNewPasswordDataMutation } =
                   phone: res?.data?.data?.user?.username,
                 }),
               );
-              const { profileImage, roles } = getSessionProfile(res.data?.data?.user, STORAGE_URL);
+              const { profileImage, roles } = getSessionProfile(
+                res.data?.data?.user,
+                STORAGE_URL,
+              );
               dispatch(setProfileImage(profileImage));
               dispatch(setRoles(roles));
               dispatch(setCompanyUsage(res.data.data.company_usage));
@@ -81,6 +86,8 @@ export const { useLoginOrSendNewPasswordDataMutation } =
               dispatch(clear());
               dispatch(setCompany(getActiveCompany(res.data)));
               dispatch(setToken(res?.data?.data?.token));
+              dispatch(setPhone(res.data.data.user.username));
+              dispatch(setUserID(String(res.data.data.user.id)));
               dispatch(
                 setPersonalData({
                   ...res?.data?.data?.user?.personal,
@@ -88,7 +95,10 @@ export const { useLoginOrSendNewPasswordDataMutation } =
                   phone: res?.data?.data?.user?.username,
                 }),
               );
-              const { profileImage, roles } = getSessionProfile(res.data?.data?.user, STORAGE_URL);
+              const { profileImage, roles } = getSessionProfile(
+                res.data?.data?.user,
+                STORAGE_URL,
+              );
               dispatch(setProfileImage(profileImage));
               dispatch(setRoles(roles));
               dispatch(setCompanyUsage(res.data.data.company_usage));
@@ -122,7 +132,10 @@ export const { useVerifyTokenQuery } = ApiWithAuth.injectEndpoints({
               ...res?.data?.user.personal,
             }),
           );
-          const { profileImage, roles } = getSessionProfile(res.data.user, STORAGE_URL);
+          const { profileImage, roles } = getSessionProfile(
+            res.data.user,
+            STORAGE_URL,
+          );
           dispatch(setProfileImage(profileImage));
           dispatch(setRoles(roles));
           // Only update companyUsage when the server provides a concrete value.

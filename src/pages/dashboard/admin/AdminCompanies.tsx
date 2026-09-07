@@ -1,64 +1,79 @@
-import { useState } from "react";
-import AdminCompanyList from "./layouts/AdminCompanyList";
-import AdminPageStates from "./types/admin-page-states.type";
-import AdminFormState from "./types/admin-form-states.type";
 import AdminCompanyForm from "./layouts/AdminCompanyForm";
+import AdminCompanyList from "./layouts/AdminCompanyList";
+import AdminFormState from "./types/admin-form-states.type";
+import AdminPageStates from "./types/admin-page-states.type";
+import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 const AdminCompanies = () => {
-	const [pageState, setPageState] = useState<AdminPageStates>("LIST");
-	const [formState, setFormState] = useState<AdminFormState | null>(null);
-	const [formData, setFormData] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const openCreateForm = searchParams.get("create") === "true";
+  const [pageState, setPageState] = useState<AdminPageStates>(
+    openCreateForm ? "FORM" : "LIST",
+  );
+  const [formState, setFormState] = useState<AdminFormState | null>(
+    openCreateForm ? "ADD" : null,
+  );
+  const [formData, setFormData] = useState(null);
 
-	const changePageState = (state: AdminPageStates) => {
-		setPageState(state);
-	};
+  const clearCreateParam = () => {
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("create");
+    setSearchParams(nextParams, { replace: true });
+  };
 
-	const changeFormState = (state: AdminFormState | null) => {
-		setFormState(state);
-	};
+  const changePageState = (state: AdminPageStates) => {
+    setPageState(state);
+  };
 
-	const handleAddCompany = () => {
-		changePageState("FORM");
-		changeFormState("ADD");
-		setFormData(null);
-	};
+  const changeFormState = (state: AdminFormState | null) => {
+    setFormState(state);
+  };
 
-	const handleCancelAddCompany = () => {
-		changePageState("LIST");
-		changeFormState(null);
-		setFormData(null);
-	};
+  const handleAddCompany = () => {
+    changePageState("FORM");
+    changeFormState("ADD");
+    setFormData(null);
+  };
 
-	const handleEditCompany = (data) => {
-		setFormData(data);
-		changePageState("FORM");
-		changeFormState("EDIT");
-	};
+  const handleCancelAddCompany = () => {
+    clearCreateParam();
+    changePageState("LIST");
+    changeFormState(null);
+    setFormData(null);
+  };
 
-	const handleCancelEditCompany = () => {
-		changePageState("LIST");
-		changeFormState(null);
-	};
+  const handleEditCompany = (data) => {
+    setFormData(data);
+    changePageState("FORM");
+    changeFormState("EDIT");
+  };
 
-	const handleSubmitCompany = () => {
-		changePageState("LIST");
-		changeFormState(null);
-	};
+  const handleCancelEditCompany = () => {
+    changePageState("LIST");
+    changeFormState(null);
+  };
 
-	return pageState === "LIST" ? (
-		<AdminCompanyList
-			onAddCompany={handleAddCompany}
-			onEditCompany={handleEditCompany}
-		/>
-	) : (
-		<AdminCompanyForm
-			formState={formState}
-			formData={formData}
-			onSubmitCompany={handleSubmitCompany}
-			onCancelAddCompany={handleCancelAddCompany}
-			onCancelEditCompany={handleCancelEditCompany}
-		/>
-	);
+  const handleSubmitCompany = () => {
+    clearCreateParam();
+    changePageState("LIST");
+    changeFormState(null);
+  };
+
+  return pageState === "LIST" ? (
+    <AdminCompanyList
+      onAddCompany={handleAddCompany}
+      onEditCompany={handleEditCompany}
+    />
+  ) : (
+    <AdminCompanyForm
+      formState={formState}
+      formData={formData}
+      onSubmitCompany={handleSubmitCompany}
+      onCancelAddCompany={handleCancelAddCompany}
+      onCancelEditCompany={handleCancelEditCompany}
+    />
+  );
 };
 
 export default AdminCompanies;
