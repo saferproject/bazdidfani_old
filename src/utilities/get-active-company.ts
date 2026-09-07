@@ -24,7 +24,9 @@ const isCompanyAccess = (value: unknown): value is CompanyAccess =>
   (value.role === "owner" ||
     value.role === "manager" ||
     value.role === "employee") &&
-  (value.access_scope === "direct" || value.access_scope === "descendants");
+  (value.access_scope === undefined ||
+    value.access_scope === "direct" ||
+    value.access_scope === "descendants");
 
 const isAccessibleCompany = (value: unknown): value is AccessibleCompany =>
   isRecord(value) &&
@@ -42,9 +44,6 @@ const getActiveCompany = (response: unknown): ActiveCompany | null => {
   const candidates = [response, response.data].filter(isRecord);
 
   for (const candidate of candidates) {
-    const company = toCompany(candidate.company);
-    if (company) return company;
-
     if (typeof candidate.active_company_id === "number") {
       return {
         id: candidate.active_company_id,
@@ -54,6 +53,9 @@ const getActiveCompany = (response: unknown): ActiveCompany | null => {
             : null,
       };
     }
+
+    const company = toCompany(candidate.company);
+    if (company) return company;
   }
 
   return null;

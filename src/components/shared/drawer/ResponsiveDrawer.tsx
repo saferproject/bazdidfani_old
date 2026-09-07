@@ -527,6 +527,9 @@ function ResponsiveDrawer({
 
   const company = useAppSelector((state) => state.user.company);
   const user = useAppSelector((state) => state.user.personal);
+  const activeBranchName = accessibleCompanies.find(
+    (item) => item.id === company?.id,
+  )?.name;
   const showCompanySelector =
     accessibleCompanies.filter((item) => item.can_switch).length > 1;
 
@@ -572,8 +575,8 @@ function ResponsiveDrawer({
             : "justify-center")
         }
       >
-        <Typography className="text-center font-black! text-xl">
-          {company?.name ?? user?.full_name}
+        <Typography className="text-center text-base font-black!">
+          {activeBranchName ?? company?.name ?? user?.full_name}
         </Typography>
         {isCompanyContextFetching ? (
           <CircularProgress size={20} />

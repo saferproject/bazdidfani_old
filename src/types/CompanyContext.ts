@@ -1,5 +1,5 @@
 export type CompanyAccess = {
-  access_scope: "direct" | "descendants";
+  access_scope?: "direct" | "descendants";
   relation: "direct" | "descendant";
   role: "owner" | "manager" | "employee";
   source_company_id: number;
